@@ -11,8 +11,11 @@ import (
 )
 
 var (
-	trim = strings.TrimSpace
-	sf   = fmt.Sprintf
+	// Verbose activates display of messages on console
+	Verbose = true
+
+	// ColorsOn activates use of colors on console
+	ColorsOn = true
 )
 
 // math ---------------------------------------------------------
