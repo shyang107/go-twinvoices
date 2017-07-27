@@ -1,7 +1,0 @@
-DBfilename = "./data/invoices.db"
-IsInitialDB = false
-Verbose = false
-ColorsOn = false
-IsDump = false
-DumpFilename = "./all_invoices.json"
-CaseFilename = "./cases.yaml"
