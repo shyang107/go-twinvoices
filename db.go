@@ -14,19 +14,22 @@ import (
 // DB is database
 var DB *gorm.DB
 
-// initialdb initialize database
-func initialdb() {
+// Initialdb initialize database
+func Initialdb() error {
 	ut.Verbose = true
 	if ut.IsFileExist(Cfg.DBfilename) {
 		pstat("  > Removing file %q ...\n", Cfg.DBfilename)
 		err := os.Remove(Cfg.DBfilename)
 		if err != nil {
-			panic(err)
+			// panic(err)
+			return err
 		}
 	}
+	pstat("  > Creating file %q ...\n", Cfg.DBfilename)
 	db, err := gorm.Open("sqlite3", os.ExpandEnv(Cfg.DBfilename))
 	if err != nil {
-		panic("failed to connect database")
+		// ut.Panic("failed to connect database")
+		return err
 	}
 	defer db.Close()
 	//
@@ -35,9 +38,11 @@ func initialdb() {
 	db.Model(&Invoice{}).Related(&Detail{}, "uin")
 	// db.Model(&Invoice{}).AddUniqueIndex("idx_invoices_number", "uin")
 	// db.Model(&Invoice{}).AddForeignKey("uin", "details(id)", "RESTRICT", "RESTRICT")
+	return nil
 }
 
-func connectdb() {
+// Connectdb connect the database
+func Connectdb() {
 	//初始化并保持连接
 	var err error
 	DB, err = gorm.Open("sqlite3", Cfg.DBfilename)

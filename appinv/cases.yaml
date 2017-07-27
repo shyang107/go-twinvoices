@@ -1,0 +1,39 @@
+- title: "Case: 09102989061-1"
+  input:
+    filename: ./inp/09102989061-1.csv
+    suffix: .csv
+    isbig5: true
+  output:
+    filename: ./inp/09102989061-1.json
+    suffix: .json
+    iswrite: true
+  punch:
+    filename: ./inp/09102989061-1.log
+    suffix: .log
+    iswrite: false
+- title: "Case: 09102989061-2"
+  input:
+    filename: ./inp/09102989061-2.csv
+    suffix: .csv
+    isbig5: true
+  output:
+    filename: ./inp/09102989061-2.json
+    suffix: .json
+    iswrite: true
+  punch:
+    filename: ./inp/09102989061-2.log
+    suffix: .log
+    iswrite: false
+- title: "Case: 09102989061-3"
+  input:
+    filename: ./inp/09102989061-3.csv
+    suffix: .csv
+    isbig5: true
+  output:
+    filename: ./inp/09102989061-3.json
+    suffix: .json
+    iswrite: true
+  punch:
+    filename: ./inp/09102989061-3.log
+    suffix: .log
+    iswrite: false

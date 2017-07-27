@@ -3,11 +3,15 @@ package invoices
 import (
 	"os"
 
+	yaml "gopkg.in/yaml.v2"
+
+	"github.com/cpmech/gosl/io"
 	"github.com/shyang107/go-twinvoices/util"
 )
 
 const (
-	appversion  = "0.0.4"
+	// Version is the version of this app
+	Version     = "0.0.4"
 	fileType    = "INVOICES" // using in text file
 	magicNumber = 0x125D     // using in binary file
 	fileVesion  = 100        // using in all filetype
@@ -17,15 +21,20 @@ const (
 	// LongDateFormat is long date layout
 	LongDateFormat = "2006-01-02 15:04:05 -07:00 MST" // allways using the date
 	// CfgFile is default config file
-	CfgFile = ".invoices.yaml" // the path of config-file
+	CfgFile = "./config.yaml" // the path of config-file
 )
 
 var (
 	// Cfg is configure
 	Cfg *Config
-	// DefaultConfig is default environment settings
-	DefaultConfig = GetDefualtConfig()
 )
+
+func init() {
+	// util.PfBlue("config.init called\n")
+	Cfg = GetDefualtConfig()
+	util.Verbose = Cfg.Verbose
+	util.ColorsOn = Cfg.ColorsOn
+}
 
 // Config decribes configuration
 type Config struct {
@@ -46,7 +55,7 @@ type Config struct {
 
 func (c Config) String() string {
 	tab := util.ArgsTable(
-		"Configuration",
+		"CONFIG",
 		"Filename of database", "DBfilename", c.DBfilename,
 		"Does initalize database?", "IsInitialDB", c.IsInitialDB,
 		"Activate display of messages on console", "Verbose", c.Verbose,
@@ -58,14 +67,53 @@ func (c Config) String() string {
 	return tab
 }
 
+// NewConfig return a new Config veriable
+func NewConfig() (cfg *Config, err error) {
+	if err := cfg.ReadConfigs(); err != nil {
+		// util.Panic("%v\n", err)
+		// fmt.Printf("%v\n", err)
+		cfg = GetDefualtConfig()
+		util.Verbose = cfg.Verbose
+		return cfg, err
+	}
+	return cfg, err
+}
+
 // GetDefualtConfig creates a new Env variable
 func GetDefualtConfig() *Config {
 	return &Config{
 		DBfilename:   os.ExpandEnv("./data/invoices.db"),
 		IsInitialDB:  false,
-		Verbose:      false,
+		Verbose:      true,
+		ColorsOn:     true,
 		IsDump:       false,
 		DumpFilename: os.ExpandEnv("./all_invoices.json"),
 		CaseFilename: os.ExpandEnv("./cases.yaml"),
 	}
+}
+
+// ReadConfigs read the configs
+func (c *Config) ReadConfigs() error {
+	pstat("  > Reading configuration from  %q ...\n", CfgFile)
+	if util.IsFileExist(CfgFile) {
+		b, err := io.ReadFile(CfgFile)
+		if err != nil {
+			return err
+		}
+		err = yaml.Unmarshal(b, Cfg)
+		if err != nil {
+			return err
+		}
+	} else {
+		b, err := yaml.Marshal(Cfg)
+		if err != nil {
+			return err
+		}
+		util.WriteBytesToFile(CfgFile, b)
+	}
+	util.Verbose = c.Verbose
+	util.ColorsOn = c.ColorsOn
+	// plog("Default config:\n%v\n", Cfg)
+	// plog("Default configuration:\n")
+	return nil
 }
