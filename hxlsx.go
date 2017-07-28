@@ -126,24 +126,20 @@ func getDefaultDetailCellStyle() *xlsx.Style {
 func (d *Detail) addTo(r *xlsxtra.Row, id int) {
 	style := getDefaultDetailCellStyle()
 	//
-	r.AddString("")
-	cell := r.AddCell()
-	cell.SetStyle(style)
-	cell.SetInt(id)
+	r.AddCell()
+	r.AddInt(id).SetStyle(style)
 	//
 	val := reflect.ValueOf(*d)
 	n := val.NumField() // typ.NumField()
 	for i := 0; i < n; i++ {
 		vi := val.Field(i).Interface()
-		cell := r.AddCell()
-		cell.SetStyle(style)
 		switch vi.(type) {
 		case gorm.Model:
 			continue
 		case float64:
-			cell.SetFloatWithFormat(vi.(float64), numfmtAccountant)
+			r.AddFloat(numfmtAccountant, vi.(float64)).SetStyle(style)
 		default:
-			cell.SetString(vi.(string)) //(v.String())
+			r.AddString(vi.(string)).SetStyle(style)
 		}
 	}
 }

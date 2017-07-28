@@ -15,13 +15,13 @@ import (
 
 // FileBunker use to backup original file of invoices
 type FileBunker struct {
-	Model    gorm.Model `json:"-" gorm:"embedded"`
-	Name     string     `cht:"檔案名稱" json:"name"`
-	Size     int        `cht:"檔案大小" json:"size"`
-	ModAt    time.Time  `cht:"修改時間" json:"modtime_at" sql:"index"` // modification time
-	Encoding string     `cht:"編碼" json:"encoding"`
-	Checksum string     `cht:"檢查碼" json:"checksum"` //sha256
-	Contents []byte     `cht:"內容" json:"-"`
+	Model    gorm.Model `json:"-" yaml:"-" gorm:"embedded"`
+	Name     string     `cht:"檔案名稱" json:"NAME" yaml:"NAME"`
+	Size     int        `cht:"檔案大小" json:"SIZE" yaml:"SIZE"`
+	ModAt    time.Time  `cht:"修改時間" json:"MODTIME_AT" yaml:"MODTIME_AT" sql:"index"` // modification time
+	Encoding string     `cht:"編碼" json:"ENCODING" yaml:"ENCODING"`
+	Checksum string     `cht:"檢查碼" json:"CHECKSUM" json:"CHECKSUM"` //sha256
+	Contents []byte     `cht:"內容" json:"-" yaml:"-"`
 }
 
 func (f FileBunker) String() string {

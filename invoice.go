@@ -20,19 +20,19 @@ type Invoice struct {
 	// Or alternatively write:
 	Model gorm.Model `json:"-" yaml:"-" gorm:"embedded"`
 	// ID    int    `json:"-" sql:"AUTO_INCREMENT" gorm:"primary_key"`
-	Head  string `cht:"表頭" json:"head" yaml:"head" sql:"DEFAULT:'M'"`
-	State string `cht:"發票狀態" json:"state" yaml:"state"`
+	Head  string `cht:"表頭" json:"HEAD" yaml:"HEAD" sql:"DEFAULT:'M'"`
+	State string `cht:"發票狀態" json:"STATE" yaml:"STATE"`
 	// Uniform-Invoice Number or  tax ID number
-	UINumber string    `cht:"發票號碼" json:"uniform_invoice_number" yaml:"uniform_invoice_number" sql:"size:10;unique;index" gorm:"column:uin"`
-	Date     time.Time `cht:"發票日期" json:"purchase_date" yaml:"purchase_date" sql:"index"`
+	UINumber string    `cht:"發票號碼" json:"UNIFORM_INVOICE_NUMBER" yaml:"UNIFORM_INVOICE_NUMBER" sql:"size:10;unique;index" gorm:"column:uin"`
+	Date     time.Time `cht:"發票日期" json:"PURCHASE_DATE" yaml:"PURCHASE_DATE" sql:"index"`
 	// Date    string     `cht:"發票日期" json:"date" sql:"index"`
-	SUN     string  `cht:"商店統編" json:"store_uniform_number" yaml:"store_uniform_number"`
-	SName   string  `cht:"商店店名" json:"store_name" yaml:"store_name"`
-	CName   string  `cht:"載具名稱" json:"carrier_name" yaml:"carrier_name"`
-	CNumber string  `cht:"載具號碼" json:"carrier_number" yaml:"carrier_number"`
-	Total   float64 `cht:"總金額" json:"total_amount" yaml:"total_amount"`
+	SUN     string  `cht:"商店統編" json:"STORE_UNIFORM_NUMBER" yaml:"STORE_UNIFORM_NUMBER"`
+	SName   string  `cht:"商店店名" json:"STORE_NAME" yaml:"STORE_NAME"`
+	CName   string  `cht:"載具名稱" json:"CARRIER_NAME" yaml:"CARRIER_NAME"`
+	CNumber string  `cht:"載具號碼" json:"CARRIER_NUMBER" yaml:"CARRIER_NUMBER"`
+	Total   float64 `cht:"總金額" json:"TOTAL_AMOUNT" yaml:"TOTAL_AMOUNT"`
 	// one-to-many relationship
-	Details []*Detail `cht:"明細清單" json:"details" json:"details,flow" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
+	Details []*Detail `cht:"明細清單" json:"DETAILS" json:"DETAILS,flow" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
 }
 
 func (pv Invoice) String() string {

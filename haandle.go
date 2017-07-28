@@ -44,9 +44,9 @@ func (c *InputFile) ReadInvoices() ([]*Invoice, error) {
 	case ".xml":
 		pstat("%q\n", "XMLMarshaller")
 		unmarshaller = XMLMarshaller{}
-	case ".xlsx":
-		pstat("%q\n", "XlsMarshaller")
-		unmarshaller = XlsMarshaller{}
+		// case ".xlsx":
+		// 	pstat("%q\n", "XlsMarshaller")
+		// 	unmarshaller = XlsMarshaller{}
 	}
 	if unmarshaller != nil {
 		inpIsBig5 = c.IsBig5

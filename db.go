@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/cpmech/gosl/chk"
 	"github.com/jinzhu/gorm"
-	jsoniter "github.com/json-iterator/go"
 	ut "github.com/shyang107/go-twinvoices/util"
 	// use for sqlite
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -61,9 +61,9 @@ func Connectdb() {
 	DB.Model(&Invoice{}).Related(&Detail{}, "uin")
 }
 
-// DBDumpInvoices get the list from database
-func DBDumpInvoices() ([]Invoice, error) {
-	invs := []Invoice{}
+// DBGetAllInvoices get the list from database
+func DBGetAllInvoices() ([]*Invoice, error) {
+	invs := []*Invoice{}
 	DB.Find(&invs)
 	for i := range invs {
 		// DB.Model(invs[i]).Related(&invs[i].UINumber)
@@ -84,20 +84,40 @@ func DBInsertFrom(pvs []*Invoice) {
 // DBDumpData dumps all data from db
 func DBDumpData(dumpFilename string) error {
 	pstat("  > Dumping data from database %q ...\n", Cfg.DBfilename)
-	pvs, err := DBDumpInvoices()
+	pvs, err := DBGetAllInvoices()
 	if err != nil {
 		return err
 	}
-	// for i, p := range pvs {
-	// 	io.Pfgreen2("Rec. %d : %v\n", i+1, p)
-	// }
-	fn := ut.PathKey(dumpFilename) + ".json"
-	pstat("  >> Marshall data in JSON-type, and then write to %q ...\n", fn)
-	b, err := jsoniter.Marshal(&pvs)
-	if err != nil {
+	return DBWriteInvoices(pvs, dumpFilename)
+}
+
+// DBWriteInvoices write all invoices to the file
+func DBWriteInvoices(invs []*Invoice, fln string) error {
+	fln = os.ExpandEnv(fln)
+	// fn := ut.PathKey(fln) // + ".json"
+	ext := ut.FnExt(fln)
+	pstat("  >> Marshall data in %[2]q, and then write to %[1]q ...\n", fln, ext)
+	var marshaller InvoiceMarshaller
+	switch ext {
+	case ".csv":
+		pstat("%q\n", "CsvMarshaller")
+		marshaller = CsvMarshaller{}
+	case ".jsn", ".json":
+		pstat("%q\n", "JSONMarshaller")
+		marshaller = JSONMarshaller{}
+	case ".yml", ".yaml":
+		pstat("%q\n", "YAMLMarshaller")
+		marshaller = YAMLMarshaller{}
+	case ".xml":
+		pstat("%q\n", "XMLMarshaller")
+		marshaller = XMLMarshaller{}
+	case ".xlsx":
+		pstat("%q\n", "XlsMarshaller")
+		marshaller = XlsMarshaller{}
+	}
+	if marshaller != nil {
+		err := marshaller.MarshalInvoices(fln, invs)
 		return err
 	}
-	ut.WriteBytesToFile(fn, b)
-	printSepline(60)
-	return nil
+	return chk.Err("not supprted %[2]q-type (%[1]q)", fln, ext)
 }
