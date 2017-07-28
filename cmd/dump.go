@@ -14,6 +14,9 @@
 package cmd
 
 import (
+	"os"
+
+	"github.com/cpmech/gosl/io"
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
@@ -44,7 +47,19 @@ func init() {
 }
 
 func dumpAction(c *cli.Context) error {
-	util.PfBlue("dump.dumpAction called\n")
-	pstat("  > Dumping data from %q ...\n", vp.Cfg.DBfilename)
+	util.PfBlue(">> dump.dumpAction called\n")
+	pstat("  > Dumping data from %q to %q ...\n",
+		vp.Cfg.DBfilename, vp.Cfg.DumpFilename)
+	io.Verbose = true
+	pstat("dump all records from database...\n")
+	vp.Cfg.IsDump = true
+	dfn := c.String("file")
+	if len(dfn) > 0 {
+		pchk("%v\n", dfn)
+		vp.Cfg.DumpFilename = dfn
+	}
+	vp.Connectdb()
+	vp.DBDumpData(vp.Cfg.DumpFilename)
+	os.Exit(0)
 	return nil
 }

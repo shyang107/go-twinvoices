@@ -5,19 +5,20 @@ import (
 	"os"
 	"sort"
 
+	homedir "github.com/mitchellh/go-homedir"
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
 )
 
 var (
-	utilverbose = &util.Verbose
+	// utilverbose = &util.Verbose
 	// print
 	pfstart = util.PfCyan
 	pfstop  = util.PfBlue
 	pfsep   = util.Pfdyel2
 	plog    = util.Pf
-	pwarn   = util.Pforan
+	pwarn   = util.Pfred
 	perr    = util.Pflmag
 	prun    = util.PfYel
 	pchk    = util.Pfgreen2
@@ -40,6 +41,7 @@ is encoded by Big-5 of Chinese character encoding method. Unfortunately, most OS
 applocation use utf-8 encoding. This command can transfer a original Big-5 .csv file 
 to other file types using utf-8 encoding; these file types include .json, .xml, .xlsx, 
 or .yaml.`
+	RootApp.Before = initConfig
 	RootApp.Action = rootAction
 	RootApp.Flags = []cli.Flag{
 		cli.BoolFlag{
@@ -57,14 +59,18 @@ or .yaml.`
 // This is called by main.main(). It only needs to happen once to the RootApp.
 func Execute() {
 	util.PfBlue("> root.Execute called\n")
-	initConfig()
+	// initConfig()
 	sort.Sort(cli.FlagsByName(RootApp.Flags))
 	sort.Sort(cli.CommandsByName(RootApp.Commands))
 	if err := RootApp.Run(os.Args); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
-	plog("%v\n", vp.Cfg)
+	//
+	if err := execute(); err != nil {
+		pwarn(err.Error())
+		os.Exit(-1)
+	}
 }
 
 func rootAction(c *cli.Context) error {
@@ -78,7 +84,8 @@ func rootAction(c *cli.Context) error {
 	fln := c.GlobalString("case")
 	if len(fln) > 0 {
 		if !util.IsFileExist(fln) {
-			util.Panic("The specified config-file %q of case does not exist!", fln)
+			pwarn("The specified case-configuration-file %q does not exist!\n", fln)
+			os.Exit(-1)
 		}
 		vp.Cfg.CaseFilename = fln
 	}
@@ -86,9 +93,48 @@ func rootAction(c *cli.Context) error {
 }
 
 // initConfig reads in config file and ENV variables if set.
-func initConfig() {
+func initConfig(c *cli.Context) error {
 	util.PfBlue(">> root.initConfig called\n")
 	if err := vp.Cfg.ReadConfigs(); err != nil {
-		util.Panic("%v\n", err.Error())
+		return err
 	}
+	return nil
+}
+
+func execute() (err error) {
+	plog("%v\n", vp.Cfg)
+	home, err := homedir.Dir()
+	pchk("home:%v\n", home)
+	fln := vp.Cfg.CaseFilename
+	vp.Cases, err = vp.Cfg.ReadCaseConfigs(fln)
+	if err != nil {
+		return err
+	}
+	for _, c := range vp.Cases {
+		util.Pfgreen("%v", *c)
+	}
+	// //
+	// vp.Connectdb()
+	// //
+	// // var fbs = make([]*FileBunker, 0)
+	// // for _, o := range ol.List {
+	// for i := 0; i < len(vp.Cases); i++ {
+	// 	c := vp.Cases[i]
+	// 	plog("%s", c)
+	// 	//
+	// 	if err := c.UpdateFileBunker(); err != nil {
+	// 		return err
+	// 	}
+	// 	//
+	// 	// pvs, err := c.ReadInvoices()
+	// 	// if err != nil {
+	// 	// 	perr("%v\n", err)
+	// 	// 	return err
+	// 	// }
+	// 	// if Opt.IsOutput {
+	// 	// 	err = c.WriteInvoices(pvs)
+	// 	// }
+	// }
+	// // pchk(GetFileBunkerTable(fbs, 0))
+	return nil
 }

@@ -70,7 +70,7 @@ func (f *FileBunker) GetArgsTable(title string, lensp int) string {
 	}
 	// heads = append(heads, tmp...)
 	strSize := util.BytesSizeToString(f.Size)
-	table := util.ArgsTableN(title, lensp, heads,
+	table := util.ArgsTableN(title, lensp, false, heads,
 		f.Name, strSize, f.ModAt.In(location), f.Encoding, f.Checksum, "[略...]")
 	return table
 }
@@ -92,28 +92,28 @@ func GetFileBunkerTable(pfbs []*FileBunker, lensp int) string {
 		data = append(data, i+1,
 			f.Name, strSize, Sf("%v", f.ModAt.In(location)), f.Encoding, f.Checksum, "[略...]")
 	}
-	table := util.ArgsTableN(title, lensp, heads, data...)
+	table := util.ArgsTableN(title, lensp, false, heads, data...)
 	return table
 }
 
 // UpdateFileBunker updates DB
-func (o *Option) UpdateFileBunker() error {
-	fi, err := os.Stat(o.InpFn)
+func (c *Case) UpdateFileBunker() error {
+	fi, err := os.Stat(c.Input.Filename)
 	if err != nil {
 		return err
 	}
-	if strings.ToLower(o.IfnSuffix) == ".csv" && strings.ToLower(o.IfnEncoding) == "big5" {
-		b, err := util.ReadFile(o.InpFn)
+	if strings.ToLower(c.Input.Suffix) == ".csv" && c.Input.IsBig5 {
+		b, err := util.ReadFile(c.Input.Filename)
 		if err != nil {
 			return err
 		}
 		sum := fmt.Sprintf("%x", sha256.Sum256(b))
-		fn := filepath.Base(o.InpFn)
+		fn := filepath.Base(c.Input.Filename)
 		fb := FileBunker{
 			Name:     fn,
 			Size:     int(fi.Size()),
 			ModAt:    fi.ModTime(),
-			Encoding: o.IfnEncoding,
+			Encoding: "big-5",
 			Checksum: sum,
 			Contents: b,
 		}

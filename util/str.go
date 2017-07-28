@@ -92,7 +92,7 @@ func IsChineseChar(str string) bool {
 //                 description, key, value, ...
 func ArgsTable(title string, data ...interface{}) string {
 	heads := []string{"description", "key", "value"}
-	return ArgsTableN(title, 0, heads, data...)
+	return ArgsTableN(title, 0, true, heads, data...)
 }
 
 // ArgsTableN prints a nice table with input arguments
@@ -105,7 +105,7 @@ func ArgsTable(title string, data ...interface{}) string {
 //                 column1, column2, column3, ...
 //                      ...
 //                 column1, column2, column3, ...
-func ArgsTableN(title string, nledsp int, heads []string, data ...interface{}) string {
+func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...interface{}) string {
 	Sf := fmt.Sprintf
 	nf := len(heads)
 	ndat := len(data)
@@ -141,7 +141,6 @@ func ArgsTableN(title string, nledsp int, heads []string, data ...interface{}) s
 	//
 	bw(StrSpaces(m+nledsp) + title + "\n")
 	bw(lspaces + StrThickLine(n))
-	isleft := true
 	sfields := make([]string, nf)
 	for i := 0; i < nf; i++ {
 		sfields[i] = GetColStr(heads[i], sizes[i], isleft)

@@ -61,7 +61,7 @@ func (d *Detail) GetArgsTable(title string, lensp int) string {
 	if lensp < 0 {
 		lensp = 0
 	}
-	table := util.ArgsTableN(title, lensp, dheads, d.Head,
+	table := util.ArgsTableN(title, lensp, false, dheads, d.Head,
 		d.UINumber[0:2]+"-", d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
 	return table
 }
@@ -87,6 +87,6 @@ func GetDetailsTable(pds []*Detail, lensp int) string {
 		data = append(data, i+1, d.Head,
 			d.UINumber[0:2]+"-"+d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
 	}
-	table := util.ArgsTableN(title, lensp, dheads, data...)
+	table := util.ArgsTableN(title, lensp, false, dheads, data...)
 	return table
 }

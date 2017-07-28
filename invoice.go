@@ -81,7 +81,7 @@ func (pv *Invoice) GetArgsTable(title string) string {
 	// "商店統編", "商店店名", "載具名稱", "載具號碼", "總金額", "明細清單"}
 	_, _, _, heads := util.GetFieldsInfo(Invoice{}, "cht", "Model")
 	lensp := 0
-	table := util.ArgsTableN(title, lensp, heads, pv.Head, pv.State,
+	table := util.ArgsTableN(title, lensp, false, heads, pv.Head, pv.State,
 		pv.UINumber[0:2]+"-"+pv.UINumber[2:], pv.Date.Format(ShortDateFormat),
 		pv.SUN, pv.SName, pv.CName, pv.CNumber,
 		Sf("%.1f", pv.Total), "[如下...]")
@@ -233,3 +233,5 @@ func printInvList(pvs []*Invoice) {
 	}
 	pchk("%s", b.String())
 }
+
+//=========================================================

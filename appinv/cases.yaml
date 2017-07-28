@@ -1,39 +1,63 @@
-- title: "Case: 09102989061-1"
+- title: 'CASE #1: [09102989061-1]'
   input:
     filename: ./inp/09102989061-1.csv
     suffix: .csv
     isbig5: true
-  output:
-    filename: ./inp/09102989061-1.json
+  outputs:
+  - filename: ./out/09102989061-1u.csv
+    suffix: .csv
+    isoutput: true
+  - filename: ./out/09102989061-1.json
     suffix: .json
-    iswrite: true
-  punch:
-    filename: ./inp/09102989061-1.log
-    suffix: .log
-    iswrite: false
-- title: "Case: 09102989061-2"
+    isoutput: true
+  - filename: ./out/09102989061-1.xml
+    suffix: .xml
+    isoutput: true
+  - filename: ./out/09102989061-1.xlsx
+    suffix: .xlsx
+    isoutput: true
+  - filename: ./out/09102989061-1.yaml
+    suffix: .yaml
+    isoutput: false
+- title: 'CASE #2: [09102989061-2]'
   input:
     filename: ./inp/09102989061-2.csv
     suffix: .csv
     isbig5: true
-  output:
-    filename: ./inp/09102989061-2.json
+  outputs:
+  - filename: ./out/09102989061-2u.csv
+    suffix: .csv
+    isoutput: true
+  - filename: ./out/09102989061-2.json
     suffix: .json
-    iswrite: true
-  punch:
-    filename: ./inp/09102989061-2.log
-    suffix: .log
-    iswrite: false
-- title: "Case: 09102989061-3"
+    isoutput: true
+  - filename: ./out/09102989061-2.xml
+    suffix: .xml
+    isoutput: true
+  - filename: ./out/09102989061-2.xlsx
+    suffix: .xlsx
+    isoutput: true
+  - filename: ./out/09102989061-2.yaml
+    suffix: .yaml
+    isoutput: false
+- title: 'CASE #3: [09102989061-3]'
   input:
     filename: ./inp/09102989061-3.csv
     suffix: .csv
     isbig5: true
-  output:
-    filename: ./inp/09102989061-3.json
+  outputs:
+  - filename: ./out/09102989061-3u.csv
+    suffix: .csv
+    isoutput: true
+  - filename: ./out/09102989061-3.json
     suffix: .json
-    iswrite: true
-  punch:
-    filename: ./inp/09102989061-3.log
-    suffix: .log
-    iswrite: false
+    isoutput: true
+  - filename: ./out/09102989061-3.xml
+    suffix: .xml
+    isoutput: true
+  - filename: ./out/09102989061-3.xlsx
+    suffix: .xlsx
+    isoutput: true
+  - filename: ./out/09102989061-3.yaml
+    suffix: .yaml
+    isoutput: false

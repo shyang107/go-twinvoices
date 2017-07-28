@@ -63,13 +63,6 @@ func Connectdb() {
 
 // DBDumpInvoices get the list from database
 func DBDumpInvoices() ([]Invoice, error) {
-	// err = DB.Find(pinvs).Error
-	// if err == nil {
-	// 	n := DB.Count(&Invoice{}).
-	// 	for i := 0; i < len(pinvs); i++ {
-	// 		DB.Model(pinvs[i]).Association("details").Find(pinvs[i].Details)
-	// 	}
-	// }
 	invs := []Invoice{}
 	DB.Find(&invs)
 	for i := range invs {
