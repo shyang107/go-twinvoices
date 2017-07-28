@@ -32,7 +32,7 @@ type Invoice struct {
 	CNumber string  `cht:"載具號碼" json:"CARRIER_NUMBER" yaml:"CARRIER_NUMBER"`
 	Total   float64 `cht:"總金額" json:"TOTAL_AMOUNT" yaml:"TOTAL_AMOUNT"`
 	// one-to-many relationship
-	Details []*Detail `cht:"明細清單" json:"DETAILS" json:"DETAILS,flow" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
+	Details []*Detail `cht:"明細清單" json:"DETAILS" yaml:"DETAILS" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
 }
 
 func (pv Invoice) String() string {

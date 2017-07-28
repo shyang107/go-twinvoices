@@ -19,7 +19,7 @@ func (CsvMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	prun("  > Writing data to .csv file %q ...\n", fn)
 	var b bytes.Buffer
 	fmt.Fprintln(&b, fileType)
-	fmt.Fprintln(&b, io.Sf("%v", fileVesion))
+	fmt.Fprintln(&b, io.Sf("%v", fileVersion))
 	for _, pv := range pvs {
 		fmt.Fprintln(&b, pv.toCSVString())
 		for _, d := range pv.Details {
@@ -77,8 +77,8 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 				}
 			case 1:
 				fv := io.Atoi(strings.Trim(line, " "))
-				if fv != fileVesion {
-					panic(chk.Err("version (%v) of .csv file is not matched (%v)", fv, fileVesion))
+				if fv != fileVersion {
+					panic(chk.Err("version (%v) of .csv file is not matched (%v)", fv, fileVersion))
 				}
 			}
 		}

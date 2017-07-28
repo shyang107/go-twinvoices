@@ -7,14 +7,17 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
+	"github.com/kataras/golog"
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/cmd"
 	// "github.com/shyang107/go-twinvoices/cmd"
 	"github.com/shyang107/go-twinvoices/util"
 	// yaml "gopkg.in/yaml.v2"
+	// "github.com/kataras/golog"
 )
 
 // inv "github.com/shyang107/go-twinvoices"
+var glog = golog.New()
 
 func init() {
 	log.SetPrefix("LOG: ")

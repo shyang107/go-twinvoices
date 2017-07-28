@@ -104,7 +104,7 @@ type XMLMarshaller struct{}
 // MarshalInvoices :
 func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 	prun("  > Writing data to .xml file %q ...\n", fn)
-	xvs := xmlInvoices{Version: fileVesion}
+	xvs := xmlInvoices{Version: fileVersion}
 	xvs.Invoices = make([]*xmlInvoice, 0, len(vs))
 	for _, v := range vs {
 		xvs.Invoices = append(xvs.Invoices, v.toXMLInvoice())
@@ -131,7 +131,7 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if err != nil {
 		return nil, err
 	}
-	if pxvs.Version > fileVesion {
+	if pxvs.Version > fileVersion {
 		return nil, fmt.Errorf("version %d is too new to read", pxvs.Version)
 	}
 	pvs := make([]*Invoice, 0, len(pxvs.Invoices))

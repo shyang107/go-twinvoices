@@ -8,9 +8,9 @@ import (
 
 // YAMLInvoices is used for YAML file type
 type YAMLInvoices struct {
-	FileType   string
-	FileVesion int
-	Invoices   []*Invoice
+	FileType    string     `yaml:"FILE_TYPE"`
+	FileVersion int        `yaml:"FILE_VERSION"`
+	Invoices    []*Invoice `yaml:"INVOICES"`
 }
 
 // YAMLMarshaller collects the mathods marshalling or unmarshalling the csv-type data
@@ -20,9 +20,9 @@ type YAMLMarshaller struct{}
 func (YAMLMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	prun("  > Writing data to .jsn or .yaml file %q ...\n", fn)
 	y := YAMLInvoices{
-		FileType:   fileType,
-		FileVesion: fileVesion,
-		Invoices:   invoices,
+		FileType:    fileType,
+		FileVersion: fileVersion,
+		Invoices:    invoices,
 	}
 	// b, err := jsoniter.MarshalIndent(&j, "", "    ")
 	b, err := yaml.Marshal(&y)
@@ -48,8 +48,8 @@ func (YAMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if y.FileType != fileType {
 		return nil, chk.Err("cannot read non-invoices .yaml file")
 	}
-	if y.FileVesion > fileVesion {
-		return nil, chk.Err("version %d is too new to read", y.FileVesion)
+	if y.FileVersion > fileVersion {
+		return nil, chk.Err("version %d is too new to read", y.FileVersion)
 	}
 	plog(GetInvoicesTable(y.Invoices))
 	prun("    updating database ...\n")

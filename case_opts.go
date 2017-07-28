@@ -85,7 +85,7 @@ func (c Case) String() string {
 		// "do output?", "Punch.IsWrite", c.Punch.IsWrite,
 	)
 	title := "OUTPUT List"
-	heads := []string{"Item", "Filename", "IsOutput"}
+	heads := []string{"No", "Filename", "IsOutput"}
 	var data []interface{}
 	for i := 0; i < len(c.Outputs); i++ {
 		of := c.Outputs[i]
@@ -114,7 +114,14 @@ func (c Case) GetTable(title string) string {
 		// "file type", "Punch.Suffix", c.Punch.Suffix,
 		// "do output?", "Punch.IsWrite", c.Punch.IsWrite,
 	)
-
+	otitle := "OUTPUT List"
+	heads := []string{"No", "Filename", "IsOutput"}
+	var data []interface{}
+	for i := 0; i < len(c.Outputs); i++ {
+		of := c.Outputs[i]
+		data = append(data, i+1, of.Filename, of.IsOutput)
+	}
+	tab += util.ArgsTableN(otitle, 4, false, heads, data...)
 	return tab
 }
 

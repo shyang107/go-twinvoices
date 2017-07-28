@@ -8,9 +8,9 @@ import (
 
 // JSONInvoices is used for JSON file type
 type JSONInvoices struct {
-	FileType   string
-	FileVesion int
-	Invoices   []*Invoice
+	FileType    string     `json:"FILE_TYPE"`
+	FileVersion int        `json:"FILE_VERSION"`
+	Invoices    []*Invoice `json:"INVOICES"`
 }
 
 // JSONMarshaller collects the mathods marshalling or unmarshalling the csv-type data
@@ -20,9 +20,9 @@ type JSONMarshaller struct{}
 func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	prun("  > Writing data to .jsn or .json file %q ...\n", fn)
 	j := JSONInvoices{
-		FileType:   fileType,
-		FileVesion: fileVesion,
-		Invoices:   invoices,
+		FileType:    fileType,
+		FileVersion: fileVersion,
+		Invoices:    invoices,
 	}
 	// b, err := jsoniter.MarshalIndent(&j, "", "    ")
 	b, err := jsoniter.Marshal(&j)
@@ -48,8 +48,8 @@ func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if j.FileType != fileType {
 		return nil, chk.Err("cannot read non-invoices json file")
 	}
-	if j.FileVesion > fileVesion {
-		return nil, chk.Err("version %d is too new to read", j.FileVesion)
+	if j.FileVersion > fileVersion {
+		return nil, chk.Err("version %d is too new to read", j.FileVersion)
 	}
 	plog(GetInvoicesTable(j.Invoices))
 	prun("    updating database ...\n")

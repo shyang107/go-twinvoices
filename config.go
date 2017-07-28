@@ -14,7 +14,7 @@ const (
 	Version     = "0.0.4"
 	fileType    = "INVOICES" // using in text file
 	magicNumber = 0x125D     // using in binary file
-	fileVesion  = 100        // using in all filetype
+	fileVersion = 100        // using in all filetype
 	dateFormat  = "20060102" // allways using the date
 	// ShortDateFormat is short date layout
 	ShortDateFormat = "2006-01-02 MST" // allways using the date
