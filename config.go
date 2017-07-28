@@ -38,9 +38,9 @@ func init() {
 
 // Config decribes configuration
 type Config struct {
-	DBfilename string `default:"./data/invoices.db" yaml:"DBfilename"`
+	DBfilename string `default:"./data/invoices.db" yaml:"DB_Filename"`
 	// IsInitializeDB = true to remove DBPath and create new database named DBPath
-	IsInitialDB bool `default:"false" yaml:"IsInitialDB"`
+	IsInitialDB bool `default:"false" yaml:"Is_Initial_DB"`
 	// Verbose activates display of messages on console
 	Verbose bool `default:"false" yaml:"Verbose"`
 	// ColorsOn activates use of colors on console
@@ -48,9 +48,9 @@ type Config struct {
 	// IsDump = true, dumped all records from DBPath
 	IsDump bool `default:"false" yaml:"IsDump"`
 	// DumpFilename is the path dumped all records from DBPath
-	DumpFilename string `default:"./all_invoices.json" yaml:"DumpFilename"`
+	DumpFilename string `default:"./all_invoices.json" yaml:"Dump_Filename"`
 	// CaseFilename is the case settings
-	CaseFilename string `default:"./cases.yaml" yaml:"CaseFilename"`
+	CaseFilename string `default:"./cases.yaml" yaml:"Case_Filename"`
 }
 
 func (c Config) String() string {

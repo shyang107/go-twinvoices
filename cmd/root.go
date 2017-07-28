@@ -5,7 +5,6 @@ import (
 	"os"
 	"sort"
 
-	homedir "github.com/mitchellh/go-homedir"
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
@@ -103,18 +102,13 @@ func initConfig(c *cli.Context) error {
 
 func execute() (err error) {
 	plog("%v\n", vp.Cfg)
-	home, err := homedir.Dir()
-	pchk("home:%v\n", home)
-	fln := vp.Cfg.CaseFilename
-	vp.Cases, err = vp.Cfg.ReadCaseConfigs(fln)
+	vp.Cases, err = vp.Cfg.ReadCaseConfigs(vp.Cfg.CaseFilename)
 	if err != nil {
 		return err
 	}
 	//
 	vp.Connectdb()
 	//
-	// var fbs = make([]*FileBunker, 0)
-	// for _, o := range ol.List {
 	for i := 0; i < len(vp.Cases); i++ {
 		c := vp.Cases[i]
 		plog("%s", c)

@@ -1,7 +1,0 @@
-# invoices configure
-DBfilename: ./data/invoices.db
-IsInitialDB: false
-Verbose: true
-IsDump: false
-DumpFilename: ./all_invoices.json
-CaseFilename: ./cases.yaml

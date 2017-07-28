@@ -1,7 +1,7 @@
-DBfilename: ./data/invoices.db
-IsInitialDB: false
+DB_Filename: ./data/invoices.db
+Is_Initial_DB: false
 Verbose: true
 ColorsOn: true
 IsDump: false
-DumpFilename: ./all_invoices.json
-CaseFilename: ./cases.yaml
+Dump_Filename: ./all_invoices.json
+Case_Filename: ./cases.yaml

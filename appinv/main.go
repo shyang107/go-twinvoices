@@ -31,7 +31,7 @@ func init() {
 func main() {
 	start := time.Now()
 	cmd.Execute()
-	// outConfig("yconfig.yaml")
+	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
 	util.Pf("run-time elapsed : %v\n", time.Since(start))
