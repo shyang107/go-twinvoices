@@ -1,9 +1,14 @@
 package invoices
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/cpmech/gosl/chk"
+)
+
+var (
+	inpIsBig5 = false
 )
 
 // InvoiceMarshaller is marshal-operator of invoices
@@ -17,22 +22,25 @@ type InvoiceUnmarshaller interface {
 }
 
 // ReadInvoices reads invoice-record from fn
-func (c *Case) ReadInvoices() ([]*Invoice, error) {
+func (c *InputFile) ReadInvoices() ([]*Invoice, error) {
 	var unmarshaller InvoiceUnmarshaller
 	startfunc(ffstart) //, "ReadInvoices")
 	// pstat("file-type : %q\n", Opts.IfnSuffix)
 	//
-	var fb = FileBunker{Name: filepath.Base(c.Input.Filename)}
+	var fb = FileBunker{Name: filepath.Base(c.Filename)}
 	DB.Where(&fb).First(&fb)
 	plog((&fb).GetArgsTable("", 0))
 	//
-	switch o.IfnSuffix {
+	switch c.Suffix {
 	case ".csv":
 		pstat("%q\n", "CsvMarshaller")
 		unmarshaller = CsvMarshaller{}
 	case ".jsn", ".json":
 		pstat("%q\n", "JSONMarshaller")
 		unmarshaller = JSONMarshaller{}
+	case ".yml", ".yaml":
+		pstat("%q\n", "YAMLMarshaller")
+		unmarshaller = YAMLMarshaller{}
 	case ".xml":
 		pstat("%q\n", "XMLMarshaller")
 		unmarshaller = XMLMarshaller{}
@@ -41,25 +49,29 @@ func (c *Case) ReadInvoices() ([]*Invoice, error) {
 		unmarshaller = XlsMarshaller{}
 	}
 	if unmarshaller != nil {
-		invs, err := unmarshaller.UnmarshalInvoices(o.InpFn)
+		inpIsBig5 = c.IsBig5
+		invs, err := unmarshaller.UnmarshalInvoices(os.ExpandEnv(c.Filename))
 		stopfunc(ffstop) //, "ReadInvoices")
 		return invs, err
 	}
 	return nil, chk.Err("not supprted file-type : %s (%s)",
-		c.Input.Suffix, c.Input.Filename)
+		c.Suffix, c.Filename)
 }
 
 // WriteInvoices reads invoice-record from fn
-func (c *Case) WriteInvoices(invs []*Invoice) error {
+func (o *OutputFile) WriteInvoices(invs []*Invoice) error {
 	var marshaller InvoiceMarshaller
 	startfunc(ffstart) //, "ReadInvoices")
-	switch o.OfnSuffix {
+	switch o.Suffix {
 	case ".csv":
 		pstat("%q\n", "CsvMarshaller")
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
 		pstat("%q\n", "JSONMarshaller")
 		marshaller = JSONMarshaller{}
+	case ".yml", ".yaml":
+		pstat("%q\n", "YAMLMarshaller")
+		marshaller = YAMLMarshaller{}
 	case ".xml":
 		pstat("%q\n", "XMLMarshaller")
 		marshaller = XMLMarshaller{}
@@ -68,9 +80,9 @@ func (c *Case) WriteInvoices(invs []*Invoice) error {
 		marshaller = XlsMarshaller{}
 	}
 	if marshaller != nil {
-		err := marshaller.MarshalInvoices(o.OutFn, invs)
+		err := marshaller.MarshalInvoices(os.ExpandEnv(o.Filename), invs)
 		stopfunc(ffstop) //, "ReadInvoices")
 		return err
 	}
-	return chk.Err("not supprted file-type : %s (%s)", o.IfnSuffix, o.InpFn)
+	return chk.Err("not supprted file-type : %s (%s)", o.Suffix, o.Filename)
 }

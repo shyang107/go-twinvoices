@@ -18,12 +18,12 @@ type Detail struct {
 	// auto-populate columns: id, created_at, updated_at, deleted_at
 	// gorm.Model
 	// Or alternatively write:
-	Model gorm.Model `json:"-" gorm:"embedded"`
+	Model gorm.Model `json:"-" yaml:"-" gorm:"embedded"`
 	// ID       int     `json:"-" sql:"AUTO_INCREMENT" gorm:"primary_key"`
-	Head     string  `cht:"表頭" json:"head" sql:"DEFAULT:'D'"`
-	UINumber string  `cht:"發票號碼" json:"uniform_invoice_number" sql:"size:10;index" gorm:"column:uin"`
-	Subtotal float64 `cht:"小計" json:"subtotal_amount"`
-	Name     string  `cht:"品項名稱" json:"name"`
+	Head     string  `cht:"表頭" json:"head" yaml:"head" sql:"DEFAULT:'D'"`
+	UINumber string  `cht:"發票號碼" json:"uniform_invoice_number" yaml:"uniform_invoice_number" sql:"size:10;index" gorm:"column:uin"`
+	Subtotal float64 `cht:"小計" json:"subtotal_amount" yaml:"subtotal_amount"`
+	Name     string  `cht:"品項名稱" json:"name" yaml:"name"`
 	// Invoice  *Invoice   `json:"-"`
 }
 

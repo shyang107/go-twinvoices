@@ -18,7 +18,7 @@
     isoutput: true
   - filename: ./out/09102989061-1.yaml
     suffix: .yaml
-    isoutput: false
+    isoutput: true
 - title: 'CASE #2: [09102989061-2]'
   input:
     filename: ./inp/09102989061-2.csv
@@ -39,7 +39,7 @@
     isoutput: true
   - filename: ./out/09102989061-2.yaml
     suffix: .yaml
-    isoutput: false
+    isoutput: true
 - title: 'CASE #3: [09102989061-3]'
   input:
     filename: ./inp/09102989061-3.csv
@@ -60,4 +60,4 @@
     isoutput: true
   - filename: ./out/09102989061-3.yaml
     suffix: .yaml
-    isoutput: false
+    isoutput: true

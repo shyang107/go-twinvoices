@@ -16,10 +16,18 @@ var (
 	Cases []*Case
 
 	// DefaultInput is default setting of InputFile
-	DefaultInput = InputFile{Filename: "./inp/09102989061.csv", Suffix: ".csv", IsBig5: true}
+	DefaultInput = InputFile{
+		Filename: os.ExpandEnv("./inp/09102989061.csv"),
+		Suffix:   ".csv",
+		IsBig5:   true,
+	}
 
 	// DefaultOutput is default setting of OutputFile
-	DefaultOutput = OutputFile{Filename: "./inp/09102989061.json", Suffix: ".json", IsOutput: true}
+	DefaultOutput = OutputFile{
+		Filename: os.ExpandEnv("./inp/09102989061.json"),
+		Suffix:   ".json",
+		IsOutput: true,
+	}
 
 	// DefaultPunch is default setting of PunchFile
 	// DefaultPunch = PunchFile{Filename: "./inp/09102989061.log", Suffix: ".log", IsOutput: false}
@@ -118,7 +126,7 @@ func NewCases() []*Case {
 // ReadCaseConfigs reads the configuration
 func (c *Config) ReadCaseConfigs(fln string) ([]*Case, error) {
 	// startfunc(fostart)
-	fln = os.ExpandEnv(fln)
+	// fln = os.ExpandEnv(fln)
 	suffix := util.FnExt(fln)
 	pstat("  > Reading options from %[2]q file %[1]q ...\n", fln, suffix)
 	// if !isOpened(cpath) {

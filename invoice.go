@@ -18,21 +18,21 @@ type Invoice struct {
 	// auto-populate columns: id, created_at, updated_at, deleted_at
 	// gorm.Model
 	// Or alternatively write:
-	Model gorm.Model `json:"-" gorm:"embedded"`
+	Model gorm.Model `json:"-" yaml:"-" gorm:"embedded"`
 	// ID    int    `json:"-" sql:"AUTO_INCREMENT" gorm:"primary_key"`
-	Head  string `cht:"表頭" json:"head" sql:"DEFAULT:'M'"`
-	State string `cht:"發票狀態" json:"state"`
+	Head  string `cht:"表頭" json:"head" yaml:"head" sql:"DEFAULT:'M'"`
+	State string `cht:"發票狀態" json:"state" yaml:"state"`
 	// Uniform-Invoice Number or  tax ID number
-	UINumber string    `cht:"發票號碼" json:"uniform_invoice_number" sql:"size:10;unique;index" gorm:"column:uin"`
-	Date     time.Time `cht:"發票日期" json:"purchase_date" sql:"index"`
+	UINumber string    `cht:"發票號碼" json:"uniform_invoice_number" yaml:"uniform_invoice_number" sql:"size:10;unique;index" gorm:"column:uin"`
+	Date     time.Time `cht:"發票日期" json:"purchase_date" yaml:"purchase_date" sql:"index"`
 	// Date    string     `cht:"發票日期" json:"date" sql:"index"`
-	SUN     string  `cht:"商店統編" json:"store_uniform_number"`
-	SName   string  `cht:"商店店名" json:"store_name"`
-	CName   string  `cht:"載具名稱" json:"carrier_name"`
-	CNumber string  `cht:"載具號碼" json:"carrier_number"`
-	Total   float64 `cht:"總金額" json:"total_amount"`
+	SUN     string  `cht:"商店統編" json:"store_uniform_number" yaml:"store_uniform_number"`
+	SName   string  `cht:"商店店名" json:"store_name" yaml:"store_name"`
+	CName   string  `cht:"載具名稱" json:"carrier_name" yaml:"carrier_name"`
+	CNumber string  `cht:"載具號碼" json:"carrier_number" yaml:"carrier_number"`
+	Total   float64 `cht:"總金額" json:"total_amount" yaml:"total_amount"`
 	// one-to-many relationship
-	Details []*Detail `cht:"明細清單" json:"Details" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
+	Details []*Detail `cht:"明細清單" json:"details" json:"details,flow" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
 }
 
 func (pv Invoice) String() string {

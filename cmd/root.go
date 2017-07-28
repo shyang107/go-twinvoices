@@ -81,7 +81,7 @@ func rootAction(c *cli.Context) error {
 		util.Verbose = vp.Cfg.Verbose
 	}
 	//
-	fln := c.GlobalString("case")
+	fln := os.ExpandEnv(c.GlobalString("case"))
 	if len(fln) > 0 {
 		if !util.IsFileExist(fln) {
 			pwarn("The specified case-configuration-file %q does not exist!\n", fln)
@@ -110,31 +110,34 @@ func execute() (err error) {
 	if err != nil {
 		return err
 	}
-	for _, c := range vp.Cases {
-		util.Pfgreen("%v", *c)
+	//
+	vp.Connectdb()
+	//
+	// var fbs = make([]*FileBunker, 0)
+	// for _, o := range ol.List {
+	for i := 0; i < len(vp.Cases); i++ {
+		c := vp.Cases[i]
+		plog("%s", c)
+		//
+		if err := c.UpdateFileBunker(); err != nil {
+			return err
+		}
+		//
+		pvs, err := (&c.Input).ReadInvoices()
+		if err != nil {
+			perr("%v\n", err)
+			return err
+		}
+		for j := 0; j < len(c.Outputs); j++ {
+			out := c.Outputs[j]
+			if out.IsOutput {
+				err = out.WriteInvoices(pvs)
+				if err != nil {
+					return err
+				}
+			}
+		}
 	}
-	// //
-	// vp.Connectdb()
-	// //
-	// // var fbs = make([]*FileBunker, 0)
-	// // for _, o := range ol.List {
-	// for i := 0; i < len(vp.Cases); i++ {
-	// 	c := vp.Cases[i]
-	// 	plog("%s", c)
-	// 	//
-	// 	if err := c.UpdateFileBunker(); err != nil {
-	// 		return err
-	// 	}
-	// 	//
-	// 	// pvs, err := c.ReadInvoices()
-	// 	// if err != nil {
-	// 	// 	perr("%v\n", err)
-	// 	// 	return err
-	// 	// }
-	// 	// if Opt.IsOutput {
-	// 	// 	err = c.WriteInvoices(pvs)
-	// 	// }
-	// }
-	// // pchk(GetFileBunkerTable(fbs, 0))
+	// pchk(GetFileBunkerTable(fbs, 0))
 	return nil
 }
