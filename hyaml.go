@@ -21,7 +21,7 @@ type YAMLMarshaller struct{}
 func (YAMLMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	// Prun("  > Writing data to .jsn or .yaml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("> Writing data to .yaml file %q ...", fn)
+	util.Glog.Infof("☞  Writing data to .yaml file %q ...", fn)
 	y := YAMLInvoices{
 		FileType:    fileType,
 		FileVersion: fileVersion,
@@ -40,7 +40,7 @@ func (YAMLMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 func (YAMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("  > Reading data from .jsn or .yaml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("> Reading data from .yaml file %q ...", fn)
+	util.Glog.Infof("☛  Reading data from .yaml file %q ...", fn)
 	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err

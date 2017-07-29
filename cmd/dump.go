@@ -17,7 +17,7 @@ import (
 	"os"
 
 	vp "github.com/shyang107/go-twinvoices"
-	ut "github.com/shyang107/go-twinvoices/util"
+	"github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
 )
 
@@ -39,16 +39,17 @@ var dumpCmd = cli.Command{
 }
 
 func init() {
-	ut.Verbose = vp.Cfg.Verbose
-	ut.ColorsOn = vp.Cfg.ColorsOn
-	// ut.Pdebug("dump.init called\n")
-	ut.Glog.Debugf("* (cmd.dump.init) %q called by %q", ut.CallerName(1), ut.CallerName(2))
+	util.DebugPrintCaller()
+	// ut.Glog.SetLevel("debug")
+	util.Verbose = vp.Cfg.Verbose
+	util.ColorsOn = vp.Cfg.ColorsOn
+	// util.Pdebug("dump.init called\n")
 	RootApp.Commands = append(RootApp.Commands, dumpCmd)
 }
 
 func dumpAction(c *cli.Context) error {
 	// ut.Pdebug(">> dump.dumpAction called\n")
-	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
+	util.DebugPrintCaller()
 	vp.Cfg.IsDump = true
 	dfn := c.String("file")
 	if len(dfn) > 0 {

@@ -23,7 +23,7 @@ type CsvMarshaller struct{}
 func (CsvMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	// Prun("  > Writing data to .csv file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("> Writing data to .csv file %q ...", fn)
+	util.Glog.Infof("☞  Writing data to .csv file %q ...", fn)
 	var b bytes.Buffer
 	fmt.Fprintln(&b, fileType)
 	fmt.Fprintln(&b, io.Sf("%v", fileVersion))
@@ -66,7 +66,7 @@ func (d *Detail) toCSVString() string {
 func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Pstat("  > Reading data from .csv file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("> Reading data from .csv file %q ...", fn)
+	util.Glog.Infof("☛  Reading data from .csv file %q ...", fn)
 	f, err := io.OpenFileR(fn)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,8 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun(">> combining invoices ...\n")
 	combineInvoice(pinvs, pdets)
 	// Plog(GetInvoicesTable(pinvs))
-	util.Glog.Warnf("\n%s", GetInvoicesTable(pinvs))
+	strInvs := GetInvoicesTable(pinvs)
+	util.Glog.Warnf("\n%s", strInvs)
 	// printInvList(pinvs)
 	// Prun(">> updating database ...\n")
 	DBInsertFrom(pinvs)
@@ -119,7 +120,7 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 }
 
 func combineInvoice(pvs []*Invoice, pds []*Detail) {
-	util.Glog.Infof(">> combining invoices ...")
+	util.Glog.Infof("➾  combining invoices ...")
 	for _, d := range pds {
 		no := d.UINumber
 		for _, p := range pvs {

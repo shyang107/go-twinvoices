@@ -74,7 +74,8 @@ func Stopfunc(fid int) {
 
 // DebugPrintCaller print the name of function called and calling
 func DebugPrintCaller() {
-	Glog.Debugf("* %q called by %q", CallerName(2), CallerName(3))
+	msg := fmt.Sprintf("▶ %q called by %q", CallerName(2), CallerName(3))
+	Glog.Debugf(msg)
 }
 
 // PrintSepline print the separate-line

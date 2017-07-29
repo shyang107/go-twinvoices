@@ -7,7 +7,6 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/kataras/golog"
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/cmd"
 	// "github.com/shyang107/go-twinvoices/cmd"
@@ -17,15 +16,28 @@ import (
 )
 
 // inv "github.com/shyang107/go-twinvoices"
-var glog = golog.New()
+// var glog = golog.New()
 
 func init() {
-	log.SetPrefix("LOG: ")
+	// myloger := log.New(os.Stdout, "", 0)
+	// myloger.SetPrefix("LOG: ")
 	// log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
-	log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
+	// myloger.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
 	// log.Println("init started")
 	// io.Verbose = true
 	// util.Verbose = true
+	// util.Glog.InstallStd(myloger)
+
+	// simulate a logrus preparation:
+	// logrus.SetLevel(logrus.InfoLevel)
+	// logrus.SetFormatter(&logrus.JSONFormatter{})
+	// logrus.SetFormatter(&logrus.TextFormatter{})
+	// logrus.SetFormatter(&logrus.TextFormatter{})
+
+	// pass logrus.StandardLogger() to print logs using using the default,
+	// package-level logrus' instance of Logger:
+	// util.Glog.Install(logrus.StandardLogger())
+
 }
 
 func main() {
@@ -34,7 +46,7 @@ func main() {
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	util.Pf("run-time elapsed : %v\n", time.Since(start))
+	util.Glog.Println("run-time elapsed: ", time.Since(start))
 }
 func readCases(fln string) {
 	b, err := util.ReadFile(fln)

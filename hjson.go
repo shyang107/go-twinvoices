@@ -21,7 +21,7 @@ type JSONMarshaller struct{}
 func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	// Prun("  > Writing data to .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("> Writing data to .json file %q ...", fn)
+	util.Glog.Infof("☞  Writing data to .json file %q ...", fn)
 	j := JSONInvoices{
 		FileType:    fileType,
 		FileVersion: fileVersion,
@@ -40,7 +40,7 @@ func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("  > Reading data from .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("> Reading data from .json file %q ...", fn)
+	util.Glog.Infof("☛  Reading data from .json file %q ...", fn)
 	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
