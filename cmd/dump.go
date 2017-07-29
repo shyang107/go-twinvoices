@@ -16,9 +16,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/cpmech/gosl/io"
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/shyang107/go-twinvoices/util"
+	ut "github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
 )
 
@@ -40,23 +39,21 @@ var dumpCmd = cli.Command{
 }
 
 func init() {
-	util.Verbose = vp.Cfg.Verbose
-	util.ColorsOn = vp.Cfg.ColorsOn
-	util.PfBlue("dump.init called\n")
+	ut.Verbose = vp.Cfg.Verbose
+	ut.ColorsOn = vp.Cfg.ColorsOn
+	// ut.Pdebug("dump.init called\n")
+	ut.Glog.Debugf("* (cmd.dump.init) %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	RootApp.Commands = append(RootApp.Commands, dumpCmd)
 }
 
 func dumpAction(c *cli.Context) error {
-	util.PfBlue(">> dump.dumpAction called\n")
-	pstat("  > Dumping data from %q to %q ...\n",
-		vp.Cfg.DBfilename, vp.Cfg.DumpFilename)
-	io.Verbose = true
-	pstat("dump all records from database...\n")
+	// ut.Pdebug(">> dump.dumpAction called\n")
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	vp.Cfg.IsDump = true
 	dfn := c.String("file")
 	if len(dfn) > 0 {
-		pchk("%v\n", dfn)
-		vp.Cfg.DumpFilename = dfn
+		// pchk("%v\n", dfn)
+		vp.Cfg.DumpFilename = os.ExpandEnv(dfn)
 	}
 	vp.Connectdb()
 	vp.DBDumpData(vp.Cfg.DumpFilename)

@@ -1,9 +1,10 @@
 package invoices
 
 import (
-	"github.com/cpmech/gosl/chk"
-	"github.com/cpmech/gosl/io"
+	"fmt"
+
 	"github.com/json-iterator/go"
+	"github.com/shyang107/go-twinvoices/util"
 )
 
 // JSONInvoices is used for JSON file type
@@ -16,9 +17,11 @@ type JSONInvoices struct {
 // JSONMarshaller collects the mathods marshalling or unmarshalling the csv-type data
 type JSONMarshaller struct{}
 
-// MarshalInvoices marshalls the csv-type data of invoices
+// MarshalInvoices marshalls the .json-type data of invoices
 func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
-	prun("  > Writing data to .jsn or .json file %q ...\n", fn)
+	// Prun("  > Writing data to .jsn or .json file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Writing data to .json file %q ...", fn)
 	j := JSONInvoices{
 		FileType:    fileType,
 		FileVersion: fileVersion,
@@ -29,14 +32,16 @@ func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	if err != nil {
 		return err
 	}
-	io.WriteBytesToFile(fn, b)
+	util.WriteBytesToFile(fn, b)
 	return nil
 }
 
-// UnmarshalInvoices unmarshalls the csv-type data of invoices
+// UnmarshalInvoices unmarshalls the .json-type data of invoices
 func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
-	prun("  > Reading data from .jsn or .json file %q ...\n", fn)
-	b, err := io.ReadFile(fn)
+	// Prun("  > Reading data from .jsn or .json file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Reading data from .json file %q ...", fn)
+	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
 	}
@@ -46,13 +51,14 @@ func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 		return nil, err
 	}
 	if j.FileType != fileType {
-		return nil, chk.Err("cannot read non-invoices json file")
+		return nil, fmt.Errorf("cannot read non-invoices json file")
 	}
 	if j.FileVersion > fileVersion {
-		return nil, chk.Err("version %d is too new to read", j.FileVersion)
+		return nil, fmt.Errorf("version %d is too new to read", j.FileVersion)
 	}
-	plog(GetInvoicesTable(j.Invoices))
-	prun("    updating database ...\n")
+	// Plog(GetInvoicesTable(j.Invoices))
+	// Prun("    updating database ...\n")
+	util.Glog.Warnf("\n%s", GetInvoicesTable(j.Invoices))
 	DBInsertFrom(j.Invoices)
 	return j.Invoices, nil
 }

@@ -16,19 +16,22 @@ var DB *gorm.DB
 
 // Initialdb initialize database
 func Initialdb() error {
-	ut.Verbose = true
+	ut.DebugPrintCaller()
+	// ut.Verbose = true
 	if ut.IsFileExist(Cfg.DBfilename) {
-		pstat("  > Removing file %q ...\n", Cfg.DBfilename)
+		// Pstat("  > Removing file %q ...\n", Cfg.DBfilename)
+		ut.Glog.Infof("> Removing file %q ...\n", Cfg.DBfilename)
 		err := os.Remove(Cfg.DBfilename)
 		if err != nil {
 			// panic(err)
 			return err
 		}
 	}
-	pstat("  > Creating file %q ...\n", Cfg.DBfilename)
+	// Pstat("  > Creating file %q ...\n", Cfg.DBfilename)
+	ut.Glog.Infof("  > Creating file %q ...\n", Cfg.DBfilename)
 	db, err := gorm.Open("sqlite3", os.ExpandEnv(Cfg.DBfilename))
 	if err != nil {
-		// ut.Panic("failed to connect database")
+		// Panic("failed to connect database")
 		return err
 	}
 	defer db.Close()
@@ -43,6 +46,8 @@ func Initialdb() error {
 
 // Connectdb connect the database
 func Connectdb() {
+	// ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
+	ut.DebugPrintCaller()
 	//初始化并保持连接
 	var err error
 	DB, err = gorm.Open("sqlite3", Cfg.DBfilename)
@@ -51,7 +56,8 @@ func Connectdb() {
 		log.Fatalf("database connect is err: %s", err.Error())
 	} else {
 		// log.Print("connect database is success")
-		ut.Pfyel("* connect database is success\n")
+		// Pinfo("* connect database is success\n")
+		ut.Glog.Debugf("> connect database is success")
 	}
 	err = DB.DB().Ping()
 	if err != nil {
@@ -63,6 +69,7 @@ func Connectdb() {
 
 // DBGetAllInvoices get the list from database
 func DBGetAllInvoices() ([]*Invoice, error) {
+	ut.DebugPrintCaller()
 	invs := []*Invoice{}
 	DB.Find(&invs)
 	for i := range invs {
@@ -74,6 +81,8 @@ func DBGetAllInvoices() ([]*Invoice, error) {
 
 // DBInsertFrom creats records from []*Invoice into database
 func DBInsertFrom(pvs []*Invoice) {
+	ut.Glog.Infof(">> updating database ...")
+	ut.DebugPrintCaller()
 	for _, v := range pvs {
 		// io.Pforan("# %v", *v)
 		// DB.FirstOrCreate(v)
@@ -83,7 +92,9 @@ func DBInsertFrom(pvs []*Invoice) {
 
 // DBDumpData dumps all data from db
 func DBDumpData(dumpFilename string) error {
-	pstat("  > Dumping data from database %q ...\n", Cfg.DBfilename)
+	ut.DebugPrintCaller()
+	// Prun("  > Dumping data from %q ...\n", Cfg.DBfilename)
+	ut.Glog.Infof(">> Dumping data from %q ...", Cfg.DBfilename)
 	pvs, err := DBGetAllInvoices()
 	if err != nil {
 		return err
@@ -93,26 +104,33 @@ func DBDumpData(dumpFilename string) error {
 
 // DBWriteInvoices write all invoices to the file
 func DBWriteInvoices(invs []*Invoice, fln string) error {
+	ut.DebugPrintCaller()
 	fln = os.ExpandEnv(fln)
-	// fn := ut.PathKey(fln) // + ".json"
+	// fn := PathKey(fln) // + ".json"
 	ext := ut.FnExt(fln)
-	pstat("  >> Marshall data in %[2]q, and then write to %[1]q ...\n", fln, ext)
+	// Prun("  >> Prepare %[2]q data, and then write to %[1]q ...\n", fln, ext)
+	ut.Glog.Infof(">> Prepare %[2]q data, and then write to %[1]q ...", fln, ext)
 	var marshaller InvoiceMarshaller
 	switch ext {
 	case ".csv":
-		pstat("%q\n", "CsvMarshaller")
+		// Pinfo("==> connect to %q\n", "CsvMarshaller")
+		ut.Glog.Debugf("==> connect to %q", "CsvMarshaller")
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
-		pstat("%q\n", "JSONMarshaller")
+		// Pinfo("==> connect to %q\n", "JSONMarshaller")
+		ut.Glog.Debugf("==> connect to %q", "JSONMarshaller")
 		marshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
-		pstat("%q\n", "YAMLMarshaller")
+		// Pinfo("==> connect to %q\n", "YAMLMarshaller")
+		ut.Glog.Debugf("==> connect to %q", "YAMLMarshaller")
 		marshaller = YAMLMarshaller{}
 	case ".xml":
-		pstat("%q\n", "XMLMarshaller")
+		// Pinfo("==> connect to %q\n", "XMLMarshaller")
+		ut.Glog.Debugf("==> connect to %q", "XMLMarshaller")
 		marshaller = XMLMarshaller{}
 	case ".xlsx":
-		pstat("%q\n", "XlsMarshaller")
+		// Pinfo("==> connect to %q\n", "XlsMarshaller")
+		ut.Glog.Debugf("==> connect to %q", "XlsMarshaller")
 		marshaller = XlsMarshaller{}
 	}
 	if marshaller != nil {

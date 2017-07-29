@@ -7,7 +7,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/cpmech/gosl/io"
-	"github.com/shyang107/go-twinvoices/util"
+	ut "github.com/shyang107/go-twinvoices/util"
 	// "github.com/shyang/invoices/inv/goini"
 )
 
@@ -69,7 +69,7 @@ type Case struct {
 func (c Case) String() string {
 	strdashk := strings.Repeat("-", 15)
 	strdashv := strings.Repeat("-", 30)
-	tab := util.ArgsTable(
+	tab := ut.ArgsTable(
 		c.Title,
 		"Input ------------", strdashk, strdashv,
 		"file name", "Input.Filename", c.Input.Filename,
@@ -91,7 +91,7 @@ func (c Case) String() string {
 		of := c.Outputs[i]
 		data = append(data, i+1, of.Filename, of.IsOutput)
 	}
-	tab += util.ArgsTableN(title, 4, false, heads, data...)
+	tab += ut.ArgsTableN(title, 4, false, heads, data...)
 	return tab
 }
 
@@ -99,7 +99,7 @@ func (c Case) String() string {
 func (c Case) GetTable(title string) string {
 	strdashk := strings.Repeat("-", 15)
 	strdashv := strings.Repeat("-", 30)
-	tab := util.ArgsTable(
+	tab := ut.ArgsTable(
 		title,
 		"Input ------------", strdashk, strdashv,
 		"file name", "Input.Filename", c.Input.Filename,
@@ -121,7 +121,7 @@ func (c Case) GetTable(title string) string {
 		of := c.Outputs[i]
 		data = append(data, i+1, of.Filename, of.IsOutput)
 	}
-	tab += util.ArgsTableN(otitle, 4, false, heads, data...)
+	tab += ut.ArgsTableN(otitle, 4, false, heads, data...)
 	return tab
 }
 
@@ -132,14 +132,16 @@ func NewCases() []*Case {
 
 // ReadCaseConfigs reads the configuration
 func (c *Config) ReadCaseConfigs(fln string) ([]*Case, error) {
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	// startfunc(fostart)
 	// fln = os.ExpandEnv(fln)
-	suffix := util.FnExt(fln)
-	pstat("  > Reading options from %[2]q file %[1]q ...\n", fln, suffix)
+	suffix := ut.FnExt(fln)
+	// Pstat("  > Reading options from %[2]q file %[1]q ...\n", fln, suffix)
+	ut.Glog.Infof("  > Reading options from %[2]q file %[1]q ...\n", fln, suffix)
 	// if !isOpened(cpath) {
 	// 	panic(chk.Err("config-file %q can not open", cpath))
 	// }
-	// if util.IsFileExist(fln) {
+	// if IsFileExist(fln) {
 	// 	err := fmt.Errorf("config-file %q does not exist!\n", fln)
 	// 	return nil, err
 	// }

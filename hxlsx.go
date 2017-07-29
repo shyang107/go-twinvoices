@@ -1,13 +1,14 @@
 package invoices
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
-	"github.com/cpmech/gosl/chk"
 	"github.com/jinzhu/gorm"
 	"github.com/stanim/xlsxtra"
 	// "github.com/stanim/xlsxtra"
+	"github.com/shyang107/go-twinvoices/util"
 	"github.com/tealeg/xlsx"
 )
 
@@ -54,11 +55,13 @@ var (
 // XlsMarshaller :
 type XlsMarshaller struct{}
 
-// MarshalInvoices marshal the records of invoice using in .xls file
+// MarshalInvoices marshal the records of invoice using in .xlsx file
 func (XlsMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
-	prun("  > Writing data to .xlsx file %q ...\n", fn)
+	// Prun("  > Writing data to .xlsx file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Writing data to .xlsx file %q ...", fn)
 	if pvs == nil || len(pvs) == 0 {
-		return chk.Err("pvs []*Invoice = nil or it's len = 0 ")
+		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
 	var vh, dh headType
 	_, vh.head = getFieldNameAndChtag(Invoice{})
@@ -202,9 +205,12 @@ func getFieldNameAndChtag(obj interface{}) (fldn, cfldn []string) {
 	return
 }
 
-// UnmarshalInvoices unmarshal the records of invoice using in .xls file
+// UnmarshalInvoices unmarshal the records of invoice using in .xlsx file
 func (XlsMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
-	prun("  > Writing data to .xlsx file %q ...\n", fn)
-	perr("!!! Warning !!! wating %q TODO ...\n", callerName(1))
+	// Prun("  > Writing data to .xlsx file %q ...\n", fn)
+	util.DebugPrintCaller()
+	// util.Glog.Infof("> Reading data from .xlsx file %q ...", fn)
+	// Perr("!!! Warning !!! wating %q TODO ...\n", callerName(1))
+	util.Glog.Warnf("TODO: %q", util.CallerName(1))
 	return nil, nil
 }

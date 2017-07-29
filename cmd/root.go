@@ -6,30 +6,17 @@ import (
 	"sort"
 
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/shyang107/go-twinvoices/util"
+	ut "github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
-)
-
-var (
-	// utilverbose = &util.Verbose
-	// print
-	pfstart = util.PfCyan
-	pfstop  = util.PfBlue
-	pfsep   = util.Pfdyel2
-	plog    = util.Pf
-	pwarn   = util.Pfred
-	perr    = util.Pflmag
-	prun    = util.PfYel
-	pchk    = util.Pfgreen2
-	pstat   = util.Pfyel
 )
 
 // RootApp represents the base command when called without any subcommands
 var RootApp = cli.NewApp()
 
 func init() {
-	// util.Verbose = vp.Cfg.Verbose
-	util.PfBlue("root.init called\n")
+	// ut.Verbose = vp.Cfg.Verbose
+	// ut.Pdebug("root.init called\n")
+	ut.Glog.Debugf("* (cmd.root.init) %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	RootApp.Version = vp.Version
 	RootApp.Authors = []cli.Author{
 		{Name: "S.H. Yang", Email: "shyang107@gmail.com"},
@@ -57,7 +44,8 @@ or .yaml.`
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the RootApp.
 func Execute() {
-	util.PfBlue("> root.Execute called\n")
+	// ut.Pdebug("> root.Execute called\n")
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	// initConfig()
 	sort.Sort(cli.FlagsByName(RootApp.Flags))
 	sort.Sort(cli.CommandsByName(RootApp.Commands))
@@ -67,23 +55,26 @@ func Execute() {
 	}
 	//
 	if err := execute(); err != nil {
-		pwarn(err.Error())
+		// ut.Pwarn(err.Error())
+		ut.Glog.Error(err.Error())
 		os.Exit(-1)
 	}
 }
 
 func rootAction(c *cli.Context) error {
-	util.PfBlue("root.rootAction called\n")
+	// ut.Pdebug("root.rootAction called\n")
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	//
 	if c.GlobalBool("verbose") {
 		vp.Cfg.Verbose = c.GlobalBool("verbose")
-		util.Verbose = vp.Cfg.Verbose
+		ut.Verbose = vp.Cfg.Verbose
 	}
 	//
 	fln := os.ExpandEnv(c.GlobalString("case"))
 	if len(fln) > 0 {
-		if !util.IsFileExist(fln) {
-			pwarn("The specified case-configuration-file %q does not exist!\n", fln)
+		if !ut.IsFileExist(fln) {
+			// ut.Perr("The specified case-configuration-file %q does not exist!\n", fln)
+			ut.Glog.Errorf("The specified case-configuration-file %q does not exist!", fln)
 			os.Exit(-1)
 		}
 		vp.Cfg.CaseFilename = fln
@@ -93,7 +84,8 @@ func rootAction(c *cli.Context) error {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig(c *cli.Context) error {
-	util.PfBlue(">> root.initConfig called\n")
+	// ut.Pdebug(">> root.initConfig called\n")
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	if err := vp.Cfg.ReadConfigs(); err != nil {
 		return err
 	}
@@ -101,7 +93,9 @@ func initConfig(c *cli.Context) error {
 }
 
 func execute() (err error) {
-	plog("%v\n", vp.Cfg)
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
+	// ut.Pinfo("%v\n", vp.Cfg)
+	ut.Glog.Infof("\n%v", vp.Cfg)
 	vp.Cases, err = vp.Cfg.ReadCaseConfigs(vp.Cfg.CaseFilename)
 	if err != nil {
 		return err
@@ -111,7 +105,8 @@ func execute() (err error) {
 	//
 	for i := 0; i < len(vp.Cases); i++ {
 		c := vp.Cases[i]
-		plog("%s", c)
+		// ut.Plog("%s", c)
+		ut.Glog.Infof("\n%v", c)
 		//
 		if err := c.UpdateFileBunker(); err != nil {
 			return err
@@ -119,7 +114,8 @@ func execute() (err error) {
 		//
 		pvs, err := (&c.Input).ReadInvoices()
 		if err != nil {
-			perr("%v\n", err)
+			// ut.Perr("%v\n", err)
+			// ut.Glog.Errorf("%v\n", err)
 			return err
 		}
 		for j := 0; j < len(c.Outputs); j++ {

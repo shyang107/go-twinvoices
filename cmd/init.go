@@ -17,7 +17,7 @@ import (
 	"os"
 
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/shyang107/go-twinvoices/util"
+	ut "github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
 )
 
@@ -31,12 +31,15 @@ var initCmd = cli.Command{
 }
 
 func init() {
-	util.PfBlue("init.init called\n")
+	// ut.Pdebug("init.init called\n")
+	// ut.Pdebug("init.init called\n")
+	ut.Glog.Debugf("* (cmd.init.init) %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	RootApp.Commands = append(RootApp.Commands, initCmd)
 }
 
 func initAction(c *cli.Context) error {
-	util.PfBlue("init.initAction called\n")
+	// ut.Pdebug("init.initAction called\n")
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
 	if err := vp.Initialdb(); err != nil {
 		return err
 	}

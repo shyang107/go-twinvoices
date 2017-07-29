@@ -9,6 +9,11 @@ import (
 	"github.com/cpmech/gosl/chk"
 	"github.com/cpmech/gosl/io"
 	iconv "github.com/djimenez/iconv-go"
+	"github.com/shyang107/go-twinvoices/util"
+)
+
+const (
+	csvSep = "|"
 )
 
 // CsvMarshaller collects the mathods marshalling or unmarshalling the .csv data
@@ -16,7 +21,9 @@ type CsvMarshaller struct{}
 
 // MarshalInvoices marshalls the .csv data of invoices
 func (CsvMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
-	prun("  > Writing data to .csv file %q ...\n", fn)
+	// Prun("  > Writing data to .csv file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Writing data to .csv file %q ...", fn)
 	var b bytes.Buffer
 	fmt.Fprintln(&b, fileType)
 	fmt.Fprintln(&b, io.Sf("%v", fileVersion))
@@ -40,7 +47,7 @@ func (v *Invoice) toCSVString() string {
 		v.SName,
 		v.CName,
 		v.CNumber,
-		io.Sf("%v", v.Total),
+		fmt.Sprintf("%v", v.Total),
 	}
 	return strings.Join(csv, csvSep)
 }
@@ -49,7 +56,7 @@ func (d *Detail) toCSVString() string {
 	csv := []string{
 		d.Head,
 		d.UINumber,
-		io.Sf("%v", d.Subtotal),
+		fmt.Sprintf("%v", d.Subtotal),
 		d.Name,
 	}
 	return strings.Join(csv, csvSep)
@@ -57,7 +64,9 @@ func (d *Detail) toCSVString() string {
 
 // UnmarshalInvoices unmarshalls the .csv data of invoices
 func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
-	pstat("  > Reading data from .csv file %q ...\n", fn)
+	// Pstat("  > Reading data from .csv file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Reading data from .csv file %q ...", fn)
 	f, err := io.OpenFileR(fn)
 	if err != nil {
 		return nil, err
@@ -73,12 +82,12 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 			case 0:
 				ft := strings.Trim(line, " ")
 				if ft != fileType {
-					panic(chk.Err("type of .csv file is not matched (%q)", fileType))
+					util.Panic("type of .csv file is not matched (%q)", fileType)
 				}
 			case 1:
 				fv := io.Atoi(strings.Trim(line, " "))
 				if fv != fileVersion {
-					panic(chk.Err("version (%v) of .csv file is not matched (%v)", fv, fileVersion))
+					util.Panic("version (%v) of .csv file is not matched (%v)", fv, fileVersion)
 				}
 			}
 		}
@@ -99,16 +108,18 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if err != nil {
 		return nil, err
 	}
-	prun("    combining invoices ...\n")
+	// Prun(">> combining invoices ...\n")
 	combineInvoice(pinvs, pdets)
-	plog(GetInvoicesTable(pinvs))
+	// Plog(GetInvoicesTable(pinvs))
+	util.Glog.Warnf("\n%s", GetInvoicesTable(pinvs))
 	// printInvList(pinvs)
-	prun("    updating database ...\n")
+	// Prun(">> updating database ...\n")
 	DBInsertFrom(pinvs)
 	return pinvs, nil
 }
 
 func combineInvoice(pvs []*Invoice, pds []*Detail) {
+	util.Glog.Infof(">> combining invoices ...")
 	for _, d := range pds {
 		no := d.UINumber
 		for _, p := range pvs {
@@ -155,6 +166,6 @@ func unmarshalCSVInvoice(recs []string) *Invoice {
 
 func big5ToUtf8(str string) string {
 	res, err := iconv.ConvertString(str, "big5", "utf-8")
-	checkErr(err)
+	util.CheckErr(err)
 	return res
 }

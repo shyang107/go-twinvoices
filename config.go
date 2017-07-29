@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/cpmech/gosl/io"
-	"github.com/shyang107/go-twinvoices/util"
+	ut "github.com/shyang107/go-twinvoices/util"
 )
 
 const (
@@ -22,6 +22,8 @@ const (
 	LongDateFormat = "2006-01-02 15:04:05 -07:00 MST" // allways using the date
 	// CfgFile is default config file
 	CfgFile = "./config.yaml" // the path of config-file
+	//
+
 )
 
 var (
@@ -30,10 +32,18 @@ var (
 )
 
 func init() {
+	// Time Format defaults to: "2006/01/02 15:04"
+	// you can change it to something else or disable it with:
+	ut.Glog.SetTimeFormat("")
+	// Level defaults to "info",but you can change it:
+	ut.Glog.SetLevel("debug")
+
 	// util.PfBlue("config.init called\n")
 	Cfg = GetDefualtConfig()
-	util.Verbose = Cfg.Verbose
-	util.ColorsOn = Cfg.ColorsOn
+
+	// util
+	ut.Verbose = Cfg.Verbose
+	ut.ColorsOn = Cfg.ColorsOn
 }
 
 // Config decribes configuration
@@ -54,7 +64,7 @@ type Config struct {
 }
 
 func (c Config) String() string {
-	tab := util.ArgsTable(
+	tab := ut.ArgsTable(
 		"CONFIG",
 		"Filename of database", "DBfilename", c.DBfilename,
 		"Does initalize database?", "IsInitialDB", c.IsInitialDB,
@@ -73,7 +83,7 @@ func NewConfig() (cfg *Config, err error) {
 		// util.Panic("%v\n", err)
 		// fmt.Printf("%v\n", err)
 		cfg = GetDefualtConfig()
-		util.Verbose = cfg.Verbose
+		ut.Verbose = cfg.Verbose
 		return cfg, err
 	}
 	return cfg, err
@@ -94,8 +104,11 @@ func GetDefualtConfig() *Config {
 
 // ReadConfigs read the configs
 func (c *Config) ReadConfigs() error {
-	pstat("  > Reading configuration from  %q ...\n", CfgFile)
-	if util.IsFileExist(CfgFile) {
+	ut.Glog.Debugf("* %q called by %q", ut.CallerName(1), ut.CallerName(2))
+	// Prun("  > Reading configuration from  %q ...\n", CfgFile)
+	ut.Glog.Infof("> Reading configuration from  %q ...", CfgFile)
+	//
+	if ut.IsFileExist(CfgFile) {
 		b, err := io.ReadFile(CfgFile)
 		if err != nil {
 			return err
@@ -109,10 +122,10 @@ func (c *Config) ReadConfigs() error {
 		if err != nil {
 			return err
 		}
-		util.WriteBytesToFile(CfgFile, b)
+		ut.WriteBytesToFile(CfgFile, b)
 	}
-	util.Verbose = c.Verbose
-	util.ColorsOn = c.ColorsOn
+	ut.Verbose = c.Verbose
+	ut.ColorsOn = c.ColorsOn
 	// plog("Default config:\n%v\n", Cfg)
 	// plog("Default configuration:\n")
 	return nil

@@ -43,7 +43,7 @@ func (f FileBunker) String() string {
 			str = "[略...]"
 		default:
 			// str = val.Field(i).Interface().(string)
-			str = Sf("%v", val.Field(i).Interface().(string))
+			str = util.Sf("%v", val.Field(i).Interface().(string))
 		}
 		cols = append(cols, Sf("%s:%s", fld.Field(i).Tag.Get("cht"), str))
 	}
@@ -58,6 +58,7 @@ func (FileBunker) TableName() string {
 
 // GetArgsTable :
 func (f *FileBunker) GetArgsTable(title string, lensp int) string {
+	util.DebugPrintCaller()
 	// Sf := fmt.Sprintf
 	location, _ := time.LoadLocation("Local")
 	if len(title) == 0 {
@@ -70,13 +71,14 @@ func (f *FileBunker) GetArgsTable(title string, lensp int) string {
 	}
 	// heads = append(heads, tmp...)
 	strSize := util.BytesSizeToString(f.Size)
-	table := util.ArgsTableN(title, lensp, false, heads,
+	table := util.ArgsTableN(title, lensp, true, heads,
 		f.Name, strSize, f.ModAt.In(location), f.Encoding, f.Checksum, "[略...]")
 	return table
 }
 
 // GetFileBunkerTable returns the table string of the list of []*Detail
 func GetFileBunkerTable(pfbs []*FileBunker, lensp int) string {
+	util.DebugPrintCaller()
 	Sf := fmt.Sprintf
 	location, _ := time.LoadLocation("Local")
 	title := "原始發票檔案清單"
@@ -98,6 +100,7 @@ func GetFileBunkerTable(pfbs []*FileBunker, lensp int) string {
 
 // UpdateFileBunker updates DB
 func (c *Case) UpdateFileBunker() error {
+	util.DebugPrintCaller()
 	fi, err := os.Stat(c.Input.Filename)
 	if err != nil {
 		return err

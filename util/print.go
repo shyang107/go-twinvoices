@@ -2,17 +2,88 @@ package util
 
 import (
 	"fmt"
+	"runtime"
+
+	"github.com/kataras/golog"
+)
+
+const (
+	Fcstart = 101
+	Fcstop  = 102
+	Fostart = 111
+	Fostop  = 112
+	Ffstart = 21
+	Ffstop  = 22
 )
 
 var (
+	// Glog loggin information
+	Glog = golog.New()
+
 	// Verbose activates display of messages on console
 	Verbose = true
 
 	// ColorsOn activates use of colors on console
 	ColorsOn = true
+
+	// Format is the format of message
+	Format = map[int]string{
+		// config
+		Fcstart: "# Start to configure. -- %q\n",
+		Fcstop:  "# Configuration has been concluded. -- %q\n",
+		// option
+		Fostart: "# Start to get case-options. -- %q\n",
+		Fostop:  "# Case-options has been concluded. -- %q\n",
+		// start/end function
+		Ffstart: "* Function %q start.\n",
+		Ffstop:  "* Function %q stop.\n",
+	}
+
+	// print
+	Pfstart = PfCyan
+	Pfstop  = PfBlue
+	Pfsep   = Pfdyel2
+	Prun    = PfYel
+	Pchk    = Pfgreen2
+	Pstat   = Pfyel
+	Plog    = Pf
+	Pinfo   = Pfcyan2
+	Pwarn   = Pforan
+	Perr    = Pfred
+	Pdebug  = Pfgreen2
 )
 
 // print ---------------------------------------------------------
+
+// CallerName return the name of function calling
+func CallerName(idx int) string {
+	pc, _, _, _ := runtime.Caller(idx) //idx = 0 self, 1 for caller, 2 for upper caller
+	return runtime.FuncForPC(pc).Name()
+}
+
+// Startfunc print the message at the start of function
+func Startfunc(fid int) {
+	Pfstart(Format[fid], CallerName(2))
+}
+
+// Stopfunc print the message at the start of function
+func Stopfunc(fid int) {
+	Pfstop(Format[fid], CallerName(2))
+	PrintSepline(60)
+}
+
+// DebugPrintCaller print the name of function called and calling
+func DebugPrintCaller() {
+	Glog.Debugf("* %q called by %q", CallerName(2), CallerName(3))
+}
+
+// PrintSepline print the separate-line
+func PrintSepline(n int) {
+	if n <= 0 {
+		n = 60
+	}
+	Pfsep("%s", StrThinLine(n))
+}
 
 // PrintFormat commands ---------------------------------------------------------
 // modified from "github.com/cpmech/gosl/io"

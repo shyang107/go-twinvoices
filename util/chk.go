@@ -30,3 +30,19 @@ func CallerInfo(idx int) {
 		fmt.Printf("func = %s\n", fname)
 	}
 }
+
+// GetErrMessage get error message if error
+func GetErrMessage(err error) string {
+	if err != nil {
+		return fmt.Sprintf("Error is :'%s'", err.Error())
+	}
+	return "Notfound this error"
+}
+
+// CheckErr check error
+func CheckErr(err error) {
+	if err != nil {
+		// perr(getErrMessage(err))
+		panic(err)
+	}
+}

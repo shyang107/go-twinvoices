@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -52,6 +53,20 @@ func OpenFileR(fn string) (fil *os.File, err error) {
 // ReadFile reads bytes from a file
 func ReadFile(fn string) (b []byte, err error) {
 	return ioutil.ReadFile(os.ExpandEnv(fn))
+}
+
+// AppendToFile appends data to an existent (or new) file
+func AppendToFile(fn string, buffer ...*bytes.Buffer) {
+	fil, err := os.OpenFile(os.ExpandEnv(fn), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		Panic("cannot create file <%s>", fn)
+	}
+	defer fil.Close()
+	for k := range buffer {
+		if buffer[k] != nil {
+			fil.Write(buffer[k].Bytes())
+		}
+	}
 }
 
 // WriteBytesToFile writes slice of bytes to a new file

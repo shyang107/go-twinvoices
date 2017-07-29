@@ -1,8 +1,9 @@
 package invoices
 
 import (
-	"github.com/cpmech/gosl/chk"
-	"github.com/cpmech/gosl/io"
+	"fmt"
+
+	"github.com/shyang107/go-twinvoices/util"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -16,9 +17,11 @@ type YAMLInvoices struct {
 // YAMLMarshaller collects the mathods marshalling or unmarshalling the csv-type data
 type YAMLMarshaller struct{}
 
-// MarshalInvoices marshalls the csv-type data of invoices
+// MarshalInvoices marshalls the .yaml-type data of invoices
 func (YAMLMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
-	prun("  > Writing data to .jsn or .yaml file %q ...\n", fn)
+	// Prun("  > Writing data to .jsn or .yaml file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Writing data to .yaml file %q ...", fn)
 	y := YAMLInvoices{
 		FileType:    fileType,
 		FileVersion: fileVersion,
@@ -29,14 +32,16 @@ func (YAMLMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	if err != nil {
 		return err
 	}
-	io.WriteBytesToFile(fn, b)
+	util.WriteBytesToFile(fn, b)
 	return nil
 }
 
-// UnmarshalInvoices unmarshalls the csv-type data of invoices
+// UnmarshalInvoices unmarshalls the .yaml-type data of invoices
 func (YAMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
-	prun("  > Reading data from .jsn or .yaml file %q ...\n", fn)
-	b, err := io.ReadFile(fn)
+	// Prun("  > Reading data from .jsn or .yaml file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Reading data from .yaml file %q ...", fn)
+	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
 	}
@@ -46,13 +51,14 @@ func (YAMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 		return nil, err
 	}
 	if y.FileType != fileType {
-		return nil, chk.Err("cannot read non-invoices .yaml file")
+		return nil, fmt.Errorf("cannot read non-invoices .yaml file")
 	}
 	if y.FileVersion > fileVersion {
-		return nil, chk.Err("version %d is too new to read", y.FileVersion)
+		return nil, fmt.Errorf("version %d is too new to read", y.FileVersion)
 	}
-	plog(GetInvoicesTable(y.Invoices))
-	prun("    updating database ...\n")
+	// Plog(GetInvoicesTable(y.Invoices))
+	// Prun("    updating database ...\n")
+	util.Glog.Warnf("\n%s", GetInvoicesTable(y.Invoices))
 	DBInsertFrom(y.Invoices)
 	return y.Invoices, nil
 }

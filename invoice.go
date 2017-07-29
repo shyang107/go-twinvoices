@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/shyang107/go-twinvoices/util"
+	ut "github.com/shyang107/go-twinvoices/util"
 )
 
 // Invoice : 消費發票
@@ -57,7 +57,7 @@ func (pv Invoice) String() string {
 		Ff(&b, " %s : %s |", fld.Field(i).Tag.Get("cht"), str)
 	}
 	Ff(&b, "\n")
-	lspaces := util.StrSpaces(4)
+	lspaces := ut.StrSpaces(4)
 	for i, d := range pv.Details {
 		Ff(&b, "%s> %2d. %s", lspaces, i+1, d)
 	}
@@ -79,9 +79,9 @@ func (pv *Invoice) GetArgsTable(title string) string {
 	}
 	// heads := []string{"表頭", "發票狀態", "發票號碼", "發票日期",
 	// "商店統編", "商店店名", "載具名稱", "載具號碼", "總金額", "明細清單"}
-	_, _, _, heads := util.GetFieldsInfo(Invoice{}, "cht", "Model")
+	_, _, _, heads := ut.GetFieldsInfo(Invoice{}, "cht", "Model")
 	lensp := 0
-	table := util.ArgsTableN(title, lensp, false, heads, pv.Head, pv.State,
+	table := ut.ArgsTableN(title, lensp, false, heads, pv.Head, pv.State,
 		pv.UINumber[0:2]+"-"+pv.UINumber[2:], pv.Date.Format(ShortDateFormat),
 		pv.SUN, pv.SName, pv.CName, pv.CNumber,
 		Sf("%.1f", pv.Total), "[如下...]")
@@ -100,7 +100,7 @@ type detailSlcie struct {
 
 // GetInvoicesTable returns the table string of the list of []*Invoice
 func GetInvoicesTable(pinvs []*Invoice) string {
-	Sf, StrSpaces, StrThickLine, StrThinLine := util.Sf, util.StrSpaces, util.StrThickLine, util.StrThinLine
+	Sf, StrSpaces, StrThickLine, StrThinLine := ut.Sf, ut.StrSpaces, ut.StrThickLine, ut.StrThinLine
 	vheads := []string{"項次", "表頭", "發票狀態", "發票號碼", "發票日期",
 		"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
 	dheads := []string{"項次", "表頭", "發票號碼", "小計", "品項名稱"}
@@ -109,10 +109,10 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vsizes := make([]int, vnf)
 	dsizes := make([]int, vnf)
 	for i := 0; i < vnf; i++ {
-		_, _, vsizes[i] = util.CountChars(vheads[i])
+		_, _, vsizes[i] = ut.CountChars(vheads[i])
 	}
 	for i := 0; i < dnf; i++ {
-		_, _, dsizes[i] = util.CountChars(vheads[i])
+		_, _, dsizes[i] = ut.CountChars(vheads[i])
 	}
 	//
 	invs := make([]invoiceSlcie, len(pinvs))
@@ -125,8 +125,8 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 		}
 		for j := 0; j < vnf; j++ {
 			str := Sf("%v", invs[i].data[j])
-			_, _, nmix := util.CountChars(str)
-			vsizes[j] = util.Imax(vsizes[j], nmix)
+			_, _, nmix := ut.CountChars(str)
+			vsizes[j] = ut.Imax(vsizes[j], nmix)
 		}
 		for j := 0; j < len(p.Details); j++ {
 			d := p.Details[j]
@@ -139,14 +139,14 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 			invs[i].details = append(invs[i].details, detail)
 			for k := 0; k < dnf; k++ {
 				str := Sf("%v", detail.data[k])
-				_, _, nmix := util.CountChars(str)
-				dsizes[k] = util.Imax(dsizes[k], nmix)
+				_, _, nmix := ut.CountChars(str)
+				dsizes[k] = ut.Imax(dsizes[k], nmix)
 			}
 		}
 	}
-	vn := util.Isum(vsizes...) + vnf + (vnf-1)*2 + 1
+	vn := ut.Isum(vsizes...) + vnf + (vnf-1)*2 + 1
 	title := "發票清單"
-	_, _, vl := util.CountChars(title)
+	_, _, vl := ut.CountChars(title)
 	vm := (vn - vl) / 2
 	isleft := true
 	//
@@ -158,7 +158,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vhtab := StrThickLine(vn)
 	svfields := make([]string, vnf)
 	for i := 0; i < vnf; i++ {
-		svfields[i] = util.GetColStr(vheads[i], vsizes[i], isleft)
+		svfields[i] = ut.GetColStr(vheads[i], vsizes[i], isleft)
 		switch i {
 		case 0:
 			vhtab += Sf("%v", svfields[i])
@@ -167,12 +167,12 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 		}
 	}
 	vhtab += "\n" + StrThinLine(vn)
-	lspaces := util.StrSpaces(7)
-	dn := util.Isum(dsizes...) + dnf + (dnf-1)*2 + 1
+	lspaces := ut.StrSpaces(7)
+	dn := ut.Isum(dsizes...) + dnf + (dnf-1)*2 + 1
 	dhtab := lspaces + StrThickLine(dn)
 	sdfields := make([]string, dnf)
 	for i := 0; i < dnf; i++ {
-		sdfields[i] = util.GetColStr(dheads[i], dsizes[i], isleft)
+		sdfields[i] = ut.GetColStr(dheads[i], dsizes[i], isleft)
 		switch i {
 		case 0:
 			dhtab += lspaces + Sf("%v", sdfields[i])
@@ -187,7 +187,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 		bws(vhtab)
 		// pchk("%v : %v \n", vnf, v)
 		for j := 0; j < vnf; j++ {
-			svfields[j] = util.GetColStr((*v)[j], vsizes[j], isleft)
+			svfields[j] = ut.GetColStr((*v)[j], vsizes[j], isleft)
 			switch j {
 			case 0:
 				bws(Sf("%v", svfields[j]))
@@ -204,7 +204,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 			for k := 0; k < len(details); k++ {
 				d := &details[k].data
 				for j := 0; j < dnf; j++ {
-					sdfields[j] = util.GetColStr((*d)[j], dsizes[j], isleft)
+					sdfields[j] = ut.GetColStr((*d)[j], dsizes[j], isleft)
 					switch j {
 					case 0:
 						bws(lspaces + Sf("%v", sdfields[j]))
@@ -225,13 +225,14 @@ func printInvList(pvs []*Invoice) {
 	fp := fmt.Fprintf
 	for ip, pv := range pvs {
 		// fp(&b, "%d : %s", ip+1, pv)
-		fp(&b, "%s", pv.GetArgsTable(util.Sf("發票 %d", ip+1)))
+		fp(&b, "%s", pv.GetArgsTable(ut.Sf("發票 %d", ip+1)))
 		// for id, pd := range pv.Details {
 		// 	fp(&b, "%s", pd.GetArgsTable(io.Sf("Invoices[%d] -- Details[%d]", ip, id), 7))
 		// }
 		// fp(&b, "\n")
 	}
-	pchk("%s", b.String())
+	// ut.Pchk("%s", b.String())
+	ut.Glog.Debugf("%s", b.String())
 }
 
 //=========================================================

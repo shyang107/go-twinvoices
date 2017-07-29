@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cpmech/gosl/io"
+	"github.com/shyang107/go-twinvoices/util"
 )
 
 type (
@@ -103,7 +104,9 @@ type XMLMarshaller struct{}
 
 // MarshalInvoices :
 func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
-	prun("  > Writing data to .xml file %q ...\n", fn)
+	// Prun("  > Writing data to .xml file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Writing data to .xml file %q ...", fn)
 	xvs := xmlInvoices{Version: fileVersion}
 	xvs.Invoices = make([]*xmlInvoice, 0, len(vs))
 	for _, v := range vs {
@@ -115,14 +118,16 @@ func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 	if err != nil {
 		return err
 	}
-	io.AppendToFile(fn, bytes.NewBuffer(b))
+	util.AppendToFile(fn, bytes.NewBuffer(b))
 	return nil
 }
 
 // UnmarshalInvoices is used to unmarshal invoices
 func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
-	prun("  > Reading data from .xml file %q ...\n", fn)
-	b, err := io.ReadFile(fn)
+	// Prun("  > Reading data from .xml file %q ...\n", fn)
+	util.DebugPrintCaller()
+	util.Glog.Infof("> Reading data from .xml file %q ...", fn)
+	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
 	}
@@ -134,16 +139,18 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if pxvs.Version > fileVersion {
 		return nil, fmt.Errorf("version %d is too new to read", pxvs.Version)
 	}
-	pvs := make([]*Invoice, 0, len(pxvs.Invoices))
+	pvs := []*Invoice{}
 	for _, xinv := range pxvs.Invoices {
 		pvs = append(pvs, xinv.toInvoice())
 	}
 	// for _, p := range pvs {
 	// 	pchk("%#q\n", *p)
 	// }
-	plog(GetInvoicesTable(pvs))
+	// Plog(GetInvoicesTable(pvs))
 	// pchk("%v\n", vsToTable(pvs))
-	prun("    updating database ...\n")
+	// Prun("    updating database ...\n")
+	util.Glog.Warnf("\n%s", GetInvoicesTable(pvs))
+	// pchk("%v\n", vsToTable(pvs))
 	DBInsertFrom(pvs)
 	return pvs, nil
 }
