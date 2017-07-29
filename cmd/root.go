@@ -115,7 +115,7 @@ func rootAction(c *cli.Context) error {
 // initConfig reads in config file and ENV variables if set.
 func initConfig(c *cli.Context) error {
 	// ut.Pdebug(">> root.initConfig called\n")
-	util.Glog.Debugf("* %q called by %q", util.CallerName(1), util.CallerName(2))
+	util.DebugPrintCaller()
 	if err := vp.Cfg.ReadConfigs(); err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func initConfig(c *cli.Context) error {
 }
 
 func execute() (err error) {
-	util.Glog.Debugf("* %q called by %q", util.CallerName(1), util.CallerName(2))
+	util.DebugPrintCaller()
 	// ut.Pinfo("%v\n", vp.Cfg)
 	util.Glog.Infof("\n%v", vp.Cfg)
 	vp.Cases, err = vp.Cfg.ReadCaseConfigs(vp.Cfg.CaseFilename)
