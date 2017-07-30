@@ -7,12 +7,14 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
+	"github.com/fatih/color"
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/sirupsen/logrus"
 	// "github.com/shyang107/go-twinvoices/cmd"
 	"github.com/shyang107/go-twinvoices/util"
 	// yaml "gopkg.in/yaml.v2"
 	// "github.com/kataras/golog"
+	. "github.com/logrusorgru/aurora"
 )
 
 // inv "github.com/shyang107/go-twinvoices"
@@ -54,10 +56,33 @@ func main() {
 	// cmd.Execute()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
-	readCases("./cases.yaml")
+	// readCases("./cases.yaml")
+	testColors()
 	util.Glog.Println("\nrun-time elapsed: ", time.Since(start))
 }
 
+func testColors() {
+	color.Black("color.Black:%v", "This is testing the colorful text!")
+	color.HiBlack("color.HiBlack:%v", "This is testing the colorful text!")
+	color.Blue("color.Blue:%v", "This is testing the colorful text!")
+	color.HiBlue("color.HiBlue:%v", "This is testing the colorful text!")
+	color.Cyan("color.Cyan:%v", "This is testing the colorful text!")
+	color.HiCyan("color.HiCyan:%v", "This is testing the colorful text!")
+	color.Green("color.Green:%v", "This is testing the colorful text!")
+	color.HiGreen("color.HiGreen:%v", "This is testing the colorful text!")
+	color.Magenta("color.Magenta:%v", "This is testing the colorful text!")
+	color.HiMagenta("color.HiMagenta:%v", "This is testing the colorful text!")
+	color.Red("color.Red:%v", "This is testing the colorful text!")
+	color.HiRed("color.HiRed:%v", "This is testing the colorful text!")
+	color.White("color.White:%v", "This is testing the colorful text!")
+	color.HiWhite("color.HiWhite:%v", "This is testing the colorful text!")
+	color.Yellow("color.Yellow:%v", "This is testing the colorful text!")
+	color.HiYellow("color.HiYellow:%v", "This is testing the colorful text!")
+	fmt.Println("\ngithub.com/logrusorgru/aurora")
+	pl := fmt.Println
+	pl("aurora.Blue: ", Blue("This is testing the colorful text!"))
+	pl("aurora.BgCyan(Blue: ", BgRed(Green("This is testing the colorful text!")))
+}
 func readCases(fln string) {
 	// cfg := vp.GetDefualtConfig()
 	cfg := &vp.Config{CaseFilename: os.ExpandEnv(fln)}
