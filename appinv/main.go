@@ -11,6 +11,7 @@ import (
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/sirupsen/logrus"
 	// "github.com/shyang107/go-twinvoices/cmd"
+	"github.com/shyang107/go-twinvoices/invcmd"
 	"github.com/shyang107/go-twinvoices/util"
 	// yaml "gopkg.in/yaml.v2"
 	// "github.com/kataras/golog"
@@ -53,11 +54,11 @@ func init() {
 
 func main() {
 	start := time.Now()
-	// cmd.Execute()
+	invcmd.Execute()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	testColors()
+	// testColors()
 	util.Glog.Println("\nrun-time elapsed: ", time.Since(start))
 }
 
