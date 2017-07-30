@@ -1,4 +1,4 @@
-package invcmd
+package cmds
 
 import (
 	"os"

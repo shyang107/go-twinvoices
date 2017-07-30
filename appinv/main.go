@@ -9,10 +9,9 @@ import (
 
 	"github.com/fatih/color"
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/sirupsen/logrus"
-	// "github.com/shyang107/go-twinvoices/cmd"
-	"github.com/shyang107/go-twinvoices/invcmd"
+	"github.com/shyang107/go-twinvoices/cmds"
 	"github.com/shyang107/go-twinvoices/util"
+	"github.com/sirupsen/logrus"
 	// yaml "gopkg.in/yaml.v2"
 	// "github.com/kataras/golog"
 	. "github.com/logrusorgru/aurora"
@@ -54,7 +53,7 @@ func init() {
 
 func main() {
 	start := time.Now()
-	invcmd.Execute()
+	cmds.Execute()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
