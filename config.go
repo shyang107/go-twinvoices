@@ -5,7 +5,6 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/cpmech/gosl/io"
 	"github.com/shyang107/go-twinvoices/util"
 )
 
@@ -23,24 +22,27 @@ const (
 	// CfgFile is default config file
 	CfgFile = "./config.yaml" // the path of config-file
 	//
-
 )
 
 var (
 	// Cfg is configure
 	Cfg *Config
+	//
+	Glog     = util.Glog
+	glInfo   = Glog.Info
+	glInfof  = Glog.Infof
+	glWarn   = Glog.Warn
+	glWarnf  = Glog.Warnf
+	glError  = Glog.Error
+	glErrorf = Glog.Errorf
+	glDebug  = Glog.Debug
+	glDebugf = Glog.Debugf
 )
 
 func init() {
-	// Default Output is `os.Stderr`, but you can change it:
-	util.Glog.SetOutput(os.Stdout)
-	// Time Format defaults to: "2006/01/02 15:04"
-	// you can change it to something else or disable it with:
-	util.Glog.SetTimeFormat("")
-
 	// Level defaults to "info",but you can change it:
-	util.Glog.SetLevel("disable")
-	// util.Glog.SetLevel("debug")
+	Glog.SetLevel("disable")
+	// Glog.SetLevel("debug")
 
 	// util.PfBlue("config.init called\n")
 	Cfg = GetDefualtConfig()
@@ -108,12 +110,12 @@ func GetDefualtConfig() *Config {
 
 // ReadConfigs read the configs
 func (c *Config) ReadConfigs() error {
-	util.Glog.Debugf("* %q called by %q", util.CallerName(1), util.CallerName(2))
+	util.DebugPrintCaller()
 	// Prun("  > Reading configuration from  %q ...\n", CfgFile)
-	util.Glog.Infof("> Reading configuration from  %q ...", CfgFile)
+	glInfof("➥  Reading configuration from  %q ...", CfgFile)
 	//
 	if util.IsFileExist(CfgFile) {
-		b, err := io.ReadFile(CfgFile)
+		b, err := util.ReadFile(CfgFile)
 		if err != nil {
 			return err
 		}

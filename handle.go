@@ -32,38 +32,38 @@ func (c *InputFile) ReadInvoices() ([]*Invoice, error) {
 	var fb = FileBunker{Name: filepath.Base(c.Filename)}
 	DB.Where(&fb).First(&fb)
 	// Plog((&fb).GetArgsTable("", 0))
-	util.Glog.Infof("\n%s", (&fb).GetArgsTable("", 0))
+	glInfof("\n%s", (&fb).GetArgsTable("", 0))
 	//
 	switch c.Suffix {
 	case ".csv":
 		// Pinfo("==> connect to %q\n", "CsvMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "CsvMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "CsvMarshaller")
 		unmarshaller = CsvMarshaller{}
 	case ".jsn", ".json":
 		// Pinfo("==> connect to %q\n", "JSONMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "JSONMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "JSONMarshaller")
 		unmarshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
 		// Pinfo("==> connect to %q\n", "YAMLMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "YAMLMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "YAMLMarshaller")
 		unmarshaller = YAMLMarshaller{}
 	case ".xml":
 		// Pinfo("==> connect to %q\n", "XMLMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "XMLMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "XMLMarshaller")
 		unmarshaller = XMLMarshaller{}
 		// case ".xlsx":
 		// 	Pinfo("==> connect to %q\n", "XlsMarshaller")
-		// 	util.Glog.Debugf("==> connect to %q", "XlsMarshaller")
+		// 	glDebugf("==> connect to %q", "XlsMarshaller")
 		// 	unmarshaller = XlsMarshaller{}
 	}
 	if unmarshaller != nil {
 		inpIsBig5 = c.IsBig5
 		invs, err := unmarshaller.UnmarshalInvoices(os.ExpandEnv(c.Filename))
 		// Stopfunc(Ffstop) //, "ReadInvoices")
-		// util.Glog.Debug(util.StrThickLine(60))
+		// glDebug(util.StrThickLine(60))
 		return invs, err
 	}
-	return nil, fmt.Errorf("not supprted file-type : %s (%s)",
+	return nil, fmt.Errorf("☠  not supprted file-type : %s (%s)",
 		c.Suffix, c.Filename)
 }
 
@@ -75,30 +75,30 @@ func (o *OutputFile) WriteInvoices(invs []*Invoice) error {
 	switch o.Suffix {
 	case ".csv":
 		// Pinfo("==> connect to %q\n", "CsvMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "CsvMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "CsvMarshaller")
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
 		// Pinfo("==> connect to %q\n", "JSONMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "JSONMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "JSONMarshaller")
 		marshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
 		// Pinfo("==> connect to %q\n", "YAMLMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "YAMLMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "YAMLMarshaller")
 		marshaller = YAMLMarshaller{}
 	case ".xml":
 		// Pinfo("==> connect to %q\n", "XMLMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "XMLMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "XMLMarshaller")
 		marshaller = XMLMarshaller{}
 	case ".xlsx":
 		// Pinfo("==> connect to %q\n", "XlsMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "XlsMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "XlsMarshaller")
 		marshaller = XlsMarshaller{}
 	}
 	if marshaller != nil {
 		err := marshaller.MarshalInvoices(os.ExpandEnv(o.Filename), invs)
 		// Stopfunc(Ffstop) //, "ReadInvoices")
-		// util.Glog.Debug(util.StrThickLine(60))
+		// glDebug(util.StrThickLine(60))
 		return err
 	}
-	return fmt.Errorf("not supprted file-type : %s (%s)", o.Suffix, o.Filename)
+	return fmt.Errorf("☠  not supprted file-type : %s (%s)", o.Suffix, o.Filename)
 }

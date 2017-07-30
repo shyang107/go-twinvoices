@@ -21,7 +21,7 @@ type JSONMarshaller struct{}
 func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	// Prun("  > Writing data to .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("☞  Writing data to .json file %q ...", fn)
+	glInfof("➥  Writing data to .json file %q ...", fn)
 	j := JSONInvoices{
 		FileType:    fileType,
 		FileVersion: fileVersion,
@@ -40,7 +40,7 @@ func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("  > Reading data from .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("☛  Reading data from .json file %q ...", fn)
+	glInfof("➥  Reading data from .json file %q ...", fn)
 	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
@@ -51,14 +51,14 @@ func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 		return nil, err
 	}
 	if j.FileType != fileType {
-		return nil, fmt.Errorf("cannot read non-invoices json file")
+		return nil, fmt.Errorf("☠  cannot read non-invoices json file")
 	}
 	if j.FileVersion > fileVersion {
-		return nil, fmt.Errorf("version %d is too new to read", j.FileVersion)
+		return nil, fmt.Errorf("☠  version %d is too new to read", j.FileVersion)
 	}
 	// Plog(GetInvoicesTable(j.Invoices))
 	// Prun("    updating database ...\n")
-	util.Glog.Warnf("\n%s", GetInvoicesTable(j.Invoices))
+	glInfof("Invoices list ---\n%s", GetInvoicesTable(j.Invoices))
 	DBInsertFrom(j.Invoices)
 	return j.Invoices, nil
 }

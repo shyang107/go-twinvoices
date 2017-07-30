@@ -3,8 +3,6 @@ package util
 import (
 	"fmt"
 	"runtime"
-
-	"github.com/kataras/golog"
 )
 
 const (
@@ -17,8 +15,6 @@ const (
 )
 
 var (
-	// Glog loggin information
-	Glog = golog.New()
 
 	// Verbose activates display of messages on console
 	Verbose = true
@@ -74,8 +70,9 @@ func Stopfunc(fid int) {
 
 // DebugPrintCaller print the name of function called and calling
 func DebugPrintCaller() {
-	msg := fmt.Sprintf("▶ %q called by %q", CallerName(2), CallerName(3))
-	Glog.Debugf(msg)
+	// msg := Sf("▶ %q called by %q", CallerName(2), CallerName(3))
+	// Glog.Debug(msg)
+	Glog.Debugf("▶ %q called by %q", CallerName(2), CallerName(3))
 }
 
 // PrintSepline print the separate-line

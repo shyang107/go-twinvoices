@@ -106,7 +106,7 @@ func ArgsTable(title string, data ...interface{}) string {
 //                      ...
 //                 column1, column2, column3, ...
 func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...interface{}) string {
-	Sf := fmt.Sprintf
+	// Sf := fmt.Sprintf
 	nf := len(heads)
 	ndat := len(data)
 	if ndat < nf {

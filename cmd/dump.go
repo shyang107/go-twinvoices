@@ -27,7 +27,7 @@ var dfile string
 var dumpCmd = cli.Command{
 	Name:        "dump",
 	Aliases:     []string{"d"},
-	Usage:       "Dump all records from databse",
+	Usage:       "Dump all records from database",
 	Description: "Dump all recirds from database into .json file.",
 	Action:      dumpAction,
 	Flags: []cli.Flag{

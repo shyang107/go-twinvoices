@@ -1,7 +1,6 @@
 package util
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,6 +9,13 @@ import (
 )
 
 // convert ---------------------------------------------------------
+
+var (
+	// Sf is the alias of fmt.Sprintf
+	Sf = fmt.Sprintf
+	// Ff is the alias of fmt.Fprintf
+	Ff = fmt.Fprintf
+)
 
 // Atob converts string to bool
 func Atob(val string) (bres bool) {
@@ -92,12 +98,12 @@ func StrSf(msg string, slice []string) string {
 	return strings.Trim(fmt.Sprintf(msg, slice), "[]")
 }
 
-// Sf wraps Sprintf
-func Sf(msg string, prm ...interface{}) string {
-	return fmt.Sprintf(msg, prm...)
-}
+// // Sf wraps Sprintf
+// func Sf(msg string, prm ...interface{}) string {
+// 	return fmt.Sprintf(msg, prm...)
+// }
 
-// Ff wraps Fprintf
-func Ff(b *bytes.Buffer, msg string, prm ...interface{}) {
-	fmt.Fprintf(b, msg, prm...)
-}
+// // Ff wraps Fprintf
+// func Ff(b *bytes.Buffer, msg string, prm ...interface{}) {
+// 	fmt.Fprintf(b, msg, prm...)
+// }

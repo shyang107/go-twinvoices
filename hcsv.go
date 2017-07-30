@@ -23,7 +23,7 @@ type CsvMarshaller struct{}
 func (CsvMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	// Prun("  > Writing data to .csv file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("☞  Writing data to .csv file %q ...", fn)
+	glInfof("➥  Writing data to .csv file %q ...", fn)
 	var b bytes.Buffer
 	fmt.Fprintln(&b, fileType)
 	fmt.Fprintln(&b, io.Sf("%v", fileVersion))
@@ -66,7 +66,7 @@ func (d *Detail) toCSVString() string {
 func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Pstat("  > Reading data from .csv file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("☛  Reading data from .csv file %q ...", fn)
+	glInfof("➥  Reading data from .csv file %q ...", fn)
 	f, err := io.OpenFileR(fn)
 	if err != nil {
 		return nil, err
@@ -82,12 +82,12 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 			case 0:
 				ft := strings.Trim(line, " ")
 				if ft != fileType {
-					util.Panic("type of .csv file is not matched (%q)", fileType)
+					util.Panic("☠  type of .csv file is not matched (%q)", fileType)
 				}
 			case 1:
 				fv := io.Atoi(strings.Trim(line, " "))
 				if fv != fileVersion {
-					util.Panic("version (%v) of .csv file is not matched (%v)", fv, fileVersion)
+					util.Panic("☠  version (%v) of .csv file is not matched (%v)", fv, fileVersion)
 				}
 			}
 		}
@@ -112,7 +112,7 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	combineInvoice(pinvs, pdets)
 	// Plog(GetInvoicesTable(pinvs))
 	strInvs := GetInvoicesTable(pinvs)
-	util.Glog.Warnf("\n%s", strInvs)
+	glInfof("♲  Invoices list:\n%s", strInvs)
 	// printInvList(pinvs)
 	// Prun(">> updating database ...\n")
 	DBInsertFrom(pinvs)
@@ -120,7 +120,7 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 }
 
 func combineInvoice(pvs []*Invoice, pds []*Detail) {
-	util.Glog.Infof("➾  combining invoices ...")
+	glInfof("♲  combining invoices ...")
 	for _, d := range pds {
 		no := d.UINumber
 		for _, p := range pvs {

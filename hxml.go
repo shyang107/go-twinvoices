@@ -106,7 +106,7 @@ type XMLMarshaller struct{}
 func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 	// Prun("  > Writing data to .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("☞  Writing data to .xml file %q ...", fn)
+	glInfof("➥  Writing data to .xml file %q ...", fn)
 	xvs := xmlInvoices{Version: fileVersion}
 	xvs.Invoices = make([]*xmlInvoice, 0, len(vs))
 	for _, v := range vs {
@@ -126,7 +126,7 @@ func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("  > Reading data from .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	util.Glog.Infof("☛  Reading data from .xml file %q ...", fn)
+	glInfof("➥  Reading data from .xml file %q ...", fn)
 	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 		return nil, err
 	}
 	if pxvs.Version > fileVersion {
-		return nil, fmt.Errorf("version %d is too new to read", pxvs.Version)
+		return nil, fmt.Errorf("☠  version %d is too new to read", pxvs.Version)
 	}
 	pvs := []*Invoice{}
 	for _, xinv := range pxvs.Invoices {
@@ -149,7 +149,7 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Plog(GetInvoicesTable(pvs))
 	// pchk("%v\n", vsToTable(pvs))
 	// Prun("    updating database ...\n")
-	util.Glog.Warnf("\n%s", GetInvoicesTable(pvs))
+	glInfof("Invoices list ---\n%s", GetInvoicesTable(pvs))
 	// pchk("%v\n", vsToTable(pvs))
 	DBInsertFrom(pvs)
 	return pvs, nil

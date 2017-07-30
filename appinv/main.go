@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
 
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/cmd"
+	"github.com/sirupsen/logrus"
 	// "github.com/shyang107/go-twinvoices/cmd"
 	"github.com/shyang107/go-twinvoices/util"
 	// yaml "gopkg.in/yaml.v2"
@@ -17,6 +17,7 @@ import (
 
 // inv "github.com/shyang107/go-twinvoices"
 // var glog = golog.New()
+var log = logrus.New()
 
 func init() {
 	// myloger := log.New(os.Stdout, "", 0)
@@ -33,11 +34,19 @@ func init() {
 	// logrus.SetFormatter(&logrus.JSONFormatter{})
 	// logrus.SetFormatter(&logrus.TextFormatter{})
 	// logrus.SetFormatter(&logrus.TextFormatter{})
-
 	// pass logrus.StandardLogger() to print logs using using the default,
 	// package-level logrus' instance of Logger:
 	// util.Glog.Install(logrus.StandardLogger())
 
+	///////////////////////////////////////////////////////////////////////////
+	// file, err := os.OpenFile(util.TodayFilename(), os.O_CREATE|os.O_WRONLY, 0666)
+	// file, err := util.NewLogFile()
+	// // defer file.Close()
+	// if err == nil {
+	// 	util.Glog.AddOutput(file)
+	// } else {
+	// 	util.Glog.Errf("Failed to log to file, using default stderr")
+	// }
 }
 
 func main() {
@@ -46,8 +55,9 @@ func main() {
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	util.Glog.Println("run-time elapsed: ", time.Since(start))
+	util.Glog.Println("\nrun-time elapsed: ", time.Since(start))
 }
+
 func readCases(fln string) {
 	b, err := util.ReadFile(fln)
 	if err != nil {

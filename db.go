@@ -20,7 +20,7 @@ func Initialdb() error {
 	// util.Verbose = true
 	if util.IsFileExist(Cfg.DBfilename) {
 		// Pstat("  > Removing file %q ...\n", Cfg.DBfilename)
-		util.Glog.Infof("> Removing file %q ...\n", Cfg.DBfilename)
+		glInfof("☞  Removing file %q ...\n", Cfg.DBfilename)
 		err := os.Remove(Cfg.DBfilename)
 		if err != nil {
 			// panic(err)
@@ -28,7 +28,7 @@ func Initialdb() error {
 		}
 	}
 	// Pstat("  > Creating file %q ...\n", Cfg.DBfilename)
-	util.Glog.Infof("  > Creating file %q ...\n", Cfg.DBfilename)
+	glInfof("♲  Creating file %q ...\n", Cfg.DBfilename)
 	db, err := gorm.Open("sqlite3", os.ExpandEnv(Cfg.DBfilename))
 	if err != nil {
 		// Panic("failed to connect database")
@@ -46,23 +46,23 @@ func Initialdb() error {
 
 // Connectdb connect the database
 func Connectdb() {
-	// util.Glog.Debugf("* %q called by %q", util.CallerName(1), util.CallerName(2))
+	// glDebugf("* %q called by %q", util.CallerName(1), util.CallerName(2))
 	util.DebugPrintCaller()
 	//初始化并保持连接
 	var err error
 	DB, err = gorm.Open("sqlite3", Cfg.DBfilename)
 	//    DB.LogMode(true)//打印sql语句
 	if err != nil {
-		log.Fatalf("database connect is err: %s", err.Error())
+		log.Fatalf("☠  Database connect is err: %s", err.Error())
 	} else {
 		// log.Print("connect database is success")
 		// Pinfo("* connect database is success\n")
-		util.Glog.Debugf("➠  connect database is success")
+		glDebugf("♲  Connect database is success")
 	}
 	err = DB.DB().Ping()
 	if err != nil {
 		DB.DB().Close()
-		log.Fatalf("Error on opening database connection: %s", err.Error())
+		log.Fatalf("☠  Error on opening database connection: %s", err.Error())
 	}
 	DB.Model(&Invoice{}).Related(&Detail{}, "uin")
 }
@@ -81,7 +81,7 @@ func DBGetAllInvoices() ([]*Invoice, error) {
 
 // DBInsertFrom creats records from []*Invoice into database
 func DBInsertFrom(pvs []*Invoice) {
-	util.Glog.Infof("♲  Updating database ...")
+	glInfof("♲  Updating database ...")
 	util.DebugPrintCaller()
 	for _, v := range pvs {
 		// io.Pforan("# %v", *v)
@@ -94,7 +94,7 @@ func DBInsertFrom(pvs []*Invoice) {
 func DBDumpData(dumpFilename string) error {
 	util.DebugPrintCaller()
 	// Prun("  > Dumping data from %q ...\n", Cfg.DBfilename)
-	util.Glog.Infof("♲  Dumping data from %q ...", Cfg.DBfilename)
+	glInfof("♲  Dumping data from %q ...", Cfg.DBfilename)
 	pvs, err := DBGetAllInvoices()
 	if err != nil {
 		return err
@@ -109,33 +109,33 @@ func DBWriteInvoices(invs []*Invoice, fln string) error {
 	// fn := PathKey(fln) // + ".json"
 	ext := util.FnExt(fln)
 	// Prun("  ➾  Prepare %[2]q data, and then write to %[1]q ...\n", fln, ext)
-	util.Glog.Infof("➾  Prepare %[2]q data, and then write to %[1]q ...", fln, ext)
+	glInfof("➾  Prepare %[2]q data, and then write to %[1]q ...", fln, ext)
 	var marshaller InvoiceMarshaller
 	switch ext {
 	case ".csv":
 		// Pinfo("==> connect to %q\n", "CsvMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "CsvMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "CsvMarshaller")
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
 		// Pinfo("==> connect to %q\n", "JSONMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "JSONMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "JSONMarshaller")
 		marshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
 		// Pinfo("==> connect to %q\n", "YAMLMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "YAMLMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "YAMLMarshaller")
 		marshaller = YAMLMarshaller{}
 	case ".xml":
 		// Pinfo("==> connect to %q\n", "XMLMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "XMLMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "XMLMarshaller")
 		marshaller = XMLMarshaller{}
 	case ".xlsx":
 		// Pinfo("==> connect to %q\n", "XlsMarshaller")
-		util.Glog.Debugf("➠  connect to ⚓  %q", "XlsMarshaller")
+		glDebugf("➥  Connect to ⚓  %q", "XlsMarshaller")
 		marshaller = XlsMarshaller{}
 	}
 	if marshaller != nil {
 		err := marshaller.MarshalInvoices(fln, invs)
 		return err
 	}
-	return fmt.Errorf("not supprted %[2]q-type (%[1]q)", fln, ext)
+	return fmt.Errorf("☠  Not supprted %[2]q-type (%[1]q)", fln, ext)
 }

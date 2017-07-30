@@ -5,7 +5,8 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"time"
+
+	"github.com/kataras/golog"
 
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
@@ -14,6 +15,21 @@ import (
 
 // RootApp represents the base command when called without any subcommands
 var RootApp = cli.NewApp()
+
+var (
+	Glog     = util.Glog
+	glInfo   = Glog.Info
+	glInfof  = Glog.Infof
+	glWarn   = Glog.Warn
+	glWarnf  = Glog.Warnf
+	glError  = Glog.Error
+	glErrorf = Glog.Errorf
+	glDebug  = Glog.Debug
+	glDebugf = Glog.Debugf
+)
+
+// Rlog is a new instance of logger of logrus
+// var Rlog = logrus.New()
 
 func init() {
 	// ut.Verbose = vp.Cfg.Verbose
@@ -32,18 +48,14 @@ or .yaml.`
 	// RootApp.Before = initConfig
 	RootApp.Action = rootAction
 	RootApp.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "verbose,b",
-			Usage: "verbose output",
-		},
 		cli.StringFlag{
 			Name:  "case,c",
 			Usage: "specify the case file",
 		},
 		cli.StringFlag{
-			Name: "level,l",
-			Usage: `specify the level of output-message 
-	default is "disable", others are "info", "warn", "error", "debug"
+			Name: "verbose,V",
+			Usage: `verbose output of logging information (default log-level is "info") 
+	logging-levle are "disable", "info", "warn", "error", and "debug"
 	"disable" will disable printer
 	"error" will print only errors
 	"warn" will print errors and warnings
@@ -51,6 +63,14 @@ or .yaml.`
 	"debug" will print on any level, errors, warnings, infos and debug messages`,
 		},
 	}
+	///
+	// Default Output is `os.Stderr`, but you can change it:
+	// glSetOutput(os.Stdout)
+	// Time Format defaults to: "2006/01/02 15:04"
+	// you can change it to something else or disable it with:
+	golog.NewLine("\n")
+	Glog.SetTimeFormat("")
+	Glog.SetLevel("info")
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -87,26 +107,30 @@ func rootAction(c *cli.Context) error {
 	if len(fln) > 0 {
 		if !util.IsFileExist(fln) {
 			// ut.Perr("The specified case-configuration-file %q does not exist!\n", fln)
-			util.Glog.Errorf("The specified case-configuration-file %q does not exist!", fln)
+			glErrorf("The specified case-configuration-file %q does not exist!", fln)
 			os.Exit(-1)
 		}
 		vp.Cfg.CaseFilename = fln
 	}
 	//
-	level := strings.ToLower(c.GlobalString("level"))
-	switch level {
-	case "warn", "error", "debug", "info":
-		// f := newLogFile()
-		// defer f.Close()
-		// ut.Glog.AddOutput(f)
-	default:
-		level = "disable"
+	level := strings.ToLower(c.String("verbose"))
+	if len(level) > 0 {
+		vp.Cfg.Verbose, util.Verbose = true, true
+		util.ColorsOn = vp.Cfg.ColorsOn
 	}
-	util.Glog.SetLevel(level)
+	switch level {
+	case "warn":
+	case "error":
+	case "debug":
+	case "disable":
+	default:
+		level = "info"
+	}
+	Glog.SetLevel(level)
 	//
 	if err := execute(); err != nil {
 		// ut.Pwarn(err.Error())
-		util.Glog.Error(err.Error())
+		glError(err.Error())
 		os.Exit(-1)
 	}
 	return nil
@@ -115,7 +139,7 @@ func rootAction(c *cli.Context) error {
 // initConfig reads in config file and ENV variables if set.
 func initConfig(c *cli.Context) error {
 	// ut.Pdebug(">> root.initConfig called\n")
-	util.Glog.Debugf("* %q called by %q", util.CallerName(1), util.CallerName(2))
+	util.DebugPrintCaller()
 	if err := vp.Cfg.ReadConfigs(); err != nil {
 		return err
 	}
@@ -123,9 +147,9 @@ func initConfig(c *cli.Context) error {
 }
 
 func execute() (err error) {
-	util.Glog.Debugf("* %q called by %q", util.CallerName(1), util.CallerName(2))
+	util.DebugPrintCaller()
 	// ut.Pinfo("%v\n", vp.Cfg)
-	util.Glog.Infof("\n%v", vp.Cfg)
+	glInfof("\n%v", vp.Cfg)
 	vp.Cases, err = vp.Cfg.ReadCaseConfigs(vp.Cfg.CaseFilename)
 	if err != nil {
 		return err
@@ -136,7 +160,7 @@ func execute() (err error) {
 	for i := 0; i < len(vp.Cases); i++ {
 		c := vp.Cases[i]
 		// ut.Plog("%s", c)
-		util.Glog.Infof("\n%v", c)
+		glInfof("\n%v", c)
 		//
 		if err := c.UpdateFileBunker(); err != nil {
 			return err
@@ -160,22 +184,4 @@ func execute() (err error) {
 	}
 	// pchk(GetFileBunkerTable(fbs, 0))
 	return nil
-}
-
-// get a filename based on the date, file logs works that way the most times
-// but these are just a sugar.
-func todayFilename() string {
-	today := time.Now().Format("Jan 02 2006")
-	return today + ".log"
-}
-
-func newLogFile() *os.File {
-	filename := todayFilename()
-	// open an output file, this will append to the today's file if server restarted.
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		panic(err)
-	}
-
-	return f
 }

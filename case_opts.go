@@ -6,7 +6,6 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/cpmech/gosl/io"
 	"github.com/shyang107/go-twinvoices/util"
 	// "github.com/shyang/invoices/inv/goini"
 )
@@ -137,7 +136,7 @@ func (c *Config) ReadCaseConfigs(fln string) ([]*Case, error) {
 	// fln = os.ExpandEnv(fln)
 	suffix := util.FnExt(fln)
 	// Pstat("  > Reading options from %[2]q file %[1]q ...\n", fln, suffix)
-	util.Glog.Infof("☛  Reading options from %[2]q file %[1]q ...", fln, suffix)
+	glInfof("➥  Reading options from %[2]q file %[1]q ...", fln, suffix)
 	// if !isOpened(cpath) {
 	// 	panic(chk.Err("config-file %q can not open", cpath))
 	// }
@@ -146,7 +145,7 @@ func (c *Config) ReadCaseConfigs(fln string) ([]*Case, error) {
 	// 	return nil, err
 	// }
 	//
-	b, err := io.ReadFile(fln)
+	b, err := util.ReadFile(fln)
 	if err != nil {
 		return nil, err
 	}
