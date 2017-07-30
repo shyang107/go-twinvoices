@@ -136,21 +136,11 @@ func rootAction(c *cli.Context) error {
 	return nil
 }
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig(c *cli.Context) error {
-	// ut.Pdebug(">> root.initConfig called\n")
-	util.DebugPrintCaller()
-	if err := vp.Cfg.ReadConfigs(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func execute() (err error) {
 	util.DebugPrintCaller()
 	// ut.Pinfo("%v\n", vp.Cfg)
 	glInfof("\n%v", vp.Cfg)
-	vp.Cases, err = vp.Cfg.ReadCaseConfigs(vp.Cfg.CaseFilename)
+	vp.Cases, err = vp.Cfg.ReadCaseConfigs()
 	if err != nil {
 		return err
 	}
@@ -183,5 +173,15 @@ func execute() (err error) {
 		}
 	}
 	// pchk(GetFileBunkerTable(fbs, 0))
+	return nil
+}
+
+// initConfig reads in config file and ENV variables if set.
+func initConfig(c *cli.Context) error {
+	// ut.Pdebug(">> root.initConfig called\n")
+	util.DebugPrintCaller()
+	if err := vp.Cfg.ReadConfigs(); err != nil {
+		return err
+	}
 	return nil
 }

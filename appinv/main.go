@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
 
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/shyang107/go-twinvoices/cmd"
 	"github.com/sirupsen/logrus"
 	// "github.com/shyang107/go-twinvoices/cmd"
 	"github.com/shyang107/go-twinvoices/util"
@@ -51,21 +51,23 @@ func init() {
 
 func main() {
 	start := time.Now()
-	cmd.Execute()
+	// cmd.Execute()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
-	// readCases("./cases.yaml")
+	readCases("./cases.yaml")
 	util.Glog.Println("\nrun-time elapsed: ", time.Since(start))
 }
 
 func readCases(fln string) {
-	b, err := util.ReadFile(fln)
+	// cfg := vp.GetDefualtConfig()
+	cfg := &vp.Config{CaseFilename: os.ExpandEnv(fln)}
+	cases, err := cfg.ReadCaseConfigs()
 	if err != nil {
-		log.Fatalln(err)
+		util.Glog.Error(err.Error())
 	}
-	yaml.Unmarshal(b, &vp.Cases)
-	for _, c := range vp.Cases {
-		util.Pfgreen("%v", *c)
+	util.Verbose = true
+	for _, c := range cases {
+		util.PfGreen("PfGreen:\n%v", *c)
 	}
 }
 

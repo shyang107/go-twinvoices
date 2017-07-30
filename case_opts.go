@@ -130,21 +130,11 @@ func NewCases() []*Case {
 }
 
 // ReadCaseConfigs reads the configuration
-func (c *Config) ReadCaseConfigs(fln string) ([]*Case, error) {
+func (c *Config) ReadCaseConfigs() ([]*Case, error) {
 	util.DebugPrintCaller()
-	// startfunc(fostart)
-	// fln = os.ExpandEnv(fln)
+	fln := os.ExpandEnv(c.CaseFilename)
 	suffix := util.FnExt(fln)
-	// Pstat("  > Reading options from %[2]q file %[1]q ...\n", fln, suffix)
 	glInfof("➥  Reading options from %[2]q file %[1]q ...", fln, suffix)
-	// if !isOpened(cpath) {
-	// 	panic(chk.Err("config-file %q can not open", cpath))
-	// }
-	// if IsFileExist(fln) {
-	// 	err := fmt.Errorf("config-file %q does not exist!\n", fln)
-	// 	return nil, err
-	// }
-	//
 	b, err := util.ReadFile(fln)
 	if err != nil {
 		return nil, err
@@ -155,6 +145,5 @@ func (c *Config) ReadCaseConfigs(fln string) ([]*Case, error) {
 	if err != nil {
 		return nil, err
 	}
-	// stopfunc(fostop)
 	return cases, nil
 }
