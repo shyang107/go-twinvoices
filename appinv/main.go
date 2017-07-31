@@ -5,11 +5,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/kataras/golog"
+
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/fatih/color"
+	"github.com/kataras/pio"
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/shyang107/go-twinvoices/cmds"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/sirupsen/logrus"
 	// yaml "gopkg.in/yaml.v2"
@@ -52,33 +54,90 @@ func init() {
 
 func main() {
 	start := time.Now()
-	cmds.Execute()
+	// cmds.Execute()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	// testColors()
+	testColors()
+	testColors2()
+	testColors3()
+	// testlog()
+	// for i := uint(0); i < 9; i++ {
+	// 	fmt.Printf("1 << %d : %v\n", i, 1<<i)
+	// 	fmt.Printf("(1 + %d) << 8 : %v\n", i, (1+i)<<8)
+	// }
 	println("\n\n", "run-time elapsed: ", time.Since(start).String())
 }
 
+func testlog() {
+	util.Glog.SetLevel("debug")
+	var log golog.ExternalLogger
+	log = util.Glog
+	log.Info("info")
+	log.Error("Error")
+	log.Warn("Warn")
+	log.Debug("Debug")
+}
+
+func testColors3() {
+	util.Pl()
+	util.Pf("*** io.Pf... ***\n")
+	util.Pfcyan("util.Pfcyan\n")
+	util.Pfcyan2("util.Pfcyan2\n")
+	util.Pfyel("util.Pfyel\n")
+	util.Pfdyel("util.Pfdyel\n")
+	util.Pfdyel2("util.Pfdyel2\n")
+	util.Pfred("util.Pfred\n")
+	util.Pfgreen("util.Pfgreen\n")
+	util.Pfgreen2("util.Pfgreen2\n")
+	util.Pfdgreen("util.Pfdgreen\n")
+	util.Pfblue("util.Pfblue\n")
+	util.Pfblue2("util.Pfblue2\n")
+	util.Pfmag("util.Pfmag\n")
+	util.Pfpink("util.Pfpink\n")
+	util.Pfpurple("util.Pfpurple\n")
+	util.Pfgrey("util.Pfgrey\n")
+	util.Pfgrey2("util.Pfgrey2\n")
+	util.Pforan("util.Pforan\n")
+	util.Pf("\n*** io.Pf...: high intensity ***\n")
+	util.PfCyan("util.PfCyan\n")
+	util.PfYel("util.PfYel\n")
+	util.PfGreen("util.PfGreen\n")
+	util.PfBlue("util.PfBlue\n")
+	util.PfMag("util.PfMag\n")
+	util.PfWhite("util.PfWhite\n")
+}
+
+func testColors2() {
+	p := pio.NewTextPrinter("color", os.Stdout)
+	p.Println("*** pio ***")
+	p.Println(pio.Blue("pio.Blue: this is a blue text"))
+	p.Println(pio.Gray("pio.Gray: this is a gray text"))
+	p.Println(pio.Red("pio.Red: this is a red text"))
+	p.Println(pio.Purple("pio.Purple: this is a purple text"))
+	p.Println(pio.Yellow("pio.Yellow: this is a yellow text"))
+	p.Println(pio.Green("pio.Green: this is a green text"))
+}
+
 func testColors() {
-	color.Black("color.Black:%v", "This is testing the colorful text!")
-	color.HiBlack("color.HiBlack:%v", "This is testing the colorful text!")
-	color.Blue("color.Blue:%v", "This is testing the colorful text!")
-	color.HiBlue("color.HiBlue:%v", "This is testing the colorful text!")
-	color.Cyan("color.Cyan:%v", "This is testing the colorful text!")
-	color.HiCyan("color.HiCyan:%v", "This is testing the colorful text!")
-	color.Green("color.Green:%v", "This is testing the colorful text!")
-	color.HiGreen("color.HiGreen:%v", "This is testing the colorful text!")
-	color.Magenta("color.Magenta:%v", "This is testing the colorful text!")
-	color.HiMagenta("color.HiMagenta:%v", "This is testing the colorful text!")
-	color.Red("color.Red:%v", "This is testing the colorful text!")
-	color.HiRed("color.HiRed:%v", "This is testing the colorful text!")
-	color.White("color.White:%v", "This is testing the colorful text!")
-	color.HiWhite("color.HiWhite:%v", "This is testing the colorful text!")
-	color.Yellow("color.Yellow:%v", "This is testing the colorful text!")
-	color.HiYellow("color.HiYellow:%v", "This is testing the colorful text!")
-	cl := color.New(color.BgGreen, color.FgHiWhite)
-	cl.Print("color.New(color.BgRed,color.FgYellow)", "This is testing the colorful text!", "\n")
+	color.Black("color.Black:%v ", "This is testing the colorful text!")
+	color.HiBlack("color.HiBlack:%v ", "This is testing the colorful text!")
+	color.Blue("color.Blue:%v ", "This is testing the colorful text!")
+	color.HiBlue("color.HiBlue:%v ", "This is testing the colorful text!")
+	color.Cyan("color.Cyan:%v ", "This is testing the colorful text!")
+	color.HiCyan("color.HiCyan:%v ", "This is testing the colorful text!")
+	color.Green("color.Green:%v ", "This is testing the colorful text!")
+	color.HiGreen("color.HiGreen:%v ", "This is testing the colorful text!")
+	color.Magenta("color.Magenta:%v ", "This is testing the colorful text!")
+	color.HiMagenta("color.HiMagenta:%v ", "This is testing the colorful text!")
+	color.Red("color.Red:%v ", "This is testing the colorful text!")
+	color.HiRed("color.HiRed:%v ", "This is testing the colorful text!")
+	color.White("color.White:%v ", "This is testing the colorful text!")
+	color.HiWhite("color.HiWhite:%v ", "This is testing the colorful text!")
+	color.Yellow("color.Yellow:%v ", "This is testing the colorful text!")
+	color.HiYellow("color.HiYellow:%v ", "This is testing the colorful text!")
+	cl := color.New(color.BgGreen, color.FgBlack)
+	cl.Print("color.New(color.BgRed,color.FgYellow) ", "This is testing the colorful text!", "\n")
 	util.Pforan("%v %v\n", "Pforan", "This is testing the colorful text!")
 }
 

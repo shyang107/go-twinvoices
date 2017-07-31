@@ -110,7 +110,7 @@ func Stopfunc(fid int) {
 func DebugPrintCaller() {
 	// msg := Sf("▶ %q called by %q", CallerName(2), CallerName(3))
 	// Glog.Debug(msg)
-	if glog.Printer.IsTerminal {
+	if Glog.Printer.IsTerminal {
 		Glog.Debugf("▶ [%s] called by [%s]",
 			color.HiYellowString(CallerName(2)), color.YellowString(CallerName(3)))
 	} else {

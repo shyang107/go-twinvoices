@@ -4,36 +4,29 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
 	"github.com/kataras/golog"
-	"github.com/kataras/pio"
 )
 
 var (
-	glog = golog.New()
-
 	// Glog is a logger of golog
-	Glog MyLogger = glog
-	// enableColor          = &glog.Printer.IsTerminal
+	Glog = golog.New()
+	// Glog MyLogger = glog
 )
 
 // InitLogger initialize logger's environment
 func InitLogger() {
 	golog.NewLine("\n")
-	// golog.InfoText("[INFO]", ColorString("info", "[INFO]"))
-	// golog.WarnText("[WARN]", ColorString("warn", "[WARN]"))
-	// golog.ErrorText("[ERRO]", ColorString("error", "[ERRO]"))
-	// golog.DebugText("[DBUG]", ColorString("debug", "[DBUG]"))
 	golog.InfoText("[INFO]", InfoColorString("[INFO]"))
 	golog.WarnText("[WARN]", WarnColorString("[WARN]"))
 	golog.ErrorText("[ERRO]", ErrorColorString("[ERRO]"))
 	golog.DebugText("[DBUG]", DebugColorString("[DBUG]"))
-	// Default Output is `os.Stderr`, but you can change it:
-	// glSetOutput(os.Stdout)
 	// Time Format defaults to: "2006/01/02 15:04"
 	// you can change it to something else or disable it with:
+	// Glog.SetTimeFormat("2006/01/02 15:04:05")
 	Glog.SetTimeFormat("")
 	Glog.SetLevel("info")
 }
@@ -70,6 +63,7 @@ var (
 
 // fromLevelName return Level code w.r.t levelname
 func fromLevelName(levelName string) Level {
+	levelName = strings.ToLower(levelName)
 	switch levelName {
 	case "error":
 		return ErrorLevel
@@ -133,7 +127,7 @@ type MyLogger interface {
 
 // ColorString gives a colorful string w.r.t. levelname
 func ColorString(levelname, s string) string {
-	if !glog.Printer.IsTerminal {
+	if !Glog.Printer.IsTerminal {
 		return s
 	}
 	return ColorStringFuncs[fromLevelName(levelname)](s)
@@ -152,7 +146,8 @@ func InfoColorString(s string) string {
 
 // WarnColorString return a colorful warn-string
 func WarnColorString(s string) string {
-	return color.HiGreenString(s)
+	// return color.HiGreenString(s)
+	return color.HiMagentaString(s)
 }
 
 // ErrorColorString return a colorful error-string
@@ -163,104 +158,6 @@ func ErrorColorString(s string) string {
 // DebugColorString return a colorful error-string
 func DebugColorString(s string) string {
 	return fmt.Sprintf("[38;5;202m"+"%s"+"[0m", s)
-}
-
-//---------------------------------------------------------
-var (
-	// Glog           = Golog //&Mlogger{}
-	errorWithColor = pio.Red
-	warnWithColor  = pio.Purple
-	infoWithColor  = pio.LightGreen
-	debugWithColor = pio.Yellow
-)
-
-// Level is a number which defines the log level.
-type colorLevel uint32
-
-type colorCode uint32
-
-// const (
-// 	colorCyan colorCode =
-// )
-
-const (
-	nonColor colorLevel = iota
-	errorColor
-	warnColor
-	infoColor
-	debugColor
-)
-
-type Mlogger golog.Logger
-
-func colormsg(clevel colorLevel, fmt string, prm ...interface{}) string {
-	var msg string
-	switch clevel {
-	case errorColor:
-		msg = errorWithColor(Sf(fmt, prm...))
-	case warnColor:
-		msg = warnWithColor(Sf(fmt, prm...))
-	case infoColor:
-		msg = infoWithColor(Sf(fmt, prm...))
-	case debugColor:
-		msg = debugWithColor(Sf(fmt, prm...))
-	default: // nonColor
-		msg = Sf(fmt, prm...)
-	}
-	return msg
-}
-
-func (*Mlogger) Debugf(fmt string, prm ...interface{}) {
-	// msg := colormsg(debugColor, fmt, prm...)
-	// Golog.Debugf(msg,prm...)
-	Glog.Debugf(fmt, prm...)
-}
-func (*Mlogger) Debug(prm ...interface{}) {
-	// msg := colormsg(debugColor, fmt, prm...)
-	// Glog.Debugf(msg,prm...)
-	Glog.Debug(prm...)
-}
-
-func (*Mlogger) Warnf(fmt string, prm ...interface{}) {
-	// msg := colormsg(warnColor, fmt, prm...)
-	// Glog.Warnf(msg)
-	Glog.Warnf(fmt, prm...)
-}
-
-func (*Mlogger) Warn(prm ...interface{}) {
-	// msg := colormsg(warnColor, fmt, prm...)
-	// Glog.Warnf(msg)
-	Glog.Warn(prm...)
-}
-
-func (*Mlogger) Infof(fmt string, prm ...interface{}) {
-	// msg := colormsg(infoColor, fmt, prm...)
-	// Glog.Infof(msg)
-	Glog.Infof(fmt, prm...)
-}
-func (*Mlogger) Info(prm ...interface{}) {
-	// msg := colormsg(infoColor, fmt, prm...)
-	// Glog.Infof(msg)
-	Glog.Info(prm...)
-}
-
-func (*Mlogger) Errorf(fmt string, prm ...interface{}) {
-	// msg := colormsg(debugColor, fmt, prm...)
-	// Glog.Errorf(msg)
-	Glog.Errorf(fmt, prm...)
-}
-func (*Mlogger) Error(prm ...interface{}) {
-	// msg := colormsg(debugColor, fmt, prm...)
-	// Glog.Errorf(msg)
-	Glog.Error(prm...)
-}
-
-func (*Mlogger) Println(prm ...interface{}) {
-	Glog.Println(prm...)
-}
-
-func (*Mlogger) Print(prm ...interface{}) {
-	Glog.Print(prm...)
 }
 
 //---------------------------------------------------------
