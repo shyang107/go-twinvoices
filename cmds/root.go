@@ -6,9 +6,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/fatih/color"
-	"github.com/kataras/golog"
-
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
@@ -64,21 +61,9 @@ or .yaml.`
 	"debug" will print on any level, errors, warnings, infos and debug messages`,
 		},
 	}
-	///
-	// Default Output is `os.Stderr`, but you can change it:
-	// glSetOutput(os.Stdout)
-	// Time Format defaults to: "2006/01/02 15:04"
-	// you can change it to something else or disable it with:
-	golog.NewLine("\n")
-	// golog.InfoText("info", color.HiGreenString("[INFO]"))
-	golog.InfoText("info", color.HiCyanString("[INFO]"))
-	// golog.WarnText("warn", color.HiMagentaString("[WARN]"))
-	golog.WarnText("warn", color.HiGreenString("[WARN]"))
-	golog.ErrorText("error", color.HiRedString("[ERRO]"))
-	golog.DebugText("debug", fmt.Sprintf("[38;5;202m"+"%s"+"[0m", "[DEBUG]"))
-	//
-	Glog.SetTimeFormat("")
-	Glog.SetLevel("info")
+	///=========================================================================
+	util.InitLogger()
+
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

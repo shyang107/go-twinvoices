@@ -113,29 +113,25 @@ func DBWriteInvoices(invs []*Invoice, fln string) error {
 	var marshaller InvoiceMarshaller
 	switch ext {
 	case ".csv":
-		// Pinfo("==> connect to %q\n", "CsvMarshaller")
-		glDebugf("➥  Connect to ⚓  %q", "CsvMarshaller")
+		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "CsvMarshaller"))
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
-		// Pinfo("==> connect to %q\n", "JSONMarshaller")
-		glDebugf("➥  Connect to ⚓  %q", "JSONMarshaller")
+		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "JSONMarshaller"))
 		marshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
-		// Pinfo("==> connect to %q\n", "YAMLMarshaller")
-		glDebugf("➥  Connect to ⚓  %q", "YAMLMarshaller")
+		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "YAMLMarshaller"))
 		marshaller = YAMLMarshaller{}
 	case ".xml":
-		// Pinfo("==> connect to %q\n", "XMLMarshaller")
-		glDebugf("➥  Connect to ⚓  %q", "XMLMarshaller")
+		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "XMLMarshaller"))
 		marshaller = XMLMarshaller{}
 	case ".xlsx":
-		// Pinfo("==> connect to %q\n", "XlsMarshaller")
-		glDebugf("➥  Connect to ⚓  %q", "XlsMarshaller")
-		marshaller = XlsMarshaller{}
+		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "XlsxMarshaller"))
+		marshaller = XlsxMarshaller{}
 	}
 	if marshaller != nil {
 		err := marshaller.MarshalInvoices(fln, invs)
 		return err
 	}
-	return fmt.Errorf("☠  Not supprted %[2]q-type (%[1]q)", fln, ext)
+	return fmt.Errorf("☠  Not supprted %[2]q-type (%[1]q)",
+		util.ColorString("error", fln), util.ColorString("error", ext))
 }

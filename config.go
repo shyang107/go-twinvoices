@@ -5,6 +5,7 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
+	"github.com/kataras/golog"
 	"github.com/shyang107/go-twinvoices/util"
 )
 
@@ -41,7 +42,7 @@ var (
 
 func init() {
 	// Level defaults to "info",but you can change it:
-	Glog.SetLevel("disable")
+	golog.SetLevel("disable")
 	// Glog.SetLevel("debug")
 
 	// util.PfBlue("config.init called\n")
@@ -112,7 +113,7 @@ func GetDefualtConfig() *Config {
 func (c *Config) ReadConfigs() error {
 	util.DebugPrintCaller()
 	// Prun("  > Reading configuration from  %q ...\n", CfgFile)
-	glInfof("➥  Reading configuration from  %q ...", CfgFile)
+	glInfof("➥  Reading configuration from  [%s] ...", util.ColorString("info", CfgFile))
 	//
 	if util.IsFileExist(CfgFile) {
 		b, err := util.ReadFile(CfgFile)

@@ -134,7 +134,8 @@ func (c *Config) ReadCaseConfigs() ([]*Case, error) {
 	util.DebugPrintCaller()
 	fln := os.ExpandEnv(c.CaseFilename)
 	suffix := util.FnExt(fln)
-	glInfof("➥  Reading options from %[2]q file %[1]q ...", fln, suffix)
+	glInfof("➥  Reading options from [%[2]s] file [%[1]s] ...",
+		util.ColorString("info", fln), util.ColorString("info", suffix))
 	b, err := util.ReadFile(fln)
 	if err != nil {
 		return nil, err

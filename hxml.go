@@ -106,7 +106,7 @@ type XMLMarshaller struct{}
 func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 	// Prun("  > Writing data to .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Writing data to .xml file %q ...", fn)
+	glInfof("➥  Writing data to .xml file [%s] ...", util.ColorString("info", fn))
 	xvs := xmlInvoices{Version: fileVersion}
 	xvs.Invoices = make([]*xmlInvoice, 0, len(vs))
 	for _, v := range vs {
@@ -126,7 +126,7 @@ func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("  > Reading data from .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Reading data from .xml file %q ...", fn)
+	glInfof("➥  Reading data from .xml file [%s] ...", util.ColorString("info", fn))
 	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
