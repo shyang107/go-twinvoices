@@ -2,7 +2,11 @@ package util
 
 import (
 	"fmt"
+	"path"
 	"runtime"
+	"strings"
+
+	"github.com/fatih/color"
 )
 
 const (
@@ -51,10 +55,44 @@ var (
 
 // print ---------------------------------------------------------
 
+// FuncCallerInfo describes the information of callers of function
+type FuncCallerInfo struct {
+	packageName string
+	fileName    string
+	funcName    string
+	line        int
+}
+
+// RetrieveCallerInfo retrieve the information of callers of function
+func RetrieveCallerInfo(idx int) *FuncCallerInfo {
+	pc, file, line, _ := runtime.Caller(idx)
+	_, fileName := path.Split(file)
+	parts := strings.Split(runtime.FuncForPC(pc).Name(), ".")
+	pl := len(parts)
+	packageName := ""
+	funcName := parts[pl-1]
+
+	if parts[pl-2][0] == '(' {
+		funcName = parts[pl-2] + "." + funcName
+		packageName = strings.Join(parts[0:pl-2], ".")
+	} else {
+		packageName = strings.Join(parts[0:pl-1], ".")
+	}
+
+	return &FuncCallerInfo{
+		packageName: packageName,
+		fileName:    fileName,
+		funcName:    funcName,
+		line:        line,
+	}
+}
+
 // CallerName return the name of function calling
 func CallerName(idx int) string {
-	pc, _, _, _ := runtime.Caller(idx) //idx = 0 self, 1 for caller, 2 for upper caller
-	return runtime.FuncForPC(pc).Name()
+	// pc, _, _, _ := runtime.Caller(idx) //idx = 0 self, 1 for caller, 2 for upper caller
+	// return runtime.FuncForPC(pc).Name()
+	ci := RetrieveCallerInfo(idx + 1)
+	return Sf("(%s).%s:%d", ci.fileName, ci.funcName, ci.line)
 }
 
 // Startfunc print the message at the start of function
@@ -72,7 +110,8 @@ func Stopfunc(fid int) {
 func DebugPrintCaller() {
 	// msg := Sf("▶ %q called by %q", CallerName(2), CallerName(3))
 	// Glog.Debug(msg)
-	Glog.Debugf("▶ %q called by %q", CallerName(2), CallerName(3))
+	Glog.Debugf("▶ [%s] called by [%s]",
+		color.HiYellowString(CallerName(2)), color.YellowString(CallerName(3)))
 }
 
 // PrintSepline print the separate-line
