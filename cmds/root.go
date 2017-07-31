@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/kataras/golog"
 
 	vp "github.com/shyang107/go-twinvoices"
@@ -69,6 +70,13 @@ or .yaml.`
 	// Time Format defaults to: "2006/01/02 15:04"
 	// you can change it to something else or disable it with:
 	golog.NewLine("\n")
+	// golog.InfoText("info", color.HiGreenString("[INFO]"))
+	golog.InfoText("info", color.HiCyanString("[INFO]"))
+	// golog.WarnText("warn", color.HiMagentaString("[WARN]"))
+	golog.WarnText("warn", color.HiGreenString("[WARN]"))
+	golog.ErrorText("error", color.HiRedString("[ERRO]"))
+	golog.DebugText("debug", fmt.Sprintf("[38;5;202m"+"%s"+"[0m", "[DEBUG]"))
+	//
 	Glog.SetTimeFormat("")
 	Glog.SetLevel("info")
 }
