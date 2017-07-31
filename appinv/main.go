@@ -9,12 +9,10 @@ import (
 
 	"github.com/fatih/color"
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/shyang107/go-twinvoices/cmds"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/sirupsen/logrus"
 	// yaml "gopkg.in/yaml.v2"
 	// "github.com/kataras/golog"
-	. "github.com/logrusorgru/aurora"
 )
 
 // inv "github.com/shyang107/go-twinvoices"
@@ -53,12 +51,12 @@ func init() {
 
 func main() {
 	start := time.Now()
-	cmds.Execute()
+	// cmds.Execute()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	// testColors()
-	util.Glog.Println("\nrun-time elapsed: ", time.Since(start))
+	testColors()
+	println("\n\n", "run-time elapsed: ", time.Since(start).String())
 }
 
 func testColors() {
@@ -78,11 +76,11 @@ func testColors() {
 	color.HiWhite("color.HiWhite:%v", "This is testing the colorful text!")
 	color.Yellow("color.Yellow:%v", "This is testing the colorful text!")
 	color.HiYellow("color.HiYellow:%v", "This is testing the colorful text!")
-	fmt.Println("\ngithub.com/logrusorgru/aurora")
-	pl := fmt.Println
-	pl("aurora.Blue: ", Blue("This is testing the colorful text!"))
-	pl("aurora.BgCyan(Blue: ", BgRed(Green("This is testing the colorful text!")))
+	cl := color.New(color.BgGreen, color.FgHiWhite)
+	cl.Print("color.New(color.BgRed,color.FgYellow)", "This is testing the colorful text!", "\n")
+	util.Pforan("%v %v\n", "Pforan", "This is testing the colorful text!")
 }
+
 func readCases(fln string) {
 	// cfg := vp.GetDefualtConfig()
 	cfg := &vp.Config{CaseFilename: os.ExpandEnv(fln)}
