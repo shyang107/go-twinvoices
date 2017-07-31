@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/color"
 	vp "github.com/shyang107/go-twinvoices"
+	"github.com/shyang107/go-twinvoices/cmds"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/sirupsen/logrus"
 	// yaml "gopkg.in/yaml.v2"
@@ -51,11 +52,11 @@ func init() {
 
 func main() {
 	start := time.Now()
-	// cmds.Execute()
+	cmds.Execute()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	testColors()
+	// testColors()
 	println("\n\n", "run-time elapsed: ", time.Since(start).String())
 }
 
