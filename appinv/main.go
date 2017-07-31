@@ -46,7 +46,7 @@ func init() {
 	// if err == nil {
 	// 	util.Glog.AddOutput(file)
 	// } else {
-	// 	util.Glog.Errf("Failed to log to file, using default stderr")
+	// 	util.Glog.Errorf("Failed to log to file, using default stderr")
 	// }
 }
 
