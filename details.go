@@ -72,6 +72,27 @@ func (Detail) TableName() string {
 	return "details"
 }
 
+func getCachedInvoicesFrom(obj *Detail) (*Invoice, error) {
+	invoicesCacheMu.Lock()
+	defer invoicesCacheMu.Unlock()
+	invoice, ok := invoicesCache[obj.UINumber]
+	if !ok {
+		return nil, fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", obj.UINumber)
+	}
+	return invoice, nil
+}
+
+func setCachedInvoicesFrom(obj *Detail) error {
+	invoicesCacheMu.Lock()
+	defer invoicesCacheMu.Unlock()
+	invoice, ok := invoicesCache[obj.UINumber]
+	if !ok {
+		return fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", obj.UINumber)
+	}
+	invoice.Details = append(invoice.Details, obj)
+	return nil
+}
+
 // GetDetailsTable returns the table string of the list of []*Detail
 func GetDetailsTable(pds []*Detail, lensp int) string {
 	Sf := fmt.Sprintf
