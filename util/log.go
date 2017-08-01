@@ -29,6 +29,7 @@ func InitLogger() {
 	// Glog.SetTimeFormat("2006/01/02 15:04:05")
 	Glog.SetTimeFormat("")
 	Glog.SetLevel("info")
+	NoColor = boolPtr(Glog.Printer.IsTerminal)
 }
 
 //---------------------------------------------------------
