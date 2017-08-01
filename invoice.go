@@ -250,6 +250,17 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	return b.String()
 }
 
+// dumpCachedInvoicesTable returns the table string of "invoicesCache"
+func dumpCachedInvoicesTable() string {
+	invoicesCacheMu.Lock()
+	defer invoicesCacheMu.Unlock()
+	pinvs := make([]*Invoice, 0)
+	for _, v := range invoicesCache {
+		pinvs = append(pinvs, v)
+	}
+	return GetInvoicesTable(pinvs)
+}
+
 func printInvList(pvs []*Invoice) {
 	var b bytes.Buffer
 	fp := fmt.Fprintf
