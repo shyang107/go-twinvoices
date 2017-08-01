@@ -4,10 +4,18 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/shyang107/go-twinvoices/util"
+)
+
+var (
+	// invoicesCache is used to reduce the count of created Invoice objects and
+	// allows to reuse already created objects with required Attribute.
+	invoicesCache   = make(map[string]*Invoice)
+	invoicesCacheMu sync.Mutex // protects invoicesCache
 )
 
 // Invoice : 消費發票
@@ -71,6 +79,26 @@ func (pv Invoice) String() string {
 func (Invoice) TableName() string {
 	// custom table name, this is default
 	return "invoices"
+}
+
+func getCachedInvoices(obj *Invoice) *Invoice {
+	invoicesCacheMu.Lock()
+	defer invoicesCacheMu.Unlock()
+	invoice, ok := invoicesCache[obj.UINumber]
+	if !ok {
+		invoicesCache[obj.UINumber] = obj
+	}
+	return invoice
+}
+
+func setCachedInvoices(obj *Invoice) {
+	invoicesCacheMu.Lock()
+	defer invoicesCacheMu.Unlock()
+	_, ok := invoicesCache[obj.UINumber]
+	if !ok {
+		invoicesCache[obj.UINumber] = obj
+	}
+	return
 }
 
 // GetArgsTable :
