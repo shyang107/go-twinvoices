@@ -1,13 +1,11 @@
 package util
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
 	"github.com/kataras/golog"
 )
 
@@ -29,7 +27,20 @@ func InitLogger() {
 	// Glog.SetTimeFormat("2006/01/02 15:04:05")
 	Glog.SetTimeFormat("")
 	Glog.SetLevel("info")
-	NoColor = boolPtr(Glog.Printer.IsTerminal)
+	NoColor = !Glog.Printer.IsTerminal
+}
+
+// EnableLoggerOuttoFile enables the "Glog" out to os.Stderr and os.File
+func EnableLoggerOuttoFile() {
+	// file, err := os.OpenFile(util.TodayFilename(), os.O_CREATE|os.O_WRONLY, 0666)
+	file, err := NewLogFile()
+	// defer file.Close()
+	if err == nil {
+		Glog.AddOutput(file)
+	} else {
+		Glog.Errorf("Failed to log to file, using default stderr")
+	}
+	NoColor = true
 }
 
 //---------------------------------------------------------
@@ -126,8 +137,8 @@ type MyLogger interface {
 	Debugf(format string, args ...interface{})
 }
 
-// ColorString gives a colorful string w.r.t. levelname
-func ColorString(levelname, s string) string {
+// LogColorString gives a colorful string w.r.t. levelname
+func LogColorString(levelname, s string) string {
 	if !Glog.Printer.IsTerminal {
 		return s
 	}
@@ -142,23 +153,25 @@ func NonColorString(s string) string {
 
 // InfoColorString return a colorful info-string
 func InfoColorString(s string) string {
-	return color.HiCyanString(s)
+	return HiCyanString(s)
 }
 
 // WarnColorString return a colorful warn-string
 func WarnColorString(s string) string {
-	// return color.HiGreenString(s)
-	return color.HiMagentaString(s)
+	// return HiGreenString(s)
+	return HiMagentaString(s)
 }
 
 // ErrorColorString return a colorful error-string
 func ErrorColorString(s string) string {
-	return color.HiGreenString(s)
+	return HiGreenString(s)
 }
 
 // DebugColorString return a colorful error-string
 func DebugColorString(s string) string {
-	return fmt.Sprintf("[38;5;202m"+"%s"+"[0m", s)
+	// return fmt.Sprintf("[38;5;202m"+"%s"+"[0m", s)
+	// return Color256String("%s", EncodeColor256(202, true), s)
+	return OrangeString("%s", s)
 }
 
 //---------------------------------------------------------

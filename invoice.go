@@ -42,19 +42,21 @@ func (pv Invoice) String() string {
 	fld := val.Type()
 	var str string
 	for i := 0; i < val.NumField(); i++ {
-		switch fld.Field(i).Name {
+		fldi := fld.Field(i)
+		valintf := val.Field(i).Interface()
+		switch fldi.Name {
 		case "Model", "Details":
 			continue
 		case "Date":
-			str = val.Field(i).Interface().(time.Time).Format(ShortDateFormat)
+			str = valintf.(time.Time).Format(ShortDateFormat)
 		case "Total":
-			str = Sf("%.1f", val.Field(i).Interface().(float64))
+			str = Sf("%.1f", valintf.(float64))
 		case "UINumber":
-			str = val.Field(i).Interface().(string)[0:2] + "-" + val.Field(i).Interface().(string)[2:]
+			str = valintf.(string)[0:2] + "-" + valintf.(string)[2:]
 		default:
-			str = val.Field(i).Interface().(string)
+			str = valintf.(string)
 		}
-		Ff(&b, " %s : %s |", fld.Field(i).Tag.Get("cht"), str)
+		Ff(&b, " %s : %s |", fldi.Tag.Get("cht"), str)
 	}
 	Ff(&b, "\n")
 	lspaces := util.StrSpaces(4)

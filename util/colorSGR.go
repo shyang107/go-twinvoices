@@ -18,8 +18,8 @@ var (
 	// false or true based on the stdout's file descriptor referring to a terminal
 	// or not. This is a global option and affects all colors. For more control
 	// over each color block use the methods DisableColor() individually.
-	NoColor = boolPtr(os.Getenv("TERM") == "dumb" ||
-		(!isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()))) //&& Glog.Printer.IsTerminal
+	NoColor = os.Getenv("TERM") == "dumb" ||
+		(!isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd())) //&& Glog.Printer.IsTerminal
 
 	// colorsCache is used to reduce the count of created Color objects and
 	// allows to reuse already created objects with required Attribute.
@@ -219,7 +219,7 @@ func (c *Color) isNoColorSet() bool {
 	}
 
 	// if not return the global option, which is disabled by default
-	return *NoColor
+	return NoColor
 }
 
 func boolPtr(v bool) *bool {

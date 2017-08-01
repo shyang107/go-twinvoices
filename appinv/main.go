@@ -39,14 +39,7 @@ func init() {
 	// util.Glog.Install(logrus.StandardLogger())
 
 	///////////////////////////////////////////////////////////////////////////
-	// file, err := os.OpenFile(util.TodayFilename(), os.O_CREATE|os.O_WRONLY, 0666)
-	// file, err := util.NewLogFile()
-	// // defer file.Close()
-	// if err == nil {
-	// 	util.Glog.AddOutput(file)
-	// } else {
-	// 	util.Glog.Errorf("Failed to log to file, using default stderr")
-	// }
+	// util.EnableLoggerOuttoFile()
 }
 
 func main() {
@@ -55,7 +48,7 @@ func main() {
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	println("\n\n", "run-time elapsed: ", time.Since(start).String())
+	util.Glog.Println("\n", "run-time elapsed: ", time.Since(start).String())
 }
 
 func readCases(fln string) {

@@ -23,7 +23,7 @@ type CsvMarshaller struct{}
 func (CsvMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	// Prun("  > Writing data to .csv file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Writing data to .csv file [%s] ...", util.ColorString("info", fn))
+	glInfof("➥  Writing data to .csv file [%s] ...", util.LogColorString("info", fn))
 	var b bytes.Buffer
 	fmt.Fprintln(&b, fileType)
 	fmt.Fprintln(&b, io.Sf("%v", fileVersion))
@@ -66,7 +66,7 @@ func (d *Detail) toCSVString() string {
 func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Pstat("  > Reading data from .csv file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Reading data from .csv file [%s] ...", util.ColorString("info", fn))
+	glInfof("➥  Reading data from .csv file [%s] ...", util.LogColorString("info", fn))
 	f, err := io.OpenFileR(fn)
 	if err != nil {
 		return nil, err

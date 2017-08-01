@@ -59,7 +59,7 @@ type XlsxMarshaller struct{}
 func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	// Prun("  > Writing data to .xlsx file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Writing data to .xlsx file [%s] ...", util.ColorString("info", fn))
+	glInfof("➥  Writing data to .xlsx file [%s] ...", util.LogColorString("info", fn))
 	if pvs == nil || len(pvs) == 0 {
 		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
@@ -208,7 +208,7 @@ func getFieldNameAndChtag(obj interface{}) (fldn, cfldn []string) {
 // UnmarshalInvoices unmarshal the records of invoice using in .xlsx file
 func (XlsxMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	util.DebugPrintCaller()
-	glInfof("➥  Reading data from .xlsx file %s ...", util.ColorString("info", fn))
+	glInfof("➥  Reading data from .xlsx file %s ...", util.LogColorString("info", fn))
 	glWarnf("☹  TODO: %q", util.CallerName(1))
 	return nil, nil
 }

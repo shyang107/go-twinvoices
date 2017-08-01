@@ -113,19 +113,19 @@ func DBWriteInvoices(invs []*Invoice, fln string) error {
 	var marshaller InvoiceMarshaller
 	switch ext {
 	case ".csv":
-		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "CsvMarshaller"))
+		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "CsvMarshaller"))
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
-		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "JSONMarshaller"))
+		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "JSONMarshaller"))
 		marshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "YAMLMarshaller"))
+		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "YAMLMarshaller"))
 		marshaller = YAMLMarshaller{}
 	case ".xml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "XMLMarshaller"))
+		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XMLMarshaller"))
 		marshaller = XMLMarshaller{}
 	case ".xlsx":
-		glDebugf("➥  Connect to ⚓  [%s]", util.ColorString("debug", "XlsxMarshaller"))
+		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XlsxMarshaller"))
 		marshaller = XlsxMarshaller{}
 	}
 	if marshaller != nil {
@@ -133,5 +133,5 @@ func DBWriteInvoices(invs []*Invoice, fln string) error {
 		return err
 	}
 	return fmt.Errorf("☠  Not supprted %[2]q-type (%[1]q)",
-		util.ColorString("error", fln), util.ColorString("error", ext))
+		util.LogColorString("error", fln), util.LogColorString("error", ext))
 }

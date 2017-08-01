@@ -113,7 +113,7 @@ func GetDefualtConfig() *Config {
 func (c *Config) ReadConfigs() error {
 	util.DebugPrintCaller()
 	// Prun("  > Reading configuration from  %q ...\n", CfgFile)
-	glInfof("➥  Reading configuration from  [%s] ...", util.ColorString("info", CfgFile))
+	glInfof("➥  Reading configuration from  [%s] ...", util.LogColorString("info", CfgFile))
 	//
 	if util.IsFileExist(CfgFile) {
 		b, err := util.ReadFile(CfgFile)
