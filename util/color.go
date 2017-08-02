@@ -146,15 +146,14 @@ func (c *ColorRGB) sequence() string {
 		}
 		r, g, b, _ := val.RGB.RGBA()
 		// format[i] = fmt.Sprintf("%s[%s%v;%v;%vm", escape, lcfmt, r, g, b)
-		format[i] = fmt.Sprintf("\x1b[%s%v;%v;%vm", lcfmt, r, g, b)
+		format[i] = fmt.Sprintf("%s%v;%v;%vm", lcfmt, r, g, b)
 	}
 
 	return strings.Join(format, "")
 }
 
 func (c *ColorRGB) format() string {
-	// return fmt.Sprintf("%s[%sm", escape, c.sequence())
-	return c.sequence()
+	return fmt.Sprintf("%s[%sm", escape, c.sequence())
 }
 
 func (c *ColorRGB) unformat() string {
