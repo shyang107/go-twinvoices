@@ -14,18 +14,6 @@ import (
 // RootApp represents the base command when called without any subcommands
 var RootApp = cli.NewApp()
 
-var (
-	Glog     = util.Glog
-	glInfo   = Glog.Info
-	glInfof  = Glog.Infof
-	glWarn   = Glog.Warn
-	glWarnf  = Glog.Warnf
-	glError  = Glog.Error
-	glErrorf = Glog.Errorf
-	glDebug  = Glog.Debug
-	glDebugf = Glog.Debugf
-)
-
 // Rlog is a new instance of logger of logrus
 // var Rlog = logrus.New()
 
@@ -100,7 +88,7 @@ func rootAction(c *cli.Context) error {
 	if len(fln) > 0 {
 		if !util.IsFileExist(fln) {
 			// ut.Perr("The specified case-configuration-file %q does not exist!\n", fln)
-			glErrorf("The specified case-configuration-file %q does not exist!", fln)
+			util.Glog.Errorf("The specified case-configuration-file %q does not exist!", fln)
 			os.Exit(-1)
 		}
 		vp.Cfg.CaseFilename = fln
@@ -119,11 +107,11 @@ func rootAction(c *cli.Context) error {
 	default:
 		level = "info"
 	}
-	Glog.SetLevel(level)
+	util.Glog.SetLevel(level)
 	//
 	if err := execute(); err != nil {
 		// ut.Pwarn(err.Error())
-		glError(err.Error())
+		util.Glog.Error(err.Error())
 		os.Exit(-1)
 	}
 	return nil
@@ -132,7 +120,7 @@ func rootAction(c *cli.Context) error {
 func execute() (err error) {
 	util.DebugPrintCaller()
 	// ut.Pinfo("%v\n", vp.Cfg)
-	glInfof("\n%v", vp.Cfg)
+	util.Glog.Infof("\n%v", vp.Cfg)
 	vp.Cases, err = vp.Cfg.ReadCaseConfigs()
 	if err != nil {
 		return err
@@ -143,29 +131,38 @@ func execute() (err error) {
 	for i := 0; i < len(vp.Cases); i++ {
 		c := vp.Cases[i]
 		// ut.Plog("%s", c)
-		glInfof("\n%v", c)
+		util.Glog.Infof("\n%v", c)
 		//
-		if err := c.UpdateFileBunker(); err != nil {
+		if err := runCase(c); err != nil {
 			return err
-		}
-		//
-		pvs, err := (&c.Input).ReadInvoices()
-		if err != nil {
-			// ut.Perr("%v\n", err)
-			// ut.Glog.Errorf("%v\n", err)
-			return err
-		}
-		for j := 0; j < len(c.Outputs); j++ {
-			out := c.Outputs[j]
-			if out.IsOutput {
-				err = out.WriteInvoices(pvs)
-				if err != nil {
-					return err
-				}
-			}
 		}
 	}
 	// pchk(GetFileBunkerTable(fbs, 0))
+	return nil
+}
+
+func runCase(c *vp.Case) error {
+	if err := c.UpdateFileBunker(); err != nil {
+		return err
+		// util.Glog.Error(err.Error())
+	}
+	//
+	pvs, err := (&c.Input).ReadInvoices()
+	if err != nil {
+		// util.Glog.Errorf("%v\n", err)
+		return err
+		// util.Glog.Error(err.Error())
+	}
+	for j := 0; j < len(c.Outputs); j++ {
+		out := c.Outputs[j]
+		if out.IsOutput {
+			err = out.WriteInvoices(pvs)
+			if err != nil {
+				return err
+				// util.Glog.Error(err.Error())
+			}
+		}
+	}
 	return nil
 }
 
