@@ -133,9 +133,8 @@ func getRGBCodeString(c color.RGBA) string {
 }
 
 // sequence returns a formated SGR sequence to be plugged into a
-// ESC[38;5;<n>m Select foreground color
-// ESC[48;5;<n>m Select background color
-// an example output might be: "38;15;12" -> foreground high-intensity blue
+// ESC[38;2;<r>;<g>;<b>m... Select foreground color
+// ESC[48;2;<r>;<g>;<b>m... Select background color
 func (c *ColorRGB) sequence() string {
 	var lcfmt string
 	format := make([]string, len(c.params))
