@@ -3,7 +3,6 @@ package invoices
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -73,7 +72,7 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 		return nil, err
 	}
 	var pinvs []*Invoice
-	// var pdets []*Detail
+	var pdets []*Detail
 	err = io.ReadLinesFile(f, func(idx int, line string) (stop bool) {
 		// plog("line = %v\n", line)
 		if inpIsBig5 {
@@ -97,51 +96,21 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 		switch head {
 		case "M": // invoice
 			pinv := unmarshalCSVInvoice(recs)
-			// io.Pf("%s%v\n", io.StrSpaces(4), *pinv)
 			pinvs = append(pinvs, pinv)
-			setCachedInvoices(pinv)
 		case "D": // deltail of invoice
 			pdet := unmarshalCSVDetail(recs)
-			// io.Pf("%s%v\n", io.StrSpaces(4), det)
-			err := setCachedInvoicesFrom(pdet)
-			if err != nil {
-				util.Glog.Error(err.Error())
-				// pdets = append(pdets, pdet)
-				os.Exit(-1)
-			}
+			pdets = append(pdets, pdet)
 		}
 		return
 	})
 	if err != nil {
 		return nil, err
 	}
-<<<<<<< HEAD
 	combineInvoice(pinvs, pdets)
 	glInfof("♲  Invoices list:\n%s", GetInvoicesTable(pinvs))
-=======
-	// combineInvoice(pinvs, pdets)
-	// if len(pdets) > 0 {
-	// 	addDetails(pdets)
-	// }
-	glInfof("♲  Invoices list:\n%s", GetInvoicesTable(pinvs))
-	// glInfof("♲  Invoices list:\n%s", dumpCachedInvoicesTable())
-	// printInvList(pinvs)
-	// Prun(">> updating database ...\n")
->>>>>>> origin/master
 	DBInsertFrom(pinvs)
 	return pinvs, nil
 }
-
-// func addDetails(pdets []*Detail) {
-// 	glInfof("♲  combining invoices ...")
-// 	for i := 0; i < len(pdets); i++ {
-// 		err := setCachedInvoicesFrom(pdets[i])
-// 		if err != nil {
-// 			util.Glog.Error(err.Error())
-// 			// os.Exit(-1)
-// 		}
-// 	}
-// }
 
 func combineInvoice(pvs []*Invoice, pds []*Detail) {
 	glInfof("♲  combining invoices ...")
