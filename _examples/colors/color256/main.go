@@ -3,13 +3,29 @@ package main
 import (
 	"fmt"
 
+	"golang.org/x/image/colornames"
+
 	"github.com/shyang107/go-twinvoices/util"
 )
 
 func main() {
-	testcolor256code()
-	testcolortext()
+	// testcolor256code()
+	// testcolortext()
+	testcolortext2()
 }
+func testcolortext2() {
+	// i := 0
+	// for k, c := range util.Colors {
+	// 	i++
+	// 	fmt.Printf("%3d.  %v : %+v\n", i, k, c)
+	// }
+	s := "這是彩色文字測試！This is a test of colorful text!"
+	cnames := colornames.Names
+	for i, n := range cnames {
+		fmt.Printf("%3d <%s> %s\n", i+1, n, util.ColorRGBString("%s", util.Colors[n], s))
+	}
+}
+
 func testcolortext() {
 	s := "這是彩色文字測試！This is a test of colorful text!"
 	fmt.Printf("\n%v\n", "*** 256 foreground colors ***")
