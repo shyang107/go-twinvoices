@@ -296,7 +296,12 @@ func (c *Color256) format() string {
 
 func (c *Color256) unformat() string {
 	// return fmt.Sprintf("%s[%dm", escape, Reset)
-	return clear
+	// return clear
+	var unf string
+	for i := 0; i < len(c.params); i++ {
+		unf += reset
+	}
+	return unf
 }
 
 // DisableColor disables the color output. Useful to not change any existing

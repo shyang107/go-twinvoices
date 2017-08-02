@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/kataras/golog"
+	"golang.org/x/image/colornames"
 )
 
 var (
@@ -37,7 +38,8 @@ var (
 		golog.ErrorLevel:   func(s string) string { return HiRedString(s) },
 		golog.WarnLevel:    func(s string) string { return HiMagentaString(s) },
 		golog.InfoLevel:    func(s string) string { return HiCyanString(s) },
-		golog.DebugLevel:   func(s string) string { return OrangeString(s) },
+		// golog.DebugLevel:   func(s string) string { return OrangeString(s) },
+		golog.DebugLevel: func(s string) string { return ColorRGBString("%s", colornames.Orangered, s) },
 	}
 )
 

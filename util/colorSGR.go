@@ -38,7 +38,7 @@ type Attribute int
 
 const (
 	escape = "\x1b"
-	clear  = escape + "[0m"
+	reset  = "\x1b[0m"
 )
 
 // Base attributes
@@ -196,7 +196,12 @@ func (c *Color) format() string {
 
 func (c *Color) unformat() string {
 	// return fmt.Sprintf("%s[%dm", escape, Reset)
-	return clear
+	// return clear
+	var unf string
+	for i := 0; i < len(c.params); i++ {
+		unf += reset
+	}
+	return unf
 }
 
 // DisableColor disables the color output. Useful to not change any existing
