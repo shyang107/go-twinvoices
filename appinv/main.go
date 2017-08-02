@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -10,36 +11,10 @@ import (
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/cmds"
 	"github.com/shyang107/go-twinvoices/util"
-	"github.com/sirupsen/logrus"
-	// yaml "gopkg.in/yaml.v2"
-	// "github.com/kataras/golog"
 )
 
-// inv "github.com/shyang107/go-twinvoices"
-// var glog = golog.New()
-var log = logrus.New()
-
 func init() {
-	// myloger := log.New(os.Stdout, "", 0)
-	// myloger.SetPrefix("LOG: ")
-	// log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
-	// myloger.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
-	// log.Println("init started")
-	// io.Verbose = true
-	// util.Verbose = true
-	// util.Glog.InstallStd(myloger)
-
-	// simulate a logrus preparation:
-	// logrus.SetLevel(logrus.InfoLevel)
-	// logrus.SetFormatter(&logrus.JSONFormatter{})
-	// logrus.SetFormatter(&logrus.TextFormatter{})
-	// logrus.SetFormatter(&logrus.TextFormatter{})
-	// pass logrus.StandardLogger() to print logs using using the default,
-	// package-level logrus' instance of Logger:
-	// util.Glog.Install(logrus.StandardLogger())
-
-	///////////////////////////////////////////////////////////////////////////
-	// util.EnableLoggerOuttoFile()
+	// util.EnableLoggerOutToFile("debug")
 }
 
 func main() {
