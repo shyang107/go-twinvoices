@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// code of string format
 const (
 	Fcstart = 101
 	Fcstop  = 102
@@ -33,8 +34,10 @@ var (
 		Ffstart: "* Function %q start.\n",
 		Ffstop:  "* Function %q stop.\n",
 	}
+)
 
-	// print
+// specified function for output
+var (
 	Pfstart = PfCyan
 	Pfstop  = PfBlue
 	Pfsep   = Pfdyel2
