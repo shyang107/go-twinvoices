@@ -131,7 +131,7 @@ func unmarshalCSVDetail(recs []string) *Detail {
 	det := Detail{
 		Head:     recs[0],
 		UINumber: recs[1],
-		Subtotal: io.Atof(recs[2]),
+		Subtotal: util.Atof(recs[2]),
 		Name:     recs[3],
 	}
 	return &det

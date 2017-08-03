@@ -28,7 +28,10 @@ const (
 var (
 	// Cfg is configure
 	Cfg *Config
-	//
+)
+
+// simplied name of called function
+var (
 	Glog     = util.Glog
 	glInfo   = Glog.Info
 	glInfof  = Glog.Infof
