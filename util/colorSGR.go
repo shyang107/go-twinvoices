@@ -36,11 +36,6 @@ type Color struct {
 // Attribute defines a single SGR Code
 type Attribute int
 
-const (
-	escape = "\x1b"
-	reset  = "\x1b[0m"
-)
-
 // Base attributes
 const (
 	Reset        Attribute = iota // Reset / Normal: all attributes off

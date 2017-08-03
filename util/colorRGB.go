@@ -30,6 +30,9 @@ var (
 )
 
 const (
+	escape = "\x1b" // "\e" (033 or escape control code)
+	reset  = "\x1b[0m"
+
 	fgRGB    = "38;2;"
 	bgRGB    = "48;2;"
 	colorsep = "|"
@@ -69,6 +72,8 @@ func (c *ColorRGB) prepend(value ColorAttribute) {
 	copy(c.params[1:], c.params[0:])
 	c.params[0] = value
 }
+
+//---------------------------------------------------------
 
 //---------------------------------------------------------
 
@@ -145,15 +150,16 @@ func (c *ColorRGB) sequence() string {
 			lcfmt = bgRGB
 		}
 		r, g, b, _ := val.RGB.RGBA()
-		// format[i] = fmt.Sprintf("%s[%s%v;%v;%vm", escape, lcfmt, r, g, b)
-		format[i] = fmt.Sprintf("%s%v;%v;%vm", lcfmt, r, g, b)
+		format[i] = fmt.Sprintf("%s[%s%v;%v;%vm", escape, lcfmt, r, g, b)
+		// format[i] = fmt.Sprintf("%s%v;%v;%vm", lcfmt, r, g, b)
 	}
 
 	return strings.Join(format, "")
 }
 
 func (c *ColorRGB) format() string {
-	return fmt.Sprintf("%s[%sm", escape, c.sequence())
+	// return fmt.Sprintf("%s[%sm", escape, c.sequence())
+	return c.sequence()
 }
 
 func (c *ColorRGB) unformat() string {
@@ -202,8 +208,8 @@ func getCachedColorRGB(k ColorAttribute) *ColorRGB {
 	return c
 }
 
-// ColorRGBString returns a formatted colorful string with specified "colorname"
-func ColorRGBString(format string, rgb color.RGBA, a ...interface{}) string {
+// colorRGBString returns a formatted colorful string with specified "colorname"
+func colorRGBString(format string, rgb color.RGBA, a ...interface{}) string {
 	c := getCachedColorRGB(ColorAttribute{RGB: rgb, IsForeground: true})
 
 	if len(a) == 0 {
