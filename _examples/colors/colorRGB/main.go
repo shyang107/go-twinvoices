@@ -5,15 +5,69 @@ import (
 	"image/color"
 	"image/color/palette"
 	"math"
+	"os"
 
 	"golang.org/x/image/colornames"
 
 	"github.com/shyang107/go-twinvoices/util"
+	"github.com/stroborobo/ansirgb"
 )
 
 func main() {
 	testcolortext()
+	// printAnsiPalette()
 }
+
+// var paletteMap = make(map[string]color.RGBA)
+
+func printAnsiPalette() {
+	for idx, p := range ansirgb.Palette {
+		// r, g, b, a := p.RGBA()
+		fmt.Printf("%3d. %v -- %#02x\n", idx, p, uint8(ansirgb.Convert(p).Code))
+	}
+	os.Remove("ansiPalette.log")
+	output, _ := os.OpenFile("ansiPalette.log", os.O_CREATE|os.O_WRONLY, 0666)
+	fmt.Fprintf(output, "var PaletteANSI = []ansirgb.Color{\n")
+	for _, p := range ansirgb.Palette {
+		r, g, b, a := p.RGBA()
+		fmt.Fprintf(output, "%4sansirgb.Color{Color:color.RGBA{%#02x,%#02x,%#02x,%#02x}, Code:%d},\n", "", uint8(r), uint8(b), uint8(g), uint8(a), ansirgb.Convert(p).Code)
+	}
+	fmt.Fprintf(output, "}\n")
+	output.Close()
+
+	maps := make(map[string]ansirgb.Color)
+	cnames := colornames.Names
+	num := len(cnames)
+	size := 0
+	for i := 0; i < num; i++ {
+		rgb := colornames.Map[cnames[i]]
+		cl := ansirgb.Convert(&rgb)
+		maps[cnames[i]] = *cl
+		_, _, n := util.CountChars(cnames[i])
+		size = util.Imax(size, n+2)
+	}
+	i := 0
+	for k, c := range maps {
+		i++
+		cl := util.MapSVG2ANSI[k]
+		// r, g, b, _ := cl.RGBA()
+		// s := fmt.Sprintf("%3d: \033[38;5;%dm%04X %04X %04X\033[0m", cl.Code, cl.Code, r, g, b)
+		fmt.Printf("%3d. %*q %v -- %*q %v\n", i, size, k, &c, size, k, cl.String())
+	}
+	// // fmt.Fprintf(os.Stdout, "\n%#v\n", maps)
+	// i = 0
+	// os.Remove("MapSVG2ANSI.log")
+	// output, _ := os.OpenFile("MapSVG2ANSI.log", os.O_CREATE|os.O_WRONLY, 0666)
+	// // output := os.Stdout
+	// fmt.Fprintf(output, "var MapSVG2ANSI = map[string]ansirgb.Color{\n")
+	// for k, c := range maps {
+	// 	i++
+	// 	r, g, b, a := c.Color.RGBA()
+	// 	fmt.Fprintf(output, "%4s%q:ansirgb.Color{Color:color.RGBA{%#x,%#x,%#x,%#x}, Code:%d},\n", "", k, uint8(r), uint8(b), uint8(g), uint8(a), c.Code)
+	// }
+	// fmt.Fprintf(output, "}\n")
+}
+
 func testcolortext() {
 	// i := 0
 	// for k, c := range util.Colors {
@@ -21,41 +75,60 @@ func testcolortext() {
 	// 	fmt.Printf("%3d.  %v : %+v\n", i, k, c)
 	// }
 	var plte color.Palette = palette.Plan9
-	var cl1, cl2 color.Color
 	s := "這是彩色文字測試！This is a test of colorful text!"
+	cnames := colornames.Names
+	num := len(cnames)
+	size := findMaxSize()
+	for i := 0; i < num; i++ {
+		name1, name2 := cnames[i], cnames[num-i-1]
+		cl1, cl2 := util.ColorsSVG[name1], util.ColorsSVG[name2]
+		// cl3 := color.RGBAModel.Convert(cl1)
+		cl3 := ansirgb.Convert(&cl1)
+		// cl3 := util.PaletteAnsi.Index(cl1)
+		idx1, idx2, idx3 := plte.Index(cl1), plte.Index(cl2), cl3.Code
+
+		clfmt1, clfmt2, clfm8bit :=
+			fmt.Sprintf("svg[fg:%d <%s>]", idx1, name1),
+			fmt.Sprintf("svg[fg:%d<%s>|bg:%d<%s>]", idx1, name1, idx2, name2),
+			fmt.Sprintf("256[fg:%v]", idx3)
+
+		cl1Sf := util.NewRGB(
+			util.ColorAttribute{IsForeground: true, RGB: cl1},
+			// util.ColorAttribute{IsForeground: false, RGB: cl2},
+		).SprintfFunc()
+		cl2Sf := util.NewRGB(
+			util.ColorAttribute{IsForeground: true, RGB: cl1},
+			util.ColorAttribute{IsForeground: false, RGB: cl2},
+		).SprintfFunc()
+		cl3Sf := func(format string, colorIndex int, a ...interface{}) string {
+			// return fmt.Sprintf("\x1b[38;5;%dm", colorIndex) + fmt.Sprintf(format, a...) + "\x1b[0m"
+			return cl3.Fg() + fmt.Sprintf(format, a...) + "\x1b[0m"
+		}
+
+		fmt.Printf("%*s %s\n", size, clfmt1, cl1Sf("%s", s))
+		fmt.Printf("%*s %s\n", size, clfm8bit, cl3Sf("%s", idx3, s))
+		fmt.Printf("%*s %s\n\n", size, clfmt2, cl2Sf("%s", s))
+	}
+
+}
+
+func findMaxSize() (size int) {
+	var plte color.Palette = palette.Plan9
 	cnames := colornames.Names
 	num := len(cnames)
 	for i := 0; i < num; i++ {
 		name1, name2 := cnames[i], cnames[num-i-1]
-		cl1, cl2 = util.ColorsSVG[name1], util.ColorsSVG[name2]
-		idx1 := plte.Index(cl1)
-		idx2 := plte.Index(cl2)
-		// cl1rgb :=
-		// r, g, b, _ := util.ColorsSVG[name1].RGBA()
-		// _, idx8bit2 := convert24To8bitColor(r, g, b)
-		cl3 := color.RGBAModel.Convert(cl1)
-		idx3 := plte.Index(cl3)
-		//
-		clfmt1, clfmt2, clfm8bit := fmt.Sprintf("[fg:%d <%s>]", idx1, name1),
-			fmt.Sprintf("[fg:%d<%s>|bg:%d<%s>]", idx1, name1, idx2, name2),
-			fmt.Sprintf("[fg:%v,%v]", idx1, idx3)
-		_, ne1, _ := util.CountChars(clfmt1)
-		_, ne2, _ := util.CountChars(clfmt2)
-		m := util.Imax(ne1, ne2)
-
-		fmt.Printf("%*s %s\n", m, clfmt1, util.ColorRGBString("%s", util.ColorsSVG[name1], s))
-		c := util.NewRGB(
-			util.ColorAttribute{IsForeground: true, RGB: util.ColorsSVG[name1]},
-			util.ColorAttribute{IsForeground: false, RGB: util.ColorsSVG[name2]},
-		)
-
-		fmt.Printf("%*s \x1b[38;5;%dm%s\x1b[0m \n", m, clfm8bit, idx3, s)
-		cstr := c.Sprintf("%s", s)
-
-		// fmt.Println(cstr)
-		fmt.Printf("%*s %s\n\n", m, clfmt2, cstr)
+		cl1, cl2 := util.ColorsSVG[name1], util.ColorsSVG[name2]
+		idx1, idx2 := plte.Index(cl1), plte.Index(cl2)
+		clfmt1, clfmt2 :=
+			fmt.Sprintf("[fg:%d <%s>]", idx1, name1),
+			fmt.Sprintf("[fg:%d<%s>|bg:%d<%s>]", idx1, name1, idx2, name2)
+		_, _, n1 := util.CountChars(clfmt1)
+		_, _, n2 := util.CountChars(clfmt2)
+		n := util.Imax(n1, n2)
+		size = util.Imax(size, n)
 	}
-
+	return size
 }
 
 func convert24To8bitColor(r, g, b uint32) (idx1, idx2 int) {
