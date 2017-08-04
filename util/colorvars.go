@@ -43,7 +43,7 @@ const (
 //	grayscale: 233-255
 //	transparent: 256
 var PaletteANSI = []ansirgb.Color{
-	// 6 * 6 * 6 = 216 colors
+	// 216 colors: 16-232; 6 * 6 * 6 = 216 colors
 	ansirgb.Color{Color: color.RGBA{0x00, 0x00, 0x00, 0xff}, Code: 16},
 	ansirgb.Color{Color: color.RGBA{0x00, 0x5f, 0x00, 0xff}, Code: 17},
 	ansirgb.Color{Color: color.RGBA{0x00, 0x87, 0x00, 0xff}, Code: 18},

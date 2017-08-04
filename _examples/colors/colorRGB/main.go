@@ -14,8 +14,8 @@ import (
 )
 
 func main() {
-	testcolortext()
-	// printAnsiPalette()
+	// testcolortext()
+	printAnsiPalette()
 }
 
 // var paletteMap = make(map[string]color.RGBA)
@@ -27,10 +27,21 @@ func printAnsiPalette() {
 	}
 	os.Remove("ansiPalette.log")
 	output, _ := os.OpenFile("ansiPalette.log", os.O_CREATE|os.O_WRONLY, 0666)
+	// output := os.Stdout
 	fmt.Fprintf(output, "var PaletteANSI = []ansirgb.Color{\n")
 	for _, p := range ansirgb.Palette {
 		r, g, b, a := p.RGBA()
-		fmt.Fprintf(output, "%4sansirgb.Color{Color:color.RGBA{%#02x,%#02x,%#02x,%#02x}, Code:%d},\n", "", uint8(r), uint8(b), uint8(g), uint8(a), ansirgb.Convert(p).Code)
+		// fmt.Fprintf(output, "- %4sansirgb.Color{Color:color.RGBA{%#02x,%#02x,%#02x,%#02x}, Code:%d},\n", "", uint8(r), uint8(b), uint8(g), uint8(a), ansirgb.Convert(p).Code)
+		if ansirgb.Convert(p).Code == 16 {
+			fmt.Fprintf(output, "%4s// 216 colors: 16-232; 6 * 6 * 6 = 216 colors\n", "")
+		}
+		if ansirgb.Convert(p).Code == 232 {
+			fmt.Fprintf(output, "%4s// grayscale: 233-255\n", "")
+		}
+		if ansirgb.Convert(p).Code == -1 {
+			fmt.Fprintf(output, "%4s// transparent: 256\n", "")
+		}
+		fmt.Fprintf(output, "%4sansirgb.Color{Color:color.RGBA{%#02x,%#02x,%#02x,%#02x}, Code:%d},\n", "", r>>8, b>>8, g>>8, a>>8, ansirgb.Convert(p).Code)
 	}
 	fmt.Fprintf(output, "}\n")
 	output.Close()
@@ -54,18 +65,26 @@ func printAnsiPalette() {
 		// s := fmt.Sprintf("%3d: \033[38;5;%dm%04X %04X %04X\033[0m", cl.Code, cl.Code, r, g, b)
 		fmt.Printf("%3d. %*q %v -- %*q %v\n", i, size, k, &c, size, k, cl.String())
 	}
-	// // fmt.Fprintf(os.Stdout, "\n%#v\n", maps)
-	// i = 0
-	// os.Remove("MapSVG2ANSI.log")
-	// output, _ := os.OpenFile("MapSVG2ANSI.log", os.O_CREATE|os.O_WRONLY, 0666)
-	// // output := os.Stdout
-	// fmt.Fprintf(output, "var MapSVG2ANSI = map[string]ansirgb.Color{\n")
-	// for k, c := range maps {
-	// 	i++
-	// 	r, g, b, a := c.Color.RGBA()
-	// 	fmt.Fprintf(output, "%4s%q:ansirgb.Color{Color:color.RGBA{%#x,%#x,%#x,%#x}, Code:%d},\n", "", k, uint8(r), uint8(b), uint8(g), uint8(a), c.Code)
-	// }
-	// fmt.Fprintf(output, "}\n")
+	// fmt.Fprintf(os.Stdout, "\n%#v\n", maps)
+	i = 0
+	os.Remove("MapSVG2ANSI.log")
+	output, _ = os.OpenFile("MapSVG2ANSI.log", os.O_CREATE|os.O_WRONLY, 0666)
+	// output := os.Stdout
+	fmt.Fprintf(output, "var MapSVG2ANSI = map[string]ansirgb.Color{\n")
+	for k := range maps {
+		_, _, n := util.CountChars(k)
+		size = util.Imax(size, n)
+	}
+	size += 2
+	for k, c := range maps {
+		i++
+		r, g, b, a := c.Color.RGBA()
+		name := fmt.Sprintf("%q", k)
+		name += ":"
+		fmt.Fprintf(output, "%4s%-*sansirgb.Color{Color:color.RGBA{%#x,%#x,%#x,%#x}, Code:%d},\n", "", size, name, r>>8, b>>8, g>>8, a>>8, c.Code)
+	}
+	fmt.Fprintf(output, "}\n")
+	output.Close()
 }
 
 func testcolortext() {
