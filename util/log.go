@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -32,23 +33,38 @@ func InitLogger() {
 //---------------------------------------------------------
 
 var (
-	debugColor = NewRGB(
+	errorColorStr = NewRGB(
+		// ColorAttribute{IsForeground: true, RGB: colornames.White},
+		ColorAttribute{IsForeground: true, RGB: colornames.Violet},
+		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
+	).SprintFunc()
+	warnColorStr = NewRGB(
+		// ColorAttribute{IsForeground: true, RGB: colornames.White},
+		ColorAttribute{IsForeground: true, RGB: colornames.Goldenrod},
+		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
+	).SprintFunc()
+	infoColorStr = NewRGB(
+		// ColorAttribute{IsForeground: true, RGB: colornames.White},
+		ColorAttribute{IsForeground: true, RGB: colornames.Cyan},
+		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
+	).SprintFunc()
+	debugColorStr = NewRGB(
 		// ColorAttribute{IsForeground: true, RGB: colornames.White},
 		ColorAttribute{IsForeground: true, RGB: colornames.Orangered},
 		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
-	)
+	).SprintFunc()
 	// LogColorStringFuncs maps to a serious of [*]ColorString functions with key as golog.Level
-	LogColorStringFuncs = map[golog.Level]func(string) string{
-		golog.DisableLevel: func(s string) string { return s },
+	LogColorStringFuncs = map[golog.Level]func(a ...interface{}) string{
+		// golog.DisableLevel: func(s string) string { return s },
 		// golog.ErrorLevel:   func(s string) string { return HiRedString(s) },
 		// golog.WarnLevel:    func(s string) string { return HiMagentaString(s) },
 		// golog.InfoLevel:    func(s string) string { return HiCyanString(s) },
 		// golog.DebugLevel:   func(s string) string { return OrangeString(s) },
-		golog.ErrorLevel: func(s string) string { return colorRGBString("%s", colornames.Violet, s) },
-		golog.WarnLevel:  func(s string) string { return colorRGBString("%s", colornames.Goldenrod, s) },
-		golog.InfoLevel:  func(s string) string { return colorRGBString("%s", colornames.Cyan, s) },
-		// golog.DebugLevel: func(s string) string { return colorRGBString("%s", colornames.Orangered, s) },
-		golog.DebugLevel: func(s string) string { return debugColor.Sprintf(s) },
+		golog.DisableLevel: fmt.Sprint,
+		golog.ErrorLevel:   errorColorStr,
+		golog.WarnLevel:    warnColorStr,
+		golog.InfoLevel:    infoColorStr,
+		golog.DebugLevel:   debugColorStr,
 	}
 )
 

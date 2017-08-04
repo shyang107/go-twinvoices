@@ -36,20 +36,6 @@ type Color struct {
 // Attribute defines a single SGR Code
 type Attribute int
 
-// Base attributes
-const (
-	Reset        Attribute = iota // Reset / Normal: all attributes off
-	Bold                          // Bold or increased intensity
-	Faint                         // Faint (decreased intensity): Not widely supported.
-	Italic                        // Italic: on: Not widely supported. Sometimes treated as inverse.
-	Underline                     // Underline: Single
-	BlinkSlow                     // less than 150 per minute
-	BlinkRapid                    // MS-DOS ANSI.SYS; 150+ per minute; not widely supported
-	ReverseVideo                  // Image: Negative: inverse or reverse; swap foreground and background
-	Concealed                     // Not widely supported.
-	CrossedOut                    // Characters legible, but marked for deletion. Not widely supported.
-)
-
 // Foreground text colors
 // Set text color (foreground) : 30+ n, where n is from the color table (30-37)
 const (
@@ -191,12 +177,12 @@ func (c *Color) format() string {
 
 func (c *Color) unformat() string {
 	// return fmt.Sprintf("%s[%dm", escape, Reset)
-	// return clear
-	var unf string
-	for i := 0; i < len(c.params); i++ {
-		unf += reset
-	}
-	return unf
+	return clear + reset
+	// var unf string
+	// for i := 0; i < len(c.params); i++ {
+	// 	unf += reset
+	// }
+	// return unf
 }
 
 // DisableColor disables the color output. Useful to not change any existing

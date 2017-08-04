@@ -36,15 +36,6 @@ var (
 	plte color.Palette = palette.Plan9
 )
 
-const (
-	escape = "\x1b" // "\e" (033 or escape control code)
-	reset  = "\x1b[0m"
-
-	fgRGB    = "38;2;"
-	bgRGB    = "48;2;"
-	colorsep = "|"
-)
-
 // ColorAttribute define a key for a color
 type ColorAttribute struct {
 	RGB          color.RGBA
@@ -336,17 +327,17 @@ func getRGBCodeString(c color.RGBA) string {
 // ESC[38;2;<r>;<g>;<b>m... Select foreground color
 // ESC[48;2;<r>;<g>;<b>m... Select background color
 func (c *ColorRGB) sequence() string {
-	var lcfmt string
+	var leadcfmt string
 	format := make([]string, len(c.params))
 	for i, val := range c.params {
 		if val.IsForeground {
-			lcfmt = fgRGB
+			leadcfmt = fgsvg
 		} else {
-			lcfmt = bgRGB
+			leadcfmt = bgsvg
 		}
 		r, g, b, _ := val.RGB.RGBA()
-		format[i] = fmt.Sprintf("%s[%s%v;%v;%vm", escape, lcfmt, r, g, b)
-		// format[i] = fmt.Sprintf("%s%v;%v;%vm", lcfmt, r, g, b)
+		format[i] = fmt.Sprintf("%s%v;%v;%vm", leadcfmt, r, g, b)
+		// format[i] = fmt.Sprintf("%s%v;%v;%vm", leadcfmt, r, g, b)
 	}
 
 	return strings.Join(format, "")
@@ -360,11 +351,12 @@ func (c *ColorRGB) format() string {
 func (c *ColorRGB) unformat() string {
 	// return fmt.Sprintf("%s[%dm", escape, Reset)
 	// return fmt.Sprintf("%s[%dm", escape, 0)
-	var unf string
-	for i := 0; i < len(c.params); i++ {
-		unf += reset // "\x1b[0m"
-	}
-	return unf
+	return clear + reset
+	// var unf string
+	// for i := 0; i < len(c.params); i++ {
+	// 	unf += reset // "\x1b[0m"
+	// }
+	// return unf
 }
 
 // DisableColor disables the color output. Useful to not change any existing

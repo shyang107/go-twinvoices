@@ -102,8 +102,8 @@ func CallerName(idx int) string {
 	// return Sf("file: %s:%d; func: %s", ci.FileName, ci.Line, ci.FuncName)
 	return Sf("file: %s:%v; func: %s",
 		ci.FileName,
-		debugColor.Sprintf("%v", ci.Line),
-		debugColor.Sprintf("%v", ci.FuncName),
+		debugColorStr(ci.Line),
+		debugColorStr(ci.FuncName),
 	)
 }
 

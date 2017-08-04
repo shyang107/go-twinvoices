@@ -28,11 +28,6 @@ type Color256 struct {
 	noColor *bool
 }
 
-const (
-	fg256str = "38;5;"
-	bg256str = "48;5;"
-)
-
 // // Attribute defines a single SGR Code
 // type Attribute int
 
@@ -263,18 +258,18 @@ func (c *Color256) SprintlnFunc() func(a ...interface{}) string {
 // ESC[48;5;<n>m Select background color
 // an example output might be: "38;15;12" -> foreground high-intensity blue
 func (c *Color256) sequence() string {
-	var lcfmt string
+	var leadcfmt string
 	format := make([]string, len(c.params))
 	for i, v := range c.params {
 		// format[i] = strconv.Itoa(int(v))
 		code := DecodeColor256(v)
 		if code < bgzone {
-			lcfmt = fg256str
+			leadcfmt = fg256
 		} else {
-			lcfmt = bg256str
+			leadcfmt = bg256
 			code -= bgzone
 		}
-		format[i] = fmt.Sprintf("%s[%s%dm", escape, lcfmt, code)
+		format[i] = fmt.Sprintf("%s%dm", leadcfmt, code)
 	}
 
 	return strings.Join(format, "")
@@ -297,11 +292,12 @@ func (c *Color256) format() string {
 func (c *Color256) unformat() string {
 	// return fmt.Sprintf("%s[%dm", escape, Reset)
 	// return clear
-	var unf string
-	for i := 0; i < len(c.params); i++ {
-		unf += reset
-	}
-	return unf
+	return clear + reset
+	// var unf string
+	// for i := 0; i < len(c.params); i++ {
+	// 	unf += reset
+	// }
+	// return unf
 }
 
 // DisableColor disables the color output. Useful to not change any existing
