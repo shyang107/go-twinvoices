@@ -1,49 +1,34 @@
-package util
+package pencil
 
 import (
 	"image/color"
+	"image/color/palette"
 
 	"github.com/stroborobo/ansirgb"
 )
 
-const (
-	escape  = "\x1b" // "\e" (033 or escape control code)
-	reset   = "\x1b[0m"
-	fgClose = "\x1b[39m"
-	bgClose = "\x1b[49m"
-	clear   = "\x1b[39;49m"
-
-	fgsvg = "\x1b[38;2;"
-	bgsvg = "\x1b[48;2;"
-
-	fg256 = "\x1b[38;5;"
-	bg256 = "\x1b[48;5;"
-
-	colorsep = "|"
-)
-
-// Base attributes
-const (
-	Reset        Attribute = iota // Reset / Normal: all attributes off
-	Bold                          // Bold or increased intensity
-	Faint                         // Faint (decreased intensity): Not widely supported.
-	Italic                        // Italic: on: Not widely supported. Sometimes treated as inverse.
-	Underline                     // Underline: Single
-	BlinkSlow                     // less than 150 per minute
-	BlinkRapid                    // MS-DOS ANSI.SYS; 150+ per minute; not widely supported
-	ReverseVideo                  // Image: Negative: inverse or reverse; swap foreground and background
-	Concealed                     // Not widely supported.
-	CrossedOut                    // Characters legible, but marked for deletion. Not widely supported.
-)
+// PalettePlan9 is Plan9 in "image/color/palette"
+//
+// Plan9 is a 256-color palette that partitions the 24-bit RGB space into 4×4×4 subdivision,
+// with 4 shades in each subcube. Compared to the WebSafe, the idea is to reduce the color
+// resolution by dicing the color cube into fewer cells, and to use the extra space to increase
+// the intensity resolution. This results in 16 gray shades (4 gray subcubes with 4 samples in each),
+// 13 shades of each primary and secondary color (3 subcubes with 4 samples plus black) and a
+// reasonable selection of colors covering the rest of the color cube. The advantage is better
+// representation of continuous tones.
+var PalettePlan9 = palette.Plan9
 
 // PaletteANSI is a palette of ANSI-colors.
-//	0-16: ignore 8 Bit colors, they are very dependent on the user's terminal
-//	while other colors usually aren't.
-//	216 colors: 16-232; 6 * 6 * 6 = 216 colors
-//	grayscale: 233-255
-//	transparent: 256
+//	usages:
+//	PaletteANSI[idx] = ansirgb.Color{Color: color.RGBA{..., ..., ..., ...}, Code: ...}
+// 	1. idx : [0 - 240] 241 colors
+// 	2. codes:
+//	 Code 0-16: ignore 8 Bit colors, they are very dependent on the user's terminal while other colors usually aren't.
+//	 Code 16-231 (idx: 0-215): 216 colors; 6 * 6 * 6 = 216 colors
+//	 Code 232-255 (idx: 216-239): 24 grayscales
+//	 Code -1 (idx: 240): transparent
 var PaletteANSI = []ansirgb.Color{
-	// 216 colors: 16-232; 6 * 6 * 6 = 216 colors
+	// 216 colors: 16-231; 6 * 6 * 6 = 216 colors
 	ansirgb.Color{Color: color.RGBA{0x00, 0x00, 0x00, 0xff}, Code: 16},
 	ansirgb.Color{Color: color.RGBA{0x00, 0x5f, 0x00, 0xff}, Code: 17},
 	ansirgb.Color{Color: color.RGBA{0x00, 0x87, 0x00, 0xff}, Code: 18},
@@ -260,8 +245,8 @@ var PaletteANSI = []ansirgb.Color{
 	ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0xff, 0xff}, Code: 229},
 	ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
 	ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
+	// grayscale: 232-255
 	ansirgb.Color{Color: color.RGBA{0x08, 0x08, 0x08, 0xff}, Code: 232},
-	// grayscale: 233-255
 	ansirgb.Color{Color: color.RGBA{0x12, 0x12, 0x12, 0xff}, Code: 233},
 	ansirgb.Color{Color: color.RGBA{0x1c, 0x1c, 0x1c, 0xff}, Code: 234},
 	ansirgb.Color{Color: color.RGBA{0x26, 0x26, 0x26, 0xff}, Code: 235},
@@ -287,155 +272,4 @@ var PaletteANSI = []ansirgb.Color{
 	ansirgb.Color{Color: color.RGBA{0xee, 0xee, 0xee, 0xff}, Code: 255},
 	// transparent
 	ansirgb.Color{Color: color.RGBA{0x00, 0x00, 0x00, 0x00}, Code: -1},
-}
-
-// MapSVG2ANSI contains named colors defined in the SVG 1.1 spec. convert to ANSI colors
-var MapSVG2ANSI = map[string]ansirgb.Color{
-	"indianred":            ansirgb.Color{Color: color.RGBA{0xd7, 0x5f, 0x5f, 0xff}, Code: 167},
-	"red":                  ansirgb.Color{Color: color.RGBA{0xff, 0x0, 0x0, 0xff}, Code: 196},
-	"slategray":            ansirgb.Color{Color: color.RGBA{0x5f, 0x87, 0x87, 0xff}, Code: 66},
-	"cadetblue":            ansirgb.Color{Color: color.RGBA{0x5f, 0xaf, 0xaf, 0xff}, Code: 73},
-	"chartreuse":           ansirgb.Color{Color: color.RGBA{0x87, 0x0, 0xff, 0xff}, Code: 118},
-	"darkgoldenrod":        ansirgb.Color{Color: color.RGBA{0xaf, 0x0, 0x87, 0xff}, Code: 136},
-	"dodgerblue":           ansirgb.Color{Color: color.RGBA{0x0, 0xff, 0x87, 0xff}, Code: 33},
-	"darkslateblue":        ansirgb.Color{Color: color.RGBA{0x5f, 0x87, 0x5f, 0xff}, Code: 60},
-	"grey":                 ansirgb.Color{Color: color.RGBA{0x80, 0x80, 0x80, 0xff}, Code: 244},
-	"lemonchiffon":         ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
-	"antiquewhite":         ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xd7, 0xff}, Code: 224},
-	"blue":                 ansirgb.Color{Color: color.RGBA{0x0, 0xff, 0x0, 0xff}, Code: 21},
-	"blueviolet":           ansirgb.Color{Color: color.RGBA{0x87, 0xd7, 0x0, 0xff}, Code: 92},
-	"coral":                ansirgb.Color{Color: color.RGBA{0xff, 0x5f, 0x87, 0xff}, Code: 209},
-	"navy":                 ansirgb.Color{Color: color.RGBA{0x0, 0x87, 0x0, 0xff}, Code: 18},
-	"snow":                 ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"black":                ansirgb.Color{Color: color.RGBA{0x0, 0x0, 0x0, 0xff}, Code: 16},
-	"darkcyan":             ansirgb.Color{Color: color.RGBA{0x0, 0x87, 0x87, 0xff}, Code: 30},
-	"lightcyan":            ansirgb.Color{Color: color.RGBA{0xd7, 0xff, 0xff, 0xff}, Code: 195},
-	"lightgrey":            ansirgb.Color{Color: color.RGBA{0xd0, 0xd0, 0xd0, 0xff}, Code: 252},
-	"chocolate":            ansirgb.Color{Color: color.RGBA{0xd7, 0x0, 0x5f, 0xff}, Code: 166},
-	"darkorange":           ansirgb.Color{Color: color.RGBA{0xff, 0x0, 0x87, 0xff}, Code: 208},
-	"tan":                  ansirgb.Color{Color: color.RGBA{0xd7, 0x87, 0xaf, 0xff}, Code: 180},
-	"thistle":              ansirgb.Color{Color: color.RGBA{0xd7, 0xd7, 0xaf, 0xff}, Code: 182},
-	"gray":                 ansirgb.Color{Color: color.RGBA{0x80, 0x80, 0x80, 0xff}, Code: 244},
-	"olive":                ansirgb.Color{Color: color.RGBA{0x87, 0x0, 0x87, 0xff}, Code: 100},
-	"plum":                 ansirgb.Color{Color: color.RGBA{0xd7, 0xd7, 0xaf, 0xff}, Code: 182},
-	"tomato":               ansirgb.Color{Color: color.RGBA{0xff, 0x5f, 0x5f, 0xff}, Code: 203},
-	"aquamarine":           ansirgb.Color{Color: color.RGBA{0x87, 0xd7, 0xff, 0xff}, Code: 122},
-	"azure":                ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"rosybrown":            ansirgb.Color{Color: color.RGBA{0xaf, 0x87, 0x87, 0xff}, Code: 138},
-	"cornflowerblue":       ansirgb.Color{Color: color.RGBA{0x5f, 0xff, 0x87, 0xff}, Code: 69},
-	"darkkhaki":            ansirgb.Color{Color: color.RGBA{0xaf, 0x5f, 0xaf, 0xff}, Code: 143},
-	"green":                ansirgb.Color{Color: color.RGBA{0x0, 0x0, 0x87, 0xff}, Code: 28},
-	"mediumspringgreen":    ansirgb.Color{Color: color.RGBA{0x0, 0x87, 0xff, 0xff}, Code: 48},
-	"darkgray":             ansirgb.Color{Color: color.RGBA{0xa8, 0xa8, 0xa8, 0xff}, Code: 248},
-	"lightblue":            ansirgb.Color{Color: color.RGBA{0xaf, 0xd7, 0xd7, 0xff}, Code: 152},
-	"lightslategrey":       ansirgb.Color{Color: color.RGBA{0x87, 0x87, 0x87, 0xff}, Code: 102},
-	"navajowhite":          ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0xd7, 0xff}, Code: 223},
-	"palegreen":            ansirgb.Color{Color: color.RGBA{0x87, 0x87, 0xff, 0xff}, Code: 120},
-	"mistyrose":            ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xd7, 0xff}, Code: 224},
-	"blanchedalmond":       ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xd7, 0xff}, Code: 224},
-	"darkviolet":           ansirgb.Color{Color: color.RGBA{0x87, 0xd7, 0x0, 0xff}, Code: 92},
-	"greenyellow":          ansirgb.Color{Color: color.RGBA{0xaf, 0x0, 0xff, 0xff}, Code: 154},
-	"mintcream":            ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"sandybrown":           ansirgb.Color{Color: color.RGBA{0xff, 0x5f, 0xaf, 0xff}, Code: 215},
-	"darkgrey":             ansirgb.Color{Color: color.RGBA{0xa8, 0xa8, 0xa8, 0xff}, Code: 248},
-	"darkturquoise":        ansirgb.Color{Color: color.RGBA{0x0, 0xd7, 0xd7, 0xff}, Code: 44},
-	"lime":                 ansirgb.Color{Color: color.RGBA{0x0, 0x0, 0xff, 0xff}, Code: 46},
-	"limegreen":            ansirgb.Color{Color: color.RGBA{0x5f, 0x5f, 0xd7, 0xff}, Code: 77},
-	"mediumslateblue":      ansirgb.Color{Color: color.RGBA{0x87, 0xff, 0x5f, 0xff}, Code: 99},
-	"mediumvioletred":      ansirgb.Color{Color: color.RGBA{0xd7, 0x87, 0x0, 0xff}, Code: 162},
-	"peru":                 ansirgb.Color{Color: color.RGBA{0xd7, 0x5f, 0x87, 0xff}, Code: 173},
-	"saddlebrown":          ansirgb.Color{Color: color.RGBA{0x87, 0x0, 0x5f, 0xff}, Code: 94},
-	"bisque":               ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xd7, 0xff}, Code: 224},
-	"lawngreen":            ansirgb.Color{Color: color.RGBA{0x87, 0x0, 0xff, 0xff}, Code: 118},
-	"lightsteelblue":       ansirgb.Color{Color: color.RGBA{0xaf, 0xd7, 0xd7, 0xff}, Code: 152},
-	"lightyellow":          ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
-	"seagreen":             ansirgb.Color{Color: color.RGBA{0x0, 0x5f, 0x87, 0xff}, Code: 29},
-	"lightcoral":           ansirgb.Color{Color: color.RGBA{0xff, 0x87, 0x87, 0xff}, Code: 210},
-	"paleturquoise":        ansirgb.Color{Color: color.RGBA{0xaf, 0xff, 0xff, 0xff}, Code: 159},
-	"purple":               ansirgb.Color{Color: color.RGBA{0x87, 0x87, 0x0, 0xff}, Code: 90},
-	"dimgray":              ansirgb.Color{Color: color.RGBA{0x6c, 0x6c, 0x6c, 0xff}, Code: 242},
-	"dimgrey":              ansirgb.Color{Color: color.RGBA{0x6c, 0x6c, 0x6c, 0xff}, Code: 242},
-	"fuchsia":              ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0x0, 0xff}, Code: 201},
-	"ivory":                ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"floralwhite":          ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"palegoldenrod":        ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0xd7, 0xff}, Code: 223},
-	"pink":                 ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xaf, 0xff}, Code: 218},
-	"maroon":               ansirgb.Color{Color: color.RGBA{0x87, 0x0, 0x0, 0xff}, Code: 88},
-	"turquoise":            ansirgb.Color{Color: color.RGBA{0x5f, 0xd7, 0xd7, 0xff}, Code: 80},
-	"gainsboro":            ansirgb.Color{Color: color.RGBA{0xda, 0xda, 0xda, 0xff}, Code: 253},
-	"honeydew":             ansirgb.Color{Color: color.RGBA{0xee, 0xee, 0xee, 0xff}, Code: 255},
-	"indigo":               ansirgb.Color{Color: color.RGBA{0x5f, 0x87, 0x0, 0xff}, Code: 54},
-	"lightgreen":           ansirgb.Color{Color: color.RGBA{0x87, 0x87, 0xff, 0xff}, Code: 120},
-	"steelblue":            ansirgb.Color{Color: color.RGBA{0x5f, 0xaf, 0x87, 0xff}, Code: 67},
-	"whitesmoke":           ansirgb.Color{Color: color.RGBA{0xee, 0xee, 0xee, 0xff}, Code: 255},
-	"aqua":                 ansirgb.Color{Color: color.RGBA{0x0, 0xff, 0xff, 0xff}, Code: 51},
-	"ghostwhite":           ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"lightgoldenrodyellow": ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
-	"powderblue":           ansirgb.Color{Color: color.RGBA{0xaf, 0xd7, 0xd7, 0xff}, Code: 152},
-	"silver":               ansirgb.Color{Color: color.RGBA{0xbc, 0xbc, 0xbc, 0xff}, Code: 250},
-	"burlywood":            ansirgb.Color{Color: color.RGBA{0xd7, 0x87, 0xaf, 0xff}, Code: 180},
-	"darksalmon":           ansirgb.Color{Color: color.RGBA{0xd7, 0x87, 0x87, 0xff}, Code: 174},
-	"hotpink":              ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0x5f, 0xff}, Code: 205},
-	"palevioletred":        ansirgb.Color{Color: color.RGBA{0xd7, 0x87, 0x5f, 0xff}, Code: 168},
-	"darkorchid":           ansirgb.Color{Color: color.RGBA{0x87, 0xd7, 0x5f, 0xff}, Code: 98},
-	"linen":                ansirgb.Color{Color: color.RGBA{0xee, 0xee, 0xee, 0xff}, Code: 255},
-	"yellowgreen":          ansirgb.Color{Color: color.RGBA{0x87, 0x5f, 0xd7, 0xff}, Code: 113},
-	"salmon":               ansirgb.Color{Color: color.RGBA{0xff, 0x5f, 0x87, 0xff}, Code: 209},
-	"beige":                ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
-	"darkgreen":            ansirgb.Color{Color: color.RGBA{0x0, 0x0, 0x5f, 0xff}, Code: 22},
-	"deepskyblue":          ansirgb.Color{Color: color.RGBA{0x0, 0xff, 0xaf, 0xff}, Code: 39},
-	"lightskyblue":         ansirgb.Color{Color: color.RGBA{0x87, 0xff, 0xd7, 0xff}, Code: 117},
-	"slategrey":            ansirgb.Color{Color: color.RGBA{0x5f, 0x87, 0x87, 0xff}, Code: 66},
-	"violet":               ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0x87, 0xff}, Code: 213},
-	"white":                ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"aliceblue":            ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"brown":                ansirgb.Color{Color: color.RGBA{0xaf, 0x0, 0x0, 0xff}, Code: 124},
-	"skyblue":              ansirgb.Color{Color: color.RGBA{0x87, 0xd7, 0xd7, 0xff}, Code: 116},
-	"slateblue":            ansirgb.Color{Color: color.RGBA{0x5f, 0xd7, 0x5f, 0xff}, Code: 62},
-	"springgreen":          ansirgb.Color{Color: color.RGBA{0x0, 0x87, 0xff, 0xff}, Code: 48},
-	"teal":                 ansirgb.Color{Color: color.RGBA{0x0, 0x87, 0x87, 0xff}, Code: 30},
-	"cyan":                 ansirgb.Color{Color: color.RGBA{0x0, 0xff, 0xff, 0xff}, Code: 51},
-	"deeppink":             ansirgb.Color{Color: color.RGBA{0xff, 0x87, 0x0, 0xff}, Code: 198},
-	"goldenrod":            ansirgb.Color{Color: color.RGBA{0xd7, 0x0, 0xaf, 0xff}, Code: 178},
-	"midnightblue":         ansirgb.Color{Color: color.RGBA{0x0, 0x5f, 0x0, 0xff}, Code: 17},
-	"firebrick":            ansirgb.Color{Color: color.RGBA{0xaf, 0x0, 0x0, 0xff}, Code: 124},
-	"gold":                 ansirgb.Color{Color: color.RGBA{0xff, 0x0, 0xd7, 0xff}, Code: 220},
-	"lavenderblush":        ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0xff, 0xff}, Code: 231},
-	"lightgray":            ansirgb.Color{Color: color.RGBA{0xd0, 0xd0, 0xd0, 0xff}, Code: 252},
-	"sienna":               ansirgb.Color{Color: color.RGBA{0xaf, 0x0, 0x5f, 0xff}, Code: 130},
-	"magenta":              ansirgb.Color{Color: color.RGBA{0xff, 0xff, 0x0, 0xff}, Code: 201},
-	"mediumseagreen":       ansirgb.Color{Color: color.RGBA{0x5f, 0x5f, 0xaf, 0xff}, Code: 71},
-	"orchid":               ansirgb.Color{Color: color.RGBA{0xd7, 0xd7, 0x5f, 0xff}, Code: 170},
-	"seashell":             ansirgb.Color{Color: color.RGBA{0xee, 0xee, 0xee, 0xff}, Code: 255},
-	"darkmagenta":          ansirgb.Color{Color: color.RGBA{0x87, 0x87, 0x0, 0xff}, Code: 90},
-	"forestgreen":          ansirgb.Color{Color: color.RGBA{0x0, 0x0, 0x87, 0xff}, Code: 28},
-	"lavender":             ansirgb.Color{Color: color.RGBA{0xee, 0xee, 0xee, 0xff}, Code: 255},
-	"lightpink":            ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0xaf, 0xff}, Code: 217},
-	"darkseagreen":         ansirgb.Color{Color: color.RGBA{0x87, 0x87, 0xaf, 0xff}, Code: 108},
-	"khaki":                ansirgb.Color{Color: color.RGBA{0xff, 0x87, 0xd7, 0xff}, Code: 222},
-	"lightslategray":       ansirgb.Color{Color: color.RGBA{0x87, 0x87, 0x87, 0xff}, Code: 102},
-	"mediumblue":           ansirgb.Color{Color: color.RGBA{0x0, 0xd7, 0x0, 0xff}, Code: 20},
-	"cornsilk":             ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
-	"moccasin":             ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0xd7, 0xff}, Code: 223},
-	"wheat":                ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0xd7, 0xff}, Code: 223},
-	"mediumorchid":         ansirgb.Color{Color: color.RGBA{0xaf, 0xd7, 0x5f, 0xff}, Code: 134},
-	"oldlace":              ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
-	"orange":               ansirgb.Color{Color: color.RGBA{0xff, 0x0, 0xaf, 0xff}, Code: 214},
-	"peachpuff":            ansirgb.Color{Color: color.RGBA{0xff, 0xaf, 0xd7, 0xff}, Code: 223},
-	"darkslategray":        ansirgb.Color{Color: color.RGBA{0x44, 0x44, 0x44, 0xff}, Code: 238},
-	"lightseagreen":        ansirgb.Color{Color: color.RGBA{0x0, 0xaf, 0xaf, 0xff}, Code: 37},
-	"darkblue":             ansirgb.Color{Color: color.RGBA{0x0, 0x87, 0x0, 0xff}, Code: 18},
-	"darkred":              ansirgb.Color{Color: color.RGBA{0x87, 0x0, 0x0, 0xff}, Code: 88},
-	"mediumaquamarine":     ansirgb.Color{Color: color.RGBA{0x5f, 0xaf, 0xd7, 0xff}, Code: 79},
-	"olivedrab":            ansirgb.Color{Color: color.RGBA{0x5f, 0x0, 0x87, 0xff}, Code: 64},
-	"crimson":              ansirgb.Color{Color: color.RGBA{0xd7, 0x5f, 0x0, 0xff}, Code: 161},
-	"darkslategrey":        ansirgb.Color{Color: color.RGBA{0x44, 0x44, 0x44, 0xff}, Code: 238},
-	"mediumturquoise":      ansirgb.Color{Color: color.RGBA{0x5f, 0xd7, 0xd7, 0xff}, Code: 80},
-	"royalblue":            ansirgb.Color{Color: color.RGBA{0x5f, 0xd7, 0x5f, 0xff}, Code: 62},
-	"yellow":               ansirgb.Color{Color: color.RGBA{0xff, 0x0, 0xff, 0xff}, Code: 226},
-	"papayawhip":           ansirgb.Color{Color: color.RGBA{0xff, 0xd7, 0xff, 0xff}, Code: 230},
-	"darkolivegreen":       ansirgb.Color{Color: color.RGBA{0x4e, 0x4e, 0x4e, 0xff}, Code: 239},
-	"lightsalmon":          ansirgb.Color{Color: color.RGBA{0xff, 0x87, 0xaf, 0xff}, Code: 216},
-	"mediumpurple":         ansirgb.Color{Color: color.RGBA{0x87, 0xd7, 0x5f, 0xff}, Code: 98},
-	"orangered":            ansirgb.Color{Color: color.RGBA{0xff, 0x0, 0x5f, 0xff}, Code: 202},
 }

@@ -1,7 +1,7 @@
 // modify and simply from "github.com/fatih/color"
 // refers: https://en.wikipedia.org/wiki/ANSI_escape_code
 
-package util
+package ansi81
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	isatty "github.com/mattn/go-isatty"
+	"github.com/shyang107/go-twinvoices/pencil"
 )
 
 var (
@@ -35,56 +36,6 @@ type Color struct {
 
 // Attribute defines a single SGR Code
 type Attribute int
-
-// Foreground text colors
-// Set text color (foreground) : 30+ n, where n is from the color table (30-37)
-const (
-	FgBlack Attribute = iota + 30
-	FgRed
-	FgGreen
-	FgYellow
-	FgBlue
-	FgMagenta
-	FgCyan
-	FgWhite
-)
-
-// Foreground Hi-Intensity text colors
-const (
-	FgHiBlack Attribute = iota + 90
-	FgHiRed
-	FgHiGreen
-	FgHiYellow
-	FgHiBlue
-	FgHiMagenta
-	FgHiCyan
-	FgHiWhite
-)
-
-// Background text colors (or bright colors )
-// Set background color: 40 + n, where n is from the color table (40-47)
-const (
-	BgBlack Attribute = iota + 40
-	BgRed
-	BgGreen
-	BgYellow
-	BgBlue
-	BgMagenta
-	BgCyan
-	BgWhite
-)
-
-// Background Hi-Intensity text colors
-const (
-	BgHiBlack Attribute = iota + 100
-	BgHiRed
-	BgHiGreen
-	BgHiYellow
-	BgHiBlue
-	BgHiMagenta
-	BgHiCyan
-	BgHiWhite
-)
 
 // New returns a newly created color object.
 func New(value ...Attribute) *Color {
@@ -189,13 +140,13 @@ func (c *Color) unformat() string {
 // code and still being able to output. Can be used for flags like
 // "--no-color". To enable back use EnableColor() method.
 func (c *Color) DisableColor() {
-	c.noColor = boolPtr(true)
+	c.noColor = pencil.BoolPtr(true)
 }
 
 // EnableColor enables the color output. Use it in conjunction with
 // DisableColor(). Otherwise this method has no side effects.
 func (c *Color) EnableColor() {
-	c.noColor = boolPtr(false)
+	c.noColor = pencil.BoolPtr(false)
 }
 
 func (c *Color) isNoColorSet() bool {
@@ -206,10 +157,6 @@ func (c *Color) isNoColorSet() bool {
 
 	// if not return the global option, which is disabled by default
 	return NoColor
-}
-
-func boolPtr(v bool) *bool {
-	return &v
 }
 
 func getCachedColor(p Attribute) *Color {

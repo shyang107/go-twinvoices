@@ -5,6 +5,8 @@ import (
 	"path"
 	"runtime"
 	"strings"
+
+	"github.com/shyang107/go-twinvoices/pencil/ansi8"
 )
 
 // Panic panicks
@@ -124,7 +126,7 @@ func DebugPrintCaller() {
 	// Glog.Debug(msg)
 	if Glog.Printer.IsTerminal {
 		Glog.Debugf("▶ [%s] called by [%s]",
-			HiYellowString(CallerName(2)), YellowString(CallerName(3)))
+			ansi8.HiYellowString(CallerName(2)), ansi8.YellowString(CallerName(3)))
 	} else {
 		Glog.Debugf("▶ [%s] called by [%s]", CallerName(2), CallerName(3))
 	}

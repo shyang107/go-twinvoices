@@ -9,13 +9,15 @@ import (
 
 	"golang.org/x/image/colornames"
 
+	"github.com/shyang107/go-twinvoices/pencil"
+	"github.com/shyang107/go-twinvoices/pencil/ansisvg"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/stroborobo/ansirgb"
 )
 
 func main() {
-	// testcolortext()
-	printAnsiPalette()
+	testcolortext()
+	// printAnsiPalette()
 }
 
 // var paletteMap = make(map[string]color.RGBA)
@@ -60,7 +62,7 @@ func printAnsiPalette() {
 	i := 0
 	for k, c := range maps {
 		i++
-		cl := util.MapSVG2ANSI[k]
+		cl := pencil.MapSVG2ANSI[k]
 		// r, g, b, _ := cl.RGBA()
 		// s := fmt.Sprintf("%3d: \033[38;5;%dm%04X %04X %04X\033[0m", cl.Code, cl.Code, r, g, b)
 		fmt.Printf("%3d. %*q %v -- %*q %v\n", i, size, k, &c, size, k, cl.String())
@@ -100,7 +102,7 @@ func testcolortext() {
 	size := findMaxSize()
 	for i := 0; i < num; i++ {
 		name1, name2 := cnames[i], cnames[num-i-1]
-		cl1, cl2 := util.ColorsSVG[name1], util.ColorsSVG[name2]
+		cl1, cl2 := pencil.ColorsSVG[name1], pencil.ColorsSVG[name2]
 		// cl3 := color.RGBAModel.Convert(cl1)
 		cl3 := ansirgb.Convert(&cl1)
 		// cl3 := util.PaletteAnsi.Index(cl1)
@@ -111,13 +113,13 @@ func testcolortext() {
 			fmt.Sprintf("svg[fg:%d<%s>|bg:%d<%s>]", idx1, name1, idx2, name2),
 			fmt.Sprintf("256[fg:%v]", idx3)
 
-		cl1Sf := util.NewRGB(
-			util.ColorAttribute{IsForeground: true, RGB: cl1},
-			// util.ColorAttribute{IsForeground: false, RGB: cl2},
+		cl1Sf := ansisvg.New(
+			ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: cl1},
+			// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color:cl2},
 		).SprintfFunc()
-		cl2Sf := util.NewRGB(
-			util.ColorAttribute{IsForeground: true, RGB: cl1},
-			util.ColorAttribute{IsForeground: false, RGB: cl2},
+		cl2Sf := ansisvg.New(
+			ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: cl1},
+			ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: cl2},
 		).SprintfFunc()
 		cl3Sf := func(format string, colorIndex int, a ...interface{}) string {
 			// return fmt.Sprintf("\x1b[38;5;%dm", colorIndex) + fmt.Sprintf(format, a...) + "\x1b[0m"
@@ -137,7 +139,7 @@ func findMaxSize() (size int) {
 	num := len(cnames)
 	for i := 0; i < num; i++ {
 		name1, name2 := cnames[i], cnames[num-i-1]
-		cl1, cl2 := util.ColorsSVG[name1], util.ColorsSVG[name2]
+		cl1, cl2 := pencil.ColorsSVG[name1], pencil.ColorsSVG[name2]
 		idx1, idx2 := plte.Index(cl1), plte.Index(cl2)
 		clfmt1, clfmt2 :=
 			fmt.Sprintf("[fg:%d <%s>]", idx1, name1),

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/kataras/golog"
+	"github.com/shyang107/go-twinvoices/pencil"
+	"github.com/shyang107/go-twinvoices/pencil/ansisvg"
 	"golang.org/x/image/colornames"
 )
 
@@ -27,31 +29,31 @@ func InitLogger() {
 	// Glog.SetTimeFormat("2006/01/02 15:04:05")
 	Glog.SetTimeFormat("")
 	Glog.SetLevel("info")
-	NoColor = !Glog.Printer.IsTerminal
+	pencil.NoColor = !Glog.Printer.IsTerminal
 }
 
 //---------------------------------------------------------
 
 var (
-	errorColorStr = NewRGB(
-		// ColorAttribute{IsForeground: true, RGB: colornames.White},
-		ColorAttribute{IsForeground: true, RGB: colornames.Violet},
-		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
+	errorColorStr = ansisvg.New(
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Violet},
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
-	warnColorStr = NewRGB(
-		// ColorAttribute{IsForeground: true, RGB: colornames.White},
-		ColorAttribute{IsForeground: true, RGB: colornames.Goldenrod},
-		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
+	warnColorStr = ansisvg.New(
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Goldenrod},
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
-	infoColorStr = NewRGB(
-		// ColorAttribute{IsForeground: true, RGB: colornames.White},
-		ColorAttribute{IsForeground: true, RGB: colornames.Cyan},
-		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
+	infoColorStr = ansisvg.New(
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Cyan},
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
-	debugColorStr = NewRGB(
-		// ColorAttribute{IsForeground: true, RGB: colornames.White},
-		ColorAttribute{IsForeground: true, RGB: colornames.Orangered},
-		// ColorAttribute{IsForeground: false, RGB: colornames.Goldenrod},
+	debugColorStr = ansisvg.New(
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Orangered},
+		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
 	// LogColorStringFuncs maps to a serious of [*]ColorString functions with key as golog.Level
 	LogColorStringFuncs = map[golog.Level]func(a ...interface{}) string{
@@ -108,7 +110,7 @@ func EnableLoggerOutToFile(levelname string) {
 	} else {
 		Glog.Errorf("Failed to log to file, using default stderr")
 	}
-	NoColor = true
+	pencil.NoColor = true
 }
 
 // TodayFilename get a filename based on the date, file logs works that way the most times
