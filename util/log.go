@@ -8,7 +8,7 @@ import (
 
 	"github.com/kataras/golog"
 	"github.com/shyang107/go-twinvoices/pencil"
-	"github.com/shyang107/go-twinvoices/pencil/ansisvg"
+	"github.com/shyang107/go-twinvoices/pencil/rgb16b"
 	"golang.org/x/image/colornames"
 )
 
@@ -35,25 +35,25 @@ func InitLogger() {
 //---------------------------------------------------------
 
 var (
-	errorColorStr = ansisvg.New(
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Violet},
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
+	errorColorStr = rgb16b.New(
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Violet},
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
-	warnColorStr = ansisvg.New(
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Goldenrod},
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
+	warnColorStr = rgb16b.New(
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Goldenrod},
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
-	infoColorStr = ansisvg.New(
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Cyan},
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
+	infoColorStr = rgb16b.New(
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Cyan},
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
-	debugColorStr = ansisvg.New(
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Orangered},
-		// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
+	debugColorStr = rgb16b.New(
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
+		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Orangered},
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
 	// LogColorStringFuncs maps to a serious of [*]ColorString functions with key as golog.Level
 	LogColorStringFuncs = map[golog.Level]func(a ...interface{}) string{

@@ -1,4 +1,4 @@
-package ansisvg
+package rgb16b
 
 
 import (

@@ -10,9 +10,10 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/shyang107/go-twinvoices/pencil"
-	"github.com/shyang107/go-twinvoices/pencil/ansisvg"
+	"github.com/shyang107/go-twinvoices/pencil/ansirgb"
+	"github.com/shyang107/go-twinvoices/pencil/rgb16b"
 	"github.com/shyang107/go-twinvoices/util"
-	"github.com/stroborobo/ansirgb"
+	// "github.com/stroborobo/ansirgb"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func printAnsiPalette() {
 	os.Remove("ansiPalette.log")
 	output, _ := os.OpenFile("ansiPalette.log", os.O_CREATE|os.O_WRONLY, 0666)
 	// output := os.Stdout
-	fmt.Fprintf(output, "var PaletteANSI = []ansirgb.Color{\n")
+	fmt.Fprintf(output, "var Palette color.Palette = []color.Color{\n")
 	for _, p := range ansirgb.Palette {
 		r, g, b, a := p.RGBA()
 		// fmt.Fprintf(output, "- %4sansirgb.Color{Color:color.RGBA{%#02x,%#02x,%#02x,%#02x}, Code:%d},\n", "", uint8(r), uint8(b), uint8(g), uint8(a), ansirgb.Convert(p).Code)
@@ -43,7 +44,7 @@ func printAnsiPalette() {
 		if ansirgb.Convert(p).Code == -1 {
 			fmt.Fprintf(output, "%4s// transparent: 256\n", "")
 		}
-		fmt.Fprintf(output, "%4sansirgb.Color{Color:color.RGBA{%#02x,%#02x,%#02x,%#02x}, Code:%d},\n", "", r>>8, b>>8, g>>8, a>>8, ansirgb.Convert(p).Code)
+		fmt.Fprintf(output, "%4s&Color{&color.RGBA{%#02x,%#02x,%#02x,%#02x}, %d},\n", "", r>>8, b>>8, g>>8, a>>8, ansirgb.Convert(p).Code)
 	}
 	fmt.Fprintf(output, "}\n")
 	output.Close()
@@ -62,17 +63,17 @@ func printAnsiPalette() {
 	i := 0
 	for k, c := range maps {
 		i++
-		cl := pencil.MapSVG2ANSI[k]
+		cl := ansirgb.Map[k]
 		// r, g, b, _ := cl.RGBA()
 		// s := fmt.Sprintf("%3d: \033[38;5;%dm%04X %04X %04X\033[0m", cl.Code, cl.Code, r, g, b)
 		fmt.Printf("%3d. %*q %v -- %*q %v\n", i, size, k, &c, size, k, cl.String())
 	}
 	// fmt.Fprintf(os.Stdout, "\n%#v\n", maps)
 	i = 0
-	os.Remove("MapSVG2ANSI.log")
-	output, _ = os.OpenFile("MapSVG2ANSI.log", os.O_CREATE|os.O_WRONLY, 0666)
+	os.Remove("ansirgbMap.log")
+	output, _ = os.OpenFile("ansirgbMap.log", os.O_CREATE|os.O_WRONLY, 0666)
 	// output := os.Stdout
-	fmt.Fprintf(output, "var MapSVG2ANSI = map[string]ansirgb.Color{\n")
+	fmt.Fprintf(output, "var Map = map[string]Color{\n")
 	for k := range maps {
 		_, _, n := util.CountChars(k)
 		size = util.Imax(size, n)
@@ -83,7 +84,7 @@ func printAnsiPalette() {
 		r, g, b, a := c.Color.RGBA()
 		name := fmt.Sprintf("%q", k)
 		name += ":"
-		fmt.Fprintf(output, "%4s%-*sansirgb.Color{Color:color.RGBA{%#x,%#x,%#x,%#x}, Code:%d},\n", "", size, name, r>>8, b>>8, g>>8, a>>8, c.Code)
+		fmt.Fprintf(output, "%4s%-*sColor{color.RGBA{%#2x,%#2x,%#2x,%#2x}, %d},\n", "", size, name, r>>8, b>>8, g>>8, a>>8, c.Code)
 	}
 	fmt.Fprintf(output, "}\n")
 	output.Close()
@@ -97,12 +98,12 @@ func testcolortext() {
 	// }
 	var plte color.Palette = palette.Plan9
 	s := "這是彩色文字測試！This is a test of colorful text!"
-	cnames := colornames.Names
+	cnames := rgb16b.Names // colornames.Names
 	num := len(cnames)
 	size := findMaxSize()
 	for i := 0; i < num; i++ {
 		name1, name2 := cnames[i], cnames[num-i-1]
-		cl1, cl2 := pencil.ColorsSVG[name1], pencil.ColorsSVG[name2]
+		cl1, cl2 := rgb16b.Map[name1], rgb16b.Map[name2]
 		// cl3 := color.RGBAModel.Convert(cl1)
 		cl3 := ansirgb.Convert(&cl1)
 		// cl3 := util.PaletteAnsi.Index(cl1)
@@ -113,13 +114,13 @@ func testcolortext() {
 			fmt.Sprintf("svg[fg:%d<%s>|bg:%d<%s>]", idx1, name1, idx2, name2),
 			fmt.Sprintf("256[fg:%v]", idx3)
 
-		cl1Sf := ansisvg.New(
-			ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: cl1},
-			// ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color:cl2},
+		cl1Sf := rgb16b.New(
+			rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: cl1},
+			// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color:cl2},
 		).SprintfFunc()
-		cl2Sf := ansisvg.New(
-			ansisvg.RGBAttribute{GroundFlag: pencil.Foreground, Color: cl1},
-			ansisvg.RGBAttribute{GroundFlag: pencil.Background, Color: cl2},
+		cl2Sf := rgb16b.New(
+			rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: cl1},
+			rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: cl2},
 		).SprintfFunc()
 		cl3Sf := func(format string, colorIndex int, a ...interface{}) string {
 			// return fmt.Sprintf("\x1b[38;5;%dm", colorIndex) + fmt.Sprintf(format, a...) + "\x1b[0m"
@@ -135,11 +136,11 @@ func testcolortext() {
 
 func findMaxSize() (size int) {
 	var plte color.Palette = palette.Plan9
-	cnames := colornames.Names
+	cnames := rgb16b.Names
 	num := len(cnames)
 	for i := 0; i < num; i++ {
 		name1, name2 := cnames[i], cnames[num-i-1]
-		cl1, cl2 := pencil.ColorsSVG[name1], pencil.ColorsSVG[name2]
+		cl1, cl2 := rgb16b.Map[name1], rgb16b.Map[name2]
 		idx1, idx2 := plte.Index(cl1), plte.Index(cl2)
 		clfmt1, clfmt2 :=
 			fmt.Sprintf("[fg:%d <%s>]", idx1, name1),
