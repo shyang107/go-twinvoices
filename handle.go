@@ -22,6 +22,10 @@ type InvoiceUnmarshaller interface {
 	UnmarshalInvoices(fn string) ([]*Invoice, error)
 }
 
+func logdebugmarshaller(marshaller string) {
+	util.Glog.Debugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug3", marshaller))
+}
+
 // ReadInvoices reads invoice-record from fn
 func (c *InputFile) ReadInvoices() ([]*Invoice, error) {
 	var unmarshaller InvoiceUnmarshaller
@@ -36,19 +40,19 @@ func (c *InputFile) ReadInvoices() ([]*Invoice, error) {
 	//
 	switch c.Suffix {
 	case ".csv":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "CsvMarshaller"))
+		logdebugmarshaller("CsvMarshaller")
 		unmarshaller = CsvMarshaller{}
 	case ".jsn", ".json":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "JSONMarshaller"))
+		logdebugmarshaller("JSONMarshaller")
 		unmarshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "YAMLMarshaller"))
+		logdebugmarshaller("YAMLMarshaller")
 		unmarshaller = YAMLMarshaller{}
 	case ".xml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XMLMarshaller"))
+		logdebugmarshaller("XMLMarshaller")
 		unmarshaller = XMLMarshaller{}
 	case ".xlsx":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XlsxMarshaller"))
+		logdebugmarshaller("XlsxMarshaller")
 		unmarshaller = XlsxMarshaller{}
 	}
 	if unmarshaller != nil {
@@ -69,19 +73,19 @@ func (o *OutputFile) WriteInvoices(invs []*Invoice) error {
 	util.DebugPrintCaller()
 	switch o.Suffix {
 	case ".csv":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "CsvMarshaller"))
+		logdebugmarshaller("CsvMarshaller")
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "JSONMarshaller"))
+		logdebugmarshaller("JSONMarshaller")
 		marshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "YAMLMarshaller"))
+		logdebugmarshaller("YAMLMarshaller")
 		marshaller = YAMLMarshaller{}
 	case ".xml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XMLMarshaller"))
+		logdebugmarshaller("XMLMarshaller")
 		marshaller = XMLMarshaller{}
 	case ".xlsx":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XlsxMarshaller"))
+		logdebugmarshaller("XlsxMarshaller")
 		marshaller = XlsxMarshaller{}
 	}
 	if marshaller != nil {

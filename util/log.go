@@ -55,18 +55,26 @@ var (
 		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Orangered},
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
+	debugColorStr2 = rgb16b.New(
+		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Darksalmon},
+	).SprintFunc()
+	debugColorStr3 = rgb16b.New(
+		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Darkorange},
+	).SprintFunc()
 	// LogColorStringFuncs maps to a serious of [*]ColorString functions with key as golog.Level
-	LogColorStringFuncs = map[golog.Level]func(a ...interface{}) string{
+	LogColorStringFuncs = map[string]func(a ...interface{}) string{
 		// golog.DisableLevel: func(s string) string { return s },
 		// golog.ErrorLevel:   func(s string) string { return HiRedString(s) },
 		// golog.WarnLevel:    func(s string) string { return HiMagentaString(s) },
 		// golog.InfoLevel:    func(s string) string { return HiCyanString(s) },
 		// golog.DebugLevel:   func(s string) string { return OrangeString(s) },
-		golog.DisableLevel: fmt.Sprint,
-		golog.ErrorLevel:   errorColorStr,
-		golog.WarnLevel:    warnColorStr,
-		golog.InfoLevel:    infoColorStr,
-		golog.DebugLevel:   debugColorStr,
+		"disable": fmt.Sprint,
+		"error":   errorColorStr,
+		"warn":    warnColorStr,
+		"info":    infoColorStr,
+		"debug":   debugColorStr,
+		"debug2":  debugColorStr2,
+		"debug3":  debugColorStr2,
 	}
 )
 
@@ -93,7 +101,7 @@ func LogColorString(levelname, s string) string {
 	if !Glog.Printer.IsTerminal {
 		return s
 	}
-	return LogColorStringFuncs[fromLevelName(levelname)](s)
+	return LogColorStringFuncs[levelname](s)
 	// return ColorStringFuncs[Level(glog.Level)](s)
 }
 

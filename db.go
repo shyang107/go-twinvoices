@@ -113,19 +113,19 @@ func DBWriteInvoices(invs []*Invoice, fln string) error {
 	var marshaller InvoiceMarshaller
 	switch ext {
 	case ".csv":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "CsvMarshaller"))
+		logdebugmarshaller("CsvMarshaller")
 		marshaller = CsvMarshaller{}
 	case ".jsn", ".json":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "JSONMarshaller"))
+		logdebugmarshaller("JSONMarshaller")
 		marshaller = JSONMarshaller{}
 	case ".yml", ".yaml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "YAMLMarshaller"))
+		logdebugmarshaller("YAMLMarshaller")
 		marshaller = YAMLMarshaller{}
 	case ".xml":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XMLMarshaller"))
+		logdebugmarshaller("XMLMarshaller")
 		marshaller = XMLMarshaller{}
 	case ".xlsx":
-		glDebugf("➥  Connect to ⚓  [%s]", util.LogColorString("debug", "XlsxMarshaller"))
+		logdebugmarshaller("XlsxMarshaller")
 		marshaller = XlsxMarshaller{}
 	}
 	if marshaller != nil {
