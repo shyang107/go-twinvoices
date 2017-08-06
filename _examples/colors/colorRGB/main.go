@@ -14,6 +14,7 @@ import (
 	"github.com/shyang107/go-twinvoices/pencil/rgb16b"
 	"github.com/shyang107/go-twinvoices/util"
 	// "github.com/stroborobo/ansirgb"
+	// sansirgb "github.com/stroborobo/ansirgb"
 )
 
 func main() {
@@ -60,16 +61,16 @@ func printAnsiPalette() {
 		_, _, n := util.CountChars(cnames[i])
 		size = util.Imax(size, n+2)
 	}
-	i := 0
-	for k, c := range maps {
-		i++
-		cl := ansirgb.Map[k]
-		// r, g, b, _ := cl.RGBA()
-		// s := fmt.Sprintf("%3d: \033[38;5;%dm%04X %04X %04X\033[0m", cl.Code, cl.Code, r, g, b)
-		fmt.Printf("%3d. %*q %v -- %*q %v\n", i, size, k, &c, size, k, cl.String())
-	}
+	// i := 0
+	// for k, c := range maps {
+	// 	i++
+	// 	cl := ansirgb.Map[k]
+	// 	// r, g, b, _ := cl.RGBA()
+	// 	// s := fmt.Sprintf("%3d: \033[38;5;%dm%04X %04X %04X\033[0m", cl.Code, cl.Code, r, g, b)
+	// 	fmt.Printf("%3d. %*q %v -- %*q %v\n", i, size, k, &c, size, k, cl.String())
+	// }
 	// fmt.Fprintf(os.Stdout, "\n%#v\n", maps)
-	i = 0
+	i := 0
 	os.Remove("ansirgbMap.log")
 	output, _ = os.OpenFile("ansirgbMap.log", os.O_CREATE|os.O_WRONLY, 0666)
 	// output := os.Stdout
@@ -84,7 +85,7 @@ func printAnsiPalette() {
 		r, g, b, a := c.Color.RGBA()
 		name := fmt.Sprintf("%q", k)
 		name += ":"
-		fmt.Fprintf(output, "%4s%-*sColor{color.RGBA{%#2x,%#2x,%#2x,%#2x}, %d},\n", "", size, name, r>>8, b>>8, g>>8, a>>8, c.Code)
+		fmt.Fprintf(output, "%4s%-*sColor{color.RGBA{%#02x,%#02x,%#02x,%#02x}, %d},\n", "", size, name, r>>8, b>>8, g>>8, a>>8, c.Code)
 	}
 	fmt.Fprintf(output, "}\n")
 	output.Close()
@@ -98,15 +99,13 @@ func testcolortext() {
 	// }
 	var plte color.Palette = palette.Plan9
 	s := "這是彩色文字測試！This is a test of colorful text!"
-	cnames := rgb16b.Names // colornames.Names
+	cnames := colornames.Names
 	num := len(cnames)
 	size := findMaxSize()
 	for i := 0; i < num; i++ {
 		name1, name2 := cnames[i], cnames[num-i-1]
-		cl1, cl2 := rgb16b.Map[name1], rgb16b.Map[name2]
-		// cl3 := color.RGBAModel.Convert(cl1)
+		cl1, cl2 := colornames.Map[name1], colornames.Map[name2]
 		cl3 := ansirgb.Convert(&cl1)
-		// cl3 := util.PaletteAnsi.Index(cl1)
 		idx1, idx2, idx3 := plte.Index(cl1), plte.Index(cl2), cl3.Code
 
 		clfmt1, clfmt2, clfm8bit :=
@@ -123,8 +122,7 @@ func testcolortext() {
 			rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: cl2},
 		).SprintfFunc()
 		cl3Sf := func(format string, colorIndex int, a ...interface{}) string {
-			// return fmt.Sprintf("\x1b[38;5;%dm", colorIndex) + fmt.Sprintf(format, a...) + "\x1b[0m"
-			return cl3.Fg() + fmt.Sprintf(format, a...) + "\x1b[0m"
+			return fmt.Sprintf("\x1b[38;5;%dm", colorIndex) + fmt.Sprintf(format, a...) + "\x1b[0m"
 		}
 
 		fmt.Printf("%*s %s\n", size, clfmt1, cl1Sf("%s", s))

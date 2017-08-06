@@ -112,3 +112,15 @@ func Convert(c color.Color) *Color {
 func Index(c color.Color) int {
 	return Convert(c).Code
 }
+
+// ANSIRGBModel can convert any Color to one from its own color model. The conversion may be lossy.
+var ANSIRGBModel = color.ModelFunc(ansirgbaModel)
+
+func ansirgbaModel(c color.Color) color.Color {
+	// if _, ok := c.(color.RGBA); ok {
+	// 	cl := Convert(c)
+	// 	return cl
+	// }
+	cl := Convert(c)
+	return cl
+}
