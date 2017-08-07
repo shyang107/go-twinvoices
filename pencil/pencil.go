@@ -58,9 +58,9 @@ type ColorCode int
 
 // Color modes
 const (
-	ModeANSIBasic ColorMode = iota
+	ModeANSI8 ColorMode = iota
 	ModeANSI256
-	ModeSVG
+	ModeRGB
 )
 
 // GroundFlag define color in foreground or background
