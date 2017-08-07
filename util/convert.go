@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/cpmech/gosl/chk"
 )
 
 // convert ---------------------------------------------------------
@@ -27,7 +25,7 @@ func Atob(val string) (bres bool) {
 	}
 	res, err := strconv.Atoi(val)
 	if err != nil {
-		chk.Panic("cannot parse string representing integer: %s", val)
+		Panic("cannot parse string representing integer: %s", val)
 	}
 	if res != 0 {
 		bres = true
@@ -39,7 +37,7 @@ func Atob(val string) (bres bool) {
 func Atoi(val string) (res int) {
 	res, err := strconv.Atoi(val)
 	if err != nil {
-		chk.Panic("cannot parse string representing integer number: %s", val)
+		Panic("cannot parse string representing integer number: %s", val)
 	}
 	return
 }
@@ -48,7 +46,7 @@ func Atoi(val string) (res int) {
 func Atof(val string) (res float64) {
 	res, err := strconv.ParseFloat(val, 64)
 	if err != nil {
-		chk.Panic("cannot parse string representing float number: %s", val)
+		Panic("cannot parse string representing float number: %s", val)
 	}
 	return
 }
