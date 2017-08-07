@@ -95,13 +95,3 @@ func DblSf(msg string, slice []float64) string {
 func StrSf(msg string, slice []string) string {
 	return strings.Trim(fmt.Sprintf(msg, slice), "[]")
 }
-
-// // Sf wraps Sprintf
-// func Sf(msg string, prm ...interface{}) string {
-// 	return fmt.Sprintf(msg, prm...)
-// }
-
-// // Ff wraps Fprintf
-// func Ff(b *bytes.Buffer, msg string, prm ...interface{}) {
-// 	fmt.Fprintf(b, msg, prm...)
-// }
