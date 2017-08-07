@@ -6,84 +6,84 @@ import "github.com/shyang107/go-twinvoices/pencil"
 
 // BlackString retrive a formatted string in color black
 func BlackString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(0), a...)
+	return colorString(format, FgBlack, a...)
 }
 
 // RedString retrive a formatted string in color Red
 func RedString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(1)<<8, a...)
+	return colorString(format, FgRed, a...)
 }
 
 // GreenString retrive a formatted string in color Green
 func GreenString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(2)<<8, a...)
+	return colorString(format, FgGreen, a...)
 }
 
 // YellowString retrive a formatted string in color Yellow
 func YellowString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(3)<<8, a...)
+	return colorString(format, FgYellow, a...)
 }
 
 // BlueString retrive a formatted string in color Blue
 func BlueString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(4)<<8, a...)
+	return colorString(format, FgBlue, a...)
 }
 
 // MagentaString retrive a formatted string in color Magenta
 func MagentaString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(5)<<8, a...)
+	return colorString(format, FgMagenta, a...)
 }
 
 // CyanString retrive a formatted string in color Cyan
 func CyanString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(6)<<8, a...)
+	return colorString(format, FgCyan, a...)
 }
 
-// GreyString retrive a formatted string in color Grey
-func GreyString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(7)<<8, a...)
+// WhiteString retrive a formatted string in color White
+func WhiteString(format string, a ...interface{}) string {
+	return colorString(format, FgWhite, a...)
 }
 
 // High-intensity colors 8-15
 
 // HiBlackString retrive a formatted string in color HiBlack
 func HiBlackString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(8), a...)
+	return colorString(format, FgHiBlack, a...)
 }
 
 // HiRedString retrive a formatted string in color HiRed
 func HiRedString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(9)<<8, a...)
+	return colorString(format, FgHiRed, a...)
 }
 
 // HiGreenString retrive a formatted string in color HiGreen
 func HiGreenString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(10)<<8, a...)
+	return colorString(format, FgHiGreen, a...)
 }
 
 // HiYellowString retrive a formatted string in color HiYellow
 func HiYellowString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(11)<<8, a...)
+	return colorString(format, FgHiYellow, a...)
 }
 
 // HiBlueString retrive a formatted string in color HiBlue
 func HiBlueString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(12)<<8, a...)
+	return colorString(format, FgHiBlue, a...)
 }
 
 // HiMagentaString retrive a formatted string in color HiMagenta
 func HiMagentaString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(13)<<8, a...)
+	return colorString(format, FgHiMagenta, a...)
 }
 
 // HiCyanString retrive a formatted string in color HiCyan
 func HiCyanString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(14)<<8, a...)
+	return colorString(format, FgHiCyan, a...)
 }
 
-// HiGreyString retrive a formatted string in color HiGrey
-func HiGreyString(format string, a ...interface{}) string {
-	return colorString(format, pencil.Attribute(15)<<8, a...)
+// HiWhiteString retrive a formatted string in color HiWhite
+func HiWhiteString(format string, a ...interface{}) string {
+	return colorString(format, FgHiWhite, a...)
 }
 
 // Specified colors in 216-colors: 16-231
