@@ -31,34 +31,34 @@ type Color struct {
 
 // Base attributes
 const (
-	Foreground256 pencil.Attribute = 385 // ESC[38;5;<n>m
-	Background256 pencil.Attribute = 485 // ESC[48;5;<n>m
+	Foreground pencil.Attribute = 385 // ESC[38;5;<n>m
+	Background pencil.Attribute = 485 // ESC[48;5;<n>m
 )
 
 // Foreground Standard colors: n, where n is from the color table (0-7)
 // (as in ESC[30–37m) <- SGR code
 const (
-	FgBlack256 pencil.Attribute = iota << 8
-	FgRed256
-	FgGreen256
-	FgYellow256
-	FgBlue256
-	FgMagenta256
-	FgCyan256
-	FgWhite256
+	FgBlack pencil.Attribute = iota << 8
+	FgRed
+	FgGreen
+	FgYellow
+	FgBlue
+	FgMagenta
+	FgCyan
+	FgWhite
 )
 
 // Foreground High-intensity colors: n, where n is from the color table (8-15)
 // (as in ESC [ 90–97 m) <- SGR code
 const (
-	FgHiBlack256 pencil.Attribute = (iota + 8) << 8
-	FgHiRed256
-	FgHiGreen256
-	FgHiYellow256
-	FgHiBlue256
-	FgHiMagenta256
-	FgHiCyan256
-	FgHiWhite256
+	FgHiBlack pencil.Attribute = (iota + 8) << 8
+	FgHiRed
+	FgHiGreen
+	FgHiYellow
+	FgHiBlue
+	FgHiMagenta
+	FgHiCyan
+	FgHiWhite
 )
 
 // Foreground Grayscale colors: grayscale from black to white in 24 steps (232-255)
@@ -94,27 +94,27 @@ const bgzone = 256
 // Background Standard colors: n, where n is from the color table (0-7)
 // (as in ESC[30–37m) <- SGR code
 const (
-	BgBlack256 pencil.Attribute = (iota + bgzone) << 8
-	BgRed256
-	BgGreen256
-	BgYellow256
-	BgBlue256
-	BgMagenta256
-	BgCyan256
-	BgWhite256
+	BgBlack pencil.Attribute = (iota + bgzone) << 8
+	BgRed
+	BgGreen
+	BgYellow
+	BgBlue
+	BgMagenta
+	BgCyan
+	BgWhite
 )
 
 // Background High-intensity colors: n, where n is from the color table (8-15)
 // (as in ESC [ 90–97 m) <- SGR code
 const (
-	BgHiBlack256 pencil.Attribute = (iota + 8 + bgzone) << 8
-	BgHiRed256
-	BgHiGreen256
-	BgHiYellow256
-	BgHiBlue256
-	BgHiMagenta256
-	BgHiCyan256
-	BgHiWhite256
+	BgHiBlack pencil.Attribute = (iota + 8 + bgzone) << 8
+	BgHiRed
+	BgHiGreen
+	BgHiYellow
+	BgHiBlue
+	BgHiMagenta
+	BgHiCyan
+	BgHiWhite
 )
 
 // Background Grayscale colors: grayscale from black to white in 24 steps (232-255)
@@ -162,7 +162,7 @@ func (c *Color) Add(value ...pencil.Attribute) *Color {
 }
 
 func (c *Color) prepend(value pencil.Attribute) {
-	c.params = append(c.params, pencil.Attribute{})
+	c.params = append(c.params, 0)
 	copy(c.params[1:], c.params[0:])
 	c.params[0] = value
 }
@@ -236,6 +236,21 @@ func (c *Color) wrap(s string) string {
 	return c.format() + s + c.unformat()
 }
 
+// decode decode a color attribute (fore- and back-ground) to true 256 colors code
+func decode(value pencil.Attribute) int {
+	return int(value >> 8)
+}
+
+// encode encode a true 256 colors code to a color attribute
+func encode(value int, isForeground bool) (n pencil.Attribute) {
+	if isForeground {
+		n = pencil.Attribute(value) << 8
+	} else {
+		n = pencil.Attribute(value+bgzone) << 8
+	}
+	return n
+}
+
 // sequence returns a formated SGR sequence to be plugged into a
 // ESC[38;5;<n>m Select foreground color
 // ESC[48;5;<n>m Select background color
@@ -245,7 +260,7 @@ func (c *Color) sequence() string {
 	format := make([]string, len(c.params))
 	for i, v := range c.params {
 		// format[i] = strconv.Itoa(int(v))
-		code := DecodeColor(v)
+		code := decode(v)
 		if code < bgzone {
 			leadcfmt = fgleading
 		} else {
@@ -278,13 +293,13 @@ func (c *Color) isNoColorSet() bool {
 }
 
 func getCachedColor(k pencil.Attribute) *Color {
-	colorCacheMu.Lock()
-	defer colorCacheMu.Unlock()
+	colorsCacheMu.Lock()
+	defer colorsCacheMu.Unlock()
 
-	c, ok := colorCache[k]
+	c, ok := colorsCache[k]
 	if !ok {
 		c = New(k)
-		colorCache[k] = c
+		colorsCache[k] = c
 	}
 
 	return c
@@ -292,7 +307,7 @@ func getCachedColor(k pencil.Attribute) *Color {
 
 // colorString returns a formatted colorful string with specified "colorname"
 func colorString(format string, color pencil.Attribute, a ...interface{}) string {
-	c := getCachedColor(pencil.Attribute{Color: color, GroundFlag: pencil.Foreground})
+	c := getCachedColor(color)
 
 	if len(a) == 0 {
 		return c.SprintFunc()(format)
