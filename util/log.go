@@ -36,31 +36,31 @@ func InitLogger() {
 
 var (
 	errorColorStr = rgb16b.New(
+		colornames.Violet, pencil.Foreground,
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Violet},
+		// rgb16b.RGBAttribute{[GroundFlag]: pencil.Foreground, Color: colornames.Violet},
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
 	warnColorStr = rgb16b.New(
+		colornames.Goldenrod, pencil.Foreground,
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Goldenrod},
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Goldenrod},
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
 	infoColorStr = rgb16b.New(
+		colornames.Cyan, pencil.Foreground,
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Cyan},
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Cyan},
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
 	debugColorStr = rgb16b.New(
+		colornames.Orangered, pencil.Foreground,
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.White},
-		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Orangered},
+		// rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Orangered},
 		// rgb16b.RGBAttribute{GroundFlag: pencil.Background, Color: colornames.Goldenrod},
 	).SprintFunc()
-	debugColorStr2 = rgb16b.New(
-		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Darksalmon},
-	).SprintFunc()
-	debugColorStr3 = rgb16b.New(
-		rgb16b.RGBAttribute{GroundFlag: pencil.Foreground, Color: colornames.Darkorange},
-	).SprintFunc()
+	debugColorStr2 = rgb16b.New(colornames.Darksalmon, pencil.Foreground).SprintFunc()
+	debugColorStr3 = rgb16b.New(colornames.Darkorange, pencil.Foreground).SprintFunc()
 	// LogColorStringFuncs maps to a serious of [*]ColorString functions with key as golog.Level
 	LogColorStringFuncs = map[string]func(a ...interface{}) string{
 		// golog.DisableLevel: func(s string) string { return s },

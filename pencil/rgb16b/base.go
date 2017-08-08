@@ -1,18 +1,10 @@
 package rgb16b
 
-
 import "github.com/shyang107/go-twinvoices/pencil"
 
-// SetColor set the color of the object "Color"
-func (c *Color) SetColor(attrs ...interface{}) error {
-	for _, intf := range attrs {
-		attr, ok := intf.(RGBAttribute)
-		if !ok {
-			continue
-		}
-		c = c.Add(attr)
-	}
-	return nil
+// SetAttribute set the attributes of the object "Color"
+func (c *Color) SetAttribute(attrs ...pencil.Attribute) {
+	c = c.Add(attrs...)
 }
 
 // DisableColor disables the color output. Useful to not change any existing

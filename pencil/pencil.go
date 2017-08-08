@@ -63,29 +63,29 @@ const (
 	ModeRGB
 )
 
-// GroundFlag define color in foreground or background
-type GroundFlag uint
+// // GroundFlag define color in foreground or background
+// type GroundFlag uint
 
-// Settings for the flag of foreground or background
-const (
-	Foreground GroundFlag = 1 << iota
-	Background
-)
+// // Settings for the flag of foreground or background
+// const (
+// 	Foreground GroundFlag = 1 << iota
+// 	Background
+// )
 
-// IsForeground return true if flag = Foreground
-func IsForeground(flag GroundFlag) bool {
-	switch flag {
-	case Background:
-		return false
-	default: // Foreground
-		return true
-	}
-}
+// // IsForeground return true if flag = Foreground
+// func IsForeground(flag GroundFlag) bool {
+// 	switch flag {
+// 	case Background:
+// 		return false
+// 	default: // Foreground
+// 		return true
+// 	}
+// }
 
-// IsBackground return true if flag = Background
-func IsBackground(flag GroundFlag) bool {
-	return !IsForeground(flag)
-}
+// // IsBackground return true if flag = Background
+// func IsBackground(flag GroundFlag) bool {
+// 	return !IsForeground(flag)
+// }
 
 // NewColorableStdout return new instance of Writer which handle escape sequence for stdout.
 func NewColorableStdout() io.Writer {
