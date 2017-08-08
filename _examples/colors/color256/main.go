@@ -3,6 +3,10 @@ package main
 import (
 	"fmt"
 
+	"github.com/shyang107/go-twinvoices/pencil"
+
+	"github.com/shyang107/go-twinvoices/pencil/rgb16b"
+
 	"golang.org/x/image/colornames"
 
 	"github.com/shyang107/go-twinvoices/util"
@@ -22,7 +26,9 @@ func testcolortext2() {
 	s := "這是彩色文字測試！This is a test of colorful text!"
 	cnames := colornames.Names
 	for i, n := range cnames {
-		fmt.Printf("%3d <%s> %s\n", i+1, n, util.ColorRGBString("%s", util.Colors[n], s))
+		cl := rgb16b.New(rgb16b.RGBAttribute{Color: rgb16b.Map[n], GroundFlag: pencil.Foreground})
+		msg := cl.Sprint(s)
+		fmt.Printf("%3d <%s> %s\n", i+1, n, msg)
 	}
 }
 
