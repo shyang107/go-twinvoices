@@ -57,13 +57,11 @@ or .yaml.`
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the RootApp.
 func Execute() {
-	// ut.Pdebug("> root.Execute called\n")
 	util.DebugPrintCaller()
-	// initConfig()
+
 	sort.Sort(cli.FlagsByName(RootApp.Flags))
 	sort.Sort(cli.CommandsByName(RootApp.Commands))
-	//
-	// RootApp.RunAndExitOnError()
+
 	if err := RootApp.Run(os.Args); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
@@ -71,20 +69,15 @@ func Execute() {
 	//
 }
 
+// rootAction is executed when RootApp.Run(os.Args)
 func rootAction(c *cli.Context) error {
-	// ut.Pdebug("root.rootAction called\n")
 	util.DebugPrintCaller()
-	//
-	if err := vp.Cfg.ReadConfigs(); err != nil {
+
+	if err := vp.Cfg.ReadConfigs(); err != nil { // reading config
 		return err
 	}
-	// cli.ShowCommandHelpAndExit(c)
-	if c.GlobalBool("verbose") {
-		vp.Cfg.Verbose = c.GlobalBool("verbose")
-		util.Verbose = vp.Cfg.Verbose
-	}
-	//
-	fln := os.ExpandEnv(c.GlobalString("case"))
+
+	fln := os.ExpandEnv(c.GlobalString("case")) // check command line options: "case"
 	if len(fln) > 0 {
 		if !util.IsFileExist(fln) {
 			// ut.Perr("The specified case-configuration-file %q does not exist!\n", fln)
@@ -93,8 +86,19 @@ func rootAction(c *cli.Context) error {
 		}
 		vp.Cfg.CaseFilename = fln
 	}
-	//
-	level := strings.ToLower(c.String("verbose"))
+
+	level := strings.ToLower(c.String("verbose")) // check command line options: "verbose"
+	setglog(level)
+
+	if err := execute(); err != nil { // run procedures of program
+		// ut.Pwarn(err.Error())
+		util.Glog.Error(err.Error())
+		os.Exit(-1)
+	}
+	return nil
+}
+
+func setglog(level string) {
 	if len(level) > 0 {
 		vp.Cfg.Verbose, util.Verbose = true, true
 		util.ColorsOn = vp.Cfg.ColorsOn
@@ -108,58 +112,43 @@ func rootAction(c *cli.Context) error {
 		level = "info"
 	}
 	util.Glog.SetLevel(level)
-	//
-	if err := execute(); err != nil {
-		// ut.Pwarn(err.Error())
-		util.Glog.Error(err.Error())
-		os.Exit(-1)
-	}
-	return nil
 }
 
+//
 func execute() (err error) {
 	util.DebugPrintCaller()
-	// ut.Pinfo("%v\n", vp.Cfg)
-	util.Glog.Infof("\n%v", vp.Cfg)
-	vp.Cases, err = vp.Cfg.ReadCaseConfigs()
+
+	util.Glog.Infof("\n%v", vp.Cfg) // print out config
+
+	vp.Cases, err = vp.Cfg.ReadCaseConfigs() // reading settings of cases
 	if err != nil {
+		util.Glog.Error(err.Error())
 		return err
 	}
-	//
-	vp.Connectdb()
-	//
-	for i := 0; i < len(vp.Cases); i++ {
-		c := vp.Cases[i]
-		// ut.Plog("%s", c)
+
+	vp.Connectdb() // connect to database
+
+	for _, c := range vp.Cases { // run every case
 		util.Glog.Infof("\n%v", c)
-		//
-		if err := runCase(c); err != nil {
+
+		if err := c.UpdateFileBunker(); err != nil {
+			util.Glog.Error(err.Error())
 			return err
 		}
-	}
-	// pchk(GetFileBunkerTable(fbs, 0))
-	return nil
-}
 
-func runCase(c *vp.Case) error {
-	if err := c.UpdateFileBunker(); err != nil {
-		return err
-		// util.Glog.Error(err.Error())
-	}
-	//
-	pvs, err := (&c.Input).ReadInvoices()
-	if err != nil {
-		// util.Glog.Errorf("%v\n", err)
-		return err
-		// util.Glog.Error(err.Error())
-	}
-	for j := 0; j < len(c.Outputs); j++ {
-		out := c.Outputs[j]
-		if out.IsOutput {
-			err = out.WriteInvoices(pvs)
-			if err != nil {
-				return err
-				// util.Glog.Error(err.Error())
+		pvs, err := (&c.Input).ReadInvoices()
+		if err != nil {
+			util.Glog.Errorf("%v\n", err)
+			return err
+		}
+
+		for _, out := range c.Outputs {
+			if out.IsOutput {
+				err = out.WriteInvoices(pvs)
+				if err != nil {
+					util.Glog.Error(err.Error())
+					return err
+				}
 			}
 		}
 	}

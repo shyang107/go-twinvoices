@@ -27,23 +27,24 @@ var dumpCmd = cli.Command{
 
 func init() {
 	util.DebugPrintCaller()
-	// ut.Glog.SetLevel("debug")
+
 	util.Verbose = vp.Cfg.Verbose
 	util.ColorsOn = vp.Cfg.ColorsOn
-	// util.Pdebug("dump.init called\n")
+
 	RootApp.Commands = append(RootApp.Commands, dumpCmd)
 }
 
 func dumpAction(c *cli.Context) error {
-	// ut.Pdebug(">> dump.dumpAction called\n")
 	util.DebugPrintCaller()
+
 	vp.Cfg.IsDump = true
 	dfn := c.String("file")
 	if len(dfn) > 0 {
-		// pchk("%v\n", dfn)
 		vp.Cfg.DumpFilename = os.ExpandEnv(dfn)
 	}
+
 	vp.Connectdb()
+
 	vp.DBDumpData(vp.Cfg.DumpFilename)
 	os.Exit(0)
 	return nil

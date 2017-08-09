@@ -18,15 +18,14 @@ var initCmd = cli.Command{
 }
 
 func init() {
-	// ut.Pdebug("init.init called\n")
-	// ut.Pdebug("init.init called\n")
 	util.DebugPrintCaller()
+
 	RootApp.Commands = append(RootApp.Commands, initCmd)
 }
 
 func initAction(c *cli.Context) error {
-	// ut.Pdebug("init.initAction called\n")
 	util.DebugPrintCaller()
+
 	if err := vp.Initialdb(); err != nil {
 		return err
 	}
