@@ -80,13 +80,6 @@ const (
 
 //---------------------------------------------------------
 
-// const (
-// 	fgleading = "\x1b[38;2;"
-// 	bgleading = "\x1b[48;2;"
-// )
-
-//---------------------------------------------------------
-
 // New returns a newly created color object.
 func New(value ...pencil.Attribute) *Color {
 	c := &Color{params: make([]pencil.Attribute, 0)}

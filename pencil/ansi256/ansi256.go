@@ -29,11 +29,11 @@ type Color struct {
 // // Attribute defines a single SGR Code
 // type Attribute int
 
-// Base attributes
-const (
-	Foreground pencil.Attribute = 385 // ESC[38;5;<n>m
-	Background pencil.Attribute = 485 // ESC[48;5;<n>m
-)
+// // Base attributes
+// const (
+// 	Foreground pencil.Attribute = 385 // ESC[38;5;<n>m
+// 	Background pencil.Attribute = 485 // ESC[48;5;<n>m
+// )
 
 // Foreground Standard colors: n, where n is from the color table (0-7)
 // (as in ESC[30–37m) <- SGR code
@@ -89,12 +89,12 @@ const (
 	FgGrayscale24
 )
 
-const bgzone = 256
+const backgroundGate = 1 << 8
 
 // Background Standard colors: n, where n is from the color table (0-7)
 // (as in ESC[30–37m) <- SGR code
 const (
-	BgBlack pencil.Attribute = (iota + bgzone) << 8
+	BgBlack pencil.Attribute = (iota + backgroundGate) << 8
 	BgRed
 	BgGreen
 	BgYellow
@@ -107,7 +107,7 @@ const (
 // Background High-intensity colors: n, where n is from the color table (8-15)
 // (as in ESC [ 90–97 m) <- SGR code
 const (
-	BgHiBlack pencil.Attribute = (iota + 8 + bgzone) << 8
+	BgHiBlack pencil.Attribute = (iota + 8 + backgroundGate) << 8
 	BgHiRed
 	BgHiGreen
 	BgHiYellow
@@ -119,7 +119,7 @@ const (
 
 // Background Grayscale colors: grayscale from black to white in 24 steps (232-255)
 const (
-	BgGrayscale01 pencil.Attribute = (iota + 232 + bgzone) << 8
+	BgGrayscale01 pencil.Attribute = (iota + 232 + backgroundGate) << 8
 	BgGrayscale02
 	BgGrayscale03
 	BgGrayscale04
@@ -241,12 +241,12 @@ func decode(value pencil.Attribute) int {
 	return int(value >> 8)
 }
 
-// encode encode a true 256 colors code to a color attribute
-func encode(value int, isForeground bool) (n pencil.Attribute) {
+// Encode encode a true 256 colors code to a color attribute
+func Encode(value int, isForeground bool) (n pencil.Attribute) {
 	if isForeground {
 		n = pencil.Attribute(value) << 8
 	} else {
-		n = pencil.Attribute(value+bgzone) << 8
+		n = pencil.Attribute(value+backgroundGate) << 8
 	}
 	return n
 }
@@ -261,11 +261,11 @@ func (c *Color) sequence() string {
 	for i, v := range c.params {
 		// format[i] = strconv.Itoa(int(v))
 		code := decode(v)
-		if code < bgzone {
+		if code < backgroundGate {
 			leadcfmt = fgleading
 		} else {
 			leadcfmt = bgleading
-			code -= bgzone
+			code -= backgroundGate
 		}
 		format[i] = fmt.Sprintf("%s%dm", leadcfmt, code)
 	}

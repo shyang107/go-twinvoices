@@ -2,8 +2,8 @@ package ansi8
 
 import "github.com/shyang107/go-twinvoices/pencil"
 
-// SetColor set the color of the object "Color"
-func (c *Color) SetColor(attrs ...interface{}) error {
+// SetAttribute set the color of the object "Color"
+func (c *Color) SetAttribute(attrs ...interface{}) error {
 	for _, intf := range attrs {
 		attr, ok := intf.(pencil.Attribute)
 		if !ok {
