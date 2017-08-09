@@ -151,6 +151,6 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("    updating database ...\n")
 	glInfof("Invoices list ---\n%s", GetInvoicesTable(pvs))
 	// pchk("%v\n", vsToTable(pvs))
-	DBInsertFrom(pvs)
+	dbInsertFrom(pvs)
 	return pvs, nil
 }

@@ -59,6 +59,6 @@ func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Plog(GetInvoicesTable(j.Invoices))
 	// Prun("    updating database ...\n")
 	glInfof("Invoices list ---\n%s", GetInvoicesTable(j.Invoices))
-	DBInsertFrom(j.Invoices)
+	dbInsertFrom(j.Invoices)
 	return j.Invoices, nil
 }

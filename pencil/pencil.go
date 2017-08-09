@@ -22,7 +22,7 @@ var (
 
 // GeneralColor is use to handle ANSI or RGB colors
 type GeneralColor interface {
-	SetColor(attrs ...interface{}) error
+	SetAttribute(attrs ...interface{}) error
 
 	DisableColor()
 	EnableColor()
@@ -53,8 +53,8 @@ type GeneralColor interface {
 // or SVG colors (alpha-premultiplied 16-bits per channel RGBA)
 type ColorMode uint
 
-// ColorCode defines the code of the indexed color (ANSI)
-type ColorCode int
+// // ColorCode defines the code of the indexed color (ANSI)
+// type ColorCode int
 
 // Color modes
 const (

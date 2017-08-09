@@ -108,7 +108,7 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	}
 	combineInvoice(pinvs, pdets)
 	glInfof("♲  Invoices list:\n%s", GetInvoicesTable(pinvs))
-	DBInsertFrom(pinvs)
+	dbInsertFrom(pinvs)
 	return pinvs, nil
 }
 

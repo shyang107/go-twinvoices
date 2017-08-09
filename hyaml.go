@@ -59,6 +59,6 @@ func (YAMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Plog(GetInvoicesTable(y.Invoices))
 	// Prun("    updating database ...\n")
 	glInfof("Invoices list ---\n%s", GetInvoicesTable(y.Invoices))
-	DBInsertFrom(y.Invoices)
+	dbInsertFrom(y.Invoices)
 	return y.Invoices, nil
 }

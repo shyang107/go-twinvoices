@@ -67,8 +67,8 @@ func Connectdb() {
 	DB.Model(&Invoice{}).Related(&Detail{}, "uin")
 }
 
-// DBGetAllInvoices get the list from database
-func DBGetAllInvoices() ([]*Invoice, error) {
+// dbGetAllInvoices get the list from database
+func dbGetAllInvoices() ([]*Invoice, error) {
 	util.DebugPrintCaller()
 	invs := []*Invoice{}
 	DB.Find(&invs)
@@ -79,8 +79,8 @@ func DBGetAllInvoices() ([]*Invoice, error) {
 	return invs, nil
 }
 
-// DBInsertFrom creats records from []*Invoice into database
-func DBInsertFrom(pvs []*Invoice) {
+// dbInsertFrom creats records from []*Invoice into database
+func dbInsertFrom(pvs []*Invoice) {
 	glInfof("♲  Updating database ...")
 	util.DebugPrintCaller()
 	for _, v := range pvs {
@@ -95,15 +95,15 @@ func DBDumpData(dumpFilename string) error {
 	util.DebugPrintCaller()
 	// Prun("  > Dumping data from %q ...\n", Cfg.DBfilename)
 	glInfof("♲  Dumping data from %q ...", Cfg.DBfilename)
-	pvs, err := DBGetAllInvoices()
+	pvs, err := dbGetAllInvoices()
 	if err != nil {
 		return err
 	}
-	return DBWriteInvoices(pvs, dumpFilename)
+	return dbWriteInvoices(pvs, dumpFilename)
 }
 
-// DBWriteInvoices write all invoices to the file
-func DBWriteInvoices(invs []*Invoice, fln string) error {
+// dbWriteInvoices write all invoices to the file
+func dbWriteInvoices(invs []*Invoice, fln string) error {
 	util.DebugPrintCaller()
 	fln = os.ExpandEnv(fln)
 	// fn := PathKey(fln) // + ".json"
