@@ -107,6 +107,7 @@ func FBPrintf(foregroundColor, backgroundColor color.Color,
 	if m != -1 && m == len(fr)-1 {
 		fr = fr[:m] + pencil.GetRest() + "\n"
 	}
+	fr += strings.Repeat(" ", len(format)-len(fr))
 	return fmt.Fprintf(pencil.Output, fr, a...)
 }
 

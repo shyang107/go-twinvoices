@@ -54,7 +54,7 @@ func (c *Color) SprintlnFunc() func(a ...interface{}) string {
 
 func fbcolor(foregroundColor, backgroundColor color.Color) string {
 	fc := New(foregroundColor, pencil.Foreground)
-	bc := New(backgroundColor, pencil.Foreground)
+	bc := New(backgroundColor, pencil.Background)
 	if fc.isNoColorSet() || pencil.NoColor {
 		return ""
 	}
@@ -95,10 +95,8 @@ func FBSprintf(foregroundColor, backgroundColor color.Color,
 //
 //	put := New(color.Color, ...Attribute).SprintFunc()
 //	fmt.Fprintf(color.Output, "This is a %s", put("warning"))
-func FBSprintFunc() func(foregroundColor, backgroundColor color.Color,
-	a ...interface{}) string {
-	return func(foregroundColor, backgroundColor color.Color,
-		a ...interface{}) string {
+func FBSprintFunc(foregroundColor, backgroundColor color.Color) func(a ...interface{}) string {
+	return func(a ...interface{}) string {
 		return FBSprint(foregroundColor, backgroundColor, a...)
 	}
 }
@@ -106,10 +104,8 @@ func FBSprintFunc() func(foregroundColor, backgroundColor color.Color,
 // FBSprintfFunc returns a new function that returns colorized strings for the
 // given arguments with fmt.Sprintf(). Useful to put into or mix into other
 // string. Windows users should use this in conjunction with color.Output.
-func FBSprintfFunc() func(foregroundColor, backgroundColor color.Color,
-	format string, a ...interface{}) string {
-	return func(foregroundColor, backgroundColor color.Color,
-		format string, a ...interface{}) string {
+func FBSprintfFunc(foregroundColor, backgroundColor color.Color) func(format string, a ...interface{}) string {
+	return func(format string, a ...interface{}) string {
 		return FBSprintf(foregroundColor, backgroundColor, format, a...)
 	}
 }
@@ -117,9 +113,8 @@ func FBSprintfFunc() func(foregroundColor, backgroundColor color.Color,
 // FBSprintlnFunc returns a new function that returns colorized strings for the
 // given arguments with fmt.Sprintln(). Useful to put into or mix into other
 // string. Windows users should use this in conjunction with color.Output.
-func FBSprintlnFunc() func(foregroundColor, backgroundColor color.Color,
-	a ...interface{}) string {
-	return func(foregroundColor, backgroundColor color.Color, a ...interface{}) string {
+func FBSprintlnFunc(foregroundColor, backgroundColor color.Color) func(a ...interface{}) string {
+	return func(a ...interface{}) string {
 		return FBSprintln(foregroundColor, backgroundColor, a...)
 	}
 }

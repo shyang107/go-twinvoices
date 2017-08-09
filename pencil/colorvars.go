@@ -10,6 +10,9 @@ const (
 	Escape = "\x1b" // "\e" (033 or escape control code)
 )
 
+// ColorCode is color code in colors
+type ColorCode int
+
 // Attribute defines a single SGR Code
 type Attribute int
 
@@ -76,13 +79,24 @@ func GetRest() string {
 // or 2;r;g;b where r,g,b are red, green and blue color channels (out of 255)
 // 	ESC[ … 38;2;<r>;<g>;<b> … m Select RGB foreground color
 func GetForeground(selectColor Attribute, cl interface{}) (string, error) {
+	var colorfmt string
 	switch selectColor {
 	case SelectColorIndex:
-		colorIndex, ok := cl.(Attribute)
-		if !ok {
-			return "", fmt.Errorf("Selct color index; but <cl> = %v", cl)
+		switch cl.(type) {
+		case Attribute:
+			code, ok := cl.(Attribute)
+			if !ok {
+				return "", fmt.Errorf("Selct color index; but <cl> = %v", cl)
+			}
+			colorfmt = GetForegroundIndex(int(code))
+		case ColorCode:
+			code, ok := cl.(ColorCode)
+			if !ok {
+				return "", fmt.Errorf("Selct color index; but <cl> = %v", cl)
+			}
+			colorfmt = GetForegroundIndex(int(code))
 		}
-		return GetForegroundIndex(int(colorIndex)), nil
+		return colorfmt, nil
 	default: // SelectColorRGB
 		rgb, ok := cl.(color.Color)
 		if !ok {
@@ -99,13 +113,24 @@ func GetForeground(selectColor Attribute, cl interface{}) (string, error) {
 // or 2;r;g;b where r,g,b are red, green and blue color channels (out of 255)
 // 	ESC[ … 48;2;<r>;<g>;<b> … m Select RGB background color
 func GetBackground(selectColor Attribute, cl interface{}) (string, error) {
+	var colorfmt string
 	switch selectColor {
 	case SelectColorIndex:
-		colorIndex, ok := cl.(Attribute)
-		if !ok {
-			return "", fmt.Errorf("Selct color index; but <cl> = %v", cl)
+		switch cl.(type) {
+		case Attribute:
+			code, ok := cl.(Attribute)
+			if !ok {
+				return "", fmt.Errorf("Selct color index; but <cl> = %v", cl)
+			}
+			colorfmt = GetBackgroundIndex(int(code))
+		case ColorCode:
+			code, ok := cl.(ColorCode)
+			if !ok {
+				return "", fmt.Errorf("Selct color index; but <cl> = %v", cl)
+			}
+			colorfmt = GetBackgroundIndex(int(code))
 		}
-		return GetBackgroundIndex(int(colorIndex)), nil
+		return colorfmt, nil
 	default: // SelectColorRGB
 		rgb, ok := cl.(color.Color)
 		if !ok {

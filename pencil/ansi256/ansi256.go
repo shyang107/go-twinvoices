@@ -9,148 +9,84 @@ import (
 	"github.com/shyang107/go-twinvoices/pencil"
 )
 
-const (
-	fgleading = "\x1b[38;5;"
-	bgleading = "\x1b[48;5;"
-)
+// const (
+// 	fgleading = "\x1b[38;5;"
+// 	bgleading = "\x1b[48;5;"
+// )
 
 var (
-	colorsCache   = make(map[pencil.Attribute]*Color)
+	colorsCache   = make(map[pencil.ColorCode]*Color)
 	colorsCacheMu sync.Mutex // protects colorsCache
 )
 
 // Color defines a custom color object which is defined by 256-color mode parameters.
+// "params" contains color index and it's attributes, such as foreground or
+// background, ...; if not specify, default foreground color
 type Color struct {
+	Code    pencil.ColorCode // color index
 	params  []pencil.Attribute
-	noColor *bool
+	noColor *bool // use DisableColor() or EnableColor() to setup
 }
 
 //---------------------------------------------------------
-// // Attribute defines a single SGR Code
-// type Attribute int
 
-// // Base attributes
-// const (
-// 	Foreground pencil.Attribute = 385 // ESC[38;5;<n>m
-// 	Background pencil.Attribute = 485 // ESC[48;5;<n>m
-// )
-
-// Foreground Standard colors: n, where n is from the color table (0-7)
-// (as in ESC[30–37m) <- SGR code
+// Specilized colors: n, where n is from the color table (0-7, 8-15)
 const (
-	FgBlack pencil.Attribute = iota << 8
-	FgRed
-	FgGreen
-	FgYellow
-	FgBlue
-	FgMagenta
-	FgCyan
-	FgWhite
+	// Standard colors: 0-7 (as in ESC [ 30–37 m)
+	Black pencil.ColorCode = iota // (avoid to confuse with non-color code)
+	Red
+	Green
+	Yellow
+	Blue
+	Magenta
+	Cyan
+	White
+	// High-intensity colors: 8-15 (as in ESC [ 90–97 m)
+	HiBlack
+	HiRed
+	HiGreen
+	HiYellow
+	HiBlue
+	HiMagenta
+	HiCyan
+	HiWhite
+	// color index 16-231 = 6 × 6 × 6 cube (216 colors): 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
 )
 
-// Foreground High-intensity colors: n, where n is from the color table (8-15)
-// (as in ESC [ 90–97 m) <- SGR code
+// Grayscale colors: grayscale from black to white in 24 steps (232-255)
 const (
-	FgHiBlack pencil.Attribute = (iota + 8) << 8
-	FgHiRed
-	FgHiGreen
-	FgHiYellow
-	FgHiBlue
-	FgHiMagenta
-	FgHiCyan
-	FgHiWhite
-)
-
-// Foreground Grayscale colors: grayscale from black to white in 24 steps (232-255)
-const (
-	FgGrayscale01 pencil.Attribute = (iota + 232) << 8
-	FgGrayscale02
-	FgGrayscale03
-	FgGrayscale04
-	FgGrayscale05
-	FgGrayscale06
-	FgGrayscale07
-	FgGrayscale08
-	FgGrayscale09
-	FgGrayscale10
-	FgGrayscale11
-	FgGrayscale12
-	FgGrayscale13
-	FgGrayscale14
-	FgGrayscale15
-	FgGrayscale16
-	FgGrayscale17
-	FgGrayscale18
-	FgGrayscale19
-	FgGrayscale20
-	FgGrayscale21
-	FgGrayscale22
-	FgGrayscale23
-	FgGrayscale24
-)
-
-const backgroundGate = 1 << 8
-
-// Background Standard colors: n, where n is from the color table (0-7)
-// (as in ESC[30–37m) <- SGR code
-const (
-	BgBlack pencil.Attribute = (iota + backgroundGate) << 8
-	BgRed
-	BgGreen
-	BgYellow
-	BgBlue
-	BgMagenta
-	BgCyan
-	BgWhite
-)
-
-// Background High-intensity colors: n, where n is from the color table (8-15)
-// (as in ESC [ 90–97 m) <- SGR code
-const (
-	BgHiBlack pencil.Attribute = (iota + 8 + backgroundGate) << 8
-	BgHiRed
-	BgHiGreen
-	BgHiYellow
-	BgHiBlue
-	BgHiMagenta
-	BgHiCyan
-	BgHiWhite
-)
-
-// Background Grayscale colors: grayscale from black to white in 24 steps (232-255)
-const (
-	BgGrayscale01 pencil.Attribute = (iota + 232 + backgroundGate) << 8
-	BgGrayscale02
-	BgGrayscale03
-	BgGrayscale04
-	BgGrayscale05
-	BgGrayscale06
-	BgGrayscale07
-	BgGrayscale08
-	BgGrayscale09
-	BgGrayscale10
-	BgGrayscale11
-	BgGrayscale12
-	BgGrayscale13
-	BgGrayscale14
-	BgGrayscale15
-	BgGrayscale16
-	BgGrayscale17
-	BgGrayscale18
-	BgGrayscale19
-	BgGrayscale20
-	BgGrayscale21
-	BgGrayscale22
-	BgGrayscale23
-	BgGrayscale24
+	Grayscale01 pencil.ColorCode = (iota + 232) // (avoid to confuse with non-color code)
+	Grayscale02
+	Grayscale03
+	Grayscale04
+	Grayscale05
+	Grayscale06
+	Grayscale07
+	Grayscale08
+	Grayscale09
+	Grayscale10
+	Grayscale11
+	Grayscale12
+	Grayscale13
+	Grayscale14
+	Grayscale15
+	Grayscale16
+	Grayscale17
+	Grayscale18
+	Grayscale19
+	Grayscale20
+	Grayscale21
+	Grayscale22
+	Grayscale23
+	Grayscale24
 )
 
 //---------------------------------------------------------
 
 // New returns a newly created color object.
-func New(value ...pencil.Attribute) *Color {
-	c := &Color{params: make([]pencil.Attribute, 0)}
-	c.Add(value...)
+func New(code pencil.ColorCode, params ...pencil.Attribute) *Color {
+	c := &Color{Code: code, params: make([]pencil.Attribute, 0)}
+	c.Add(params...)
 	return c
 }
 
@@ -169,8 +105,8 @@ func (c *Color) prepend(value pencil.Attribute) {
 
 // Set sets the given parameters immediately. It will change the color of
 // output with the given SGR parameters until color.Unset() is called.
-func Set(p ...pencil.Attribute) *Color {
-	c := New(p...)
+func Set(code pencil.ColorCode, p ...pencil.Attribute) *Color {
+	c := New(code, p...)
 	c.Set()
 	return c
 }
@@ -236,41 +172,76 @@ func (c *Color) wrap(s string) string {
 	return c.format() + s + c.unformat()
 }
 
-// decode decode a color attribute (fore- and back-ground) to true 256 colors code
-func decode(value pencil.Attribute) int {
-	return int(value >> 8)
-}
+// // decode decode a color attribute (fore- and back-ground) to true 256 colors code
+// func decode(value pencil.Attribute) int {
+// 	return int(value >> 8)
+// }
 
-// Encode encode a true 256 colors code to a color attribute
-func Encode(value int, isForeground bool) (n pencil.Attribute) {
-	if isForeground {
-		n = pencil.Attribute(value) << 8
-	} else {
-		n = pencil.Attribute(value+backgroundGate) << 8
-	}
-	return n
-}
+// // Encode encode a true 256 colors code to a color attribute
+// func Encode(value int, isForeground bool) (n pencil.Attribute) {
+// 	if isForeground {
+// 		n = pencil.Attribute(value) << 8
+// 	} else {
+// 		n = pencil.Attribute(value+backgroundGate) << 8
+// 	}
+// 	return n
+// }
 
 // sequence returns a formated SGR sequence to be plugged into a
 // ESC[38;5;<n>m Select foreground color
 // ESC[48;5;<n>m Select background color
 // an example output might be: "38;15;12" -> foreground high-intensity blue
 func (c *Color) sequence() string {
-	var leadcfmt string
-	format := make([]string, len(c.params))
-	for i, v := range c.params {
-		// format[i] = strconv.Itoa(int(v))
-		code := decode(v)
-		if code < backgroundGate {
-			leadcfmt = fgleading
-		} else {
-			leadcfmt = bgleading
-			code -= backgroundGate
+	var colorfmt string
+	format := make([]string, 0)
+	for _, val := range c.params {
+		sgr := pencil.GetSGR(val)
+		if len(sgr) > 0 {
+			format = append(format, sgr)
+			continue
 		}
-		format[i] = fmt.Sprintf("%s%dm", leadcfmt, code)
+		switch val {
+		case pencil.Background:
+			colorfmt, _ = pencil.GetBackground(pencil.SelectColorIndex, c.Code)
+		case pencil.DefaultForeground:
+			colorfmt = pencil.GetDefaultForeground()
+		case pencil.DefaultBackground:
+			colorfmt = pencil.GetDefaultBackground()
+		default: // pencil.Foreground
+			colorfmt, _ = pencil.GetForeground(pencil.SelectColorIndex, c.Code)
+		}
+		format = append(format, colorfmt)
 	}
 
 	return strings.Join(format, "")
+}
+
+// Fg retrive a leading sring in foreground color
+func (c *Color) Fg() string {
+	if c.isNoColorSet() {
+		return ""
+	}
+
+	if pencil.NoColor {
+		return ""
+	}
+
+	format, _ := pencil.GetForeground(pencil.SelectColorIndex, c.Code)
+	return format
+}
+
+// Bg retrive a leading sring in background color
+func (c *Color) Bg() string {
+	if c.isNoColorSet() {
+		return ""
+	}
+
+	if pencil.NoColor {
+		return ""
+	}
+
+	format, _ := pencil.GetBackground(pencil.SelectColorIndex, c.Code)
+	return format
 }
 
 func (c *Color) format() string {
@@ -292,7 +263,7 @@ func (c *Color) isNoColorSet() bool {
 	return pencil.NoColor
 }
 
-func getCachedColor(k pencil.Attribute) *Color {
+func getCachedColor(k pencil.ColorCode) *Color {
 	colorsCacheMu.Lock()
 	defer colorsCacheMu.Unlock()
 
@@ -306,7 +277,7 @@ func getCachedColor(k pencil.Attribute) *Color {
 }
 
 // colorString returns a formatted colorful string with specified "colorname"
-func colorString(format string, color pencil.Attribute, a ...interface{}) string {
+func colorString(format string, color pencil.ColorCode, a ...interface{}) string {
 	c := getCachedColor(color)
 
 	if len(a) == 0 {

@@ -114,6 +114,7 @@ func FBFprintf(w io.Writer, foregroundColor, backgroundColor color.Color,
 	if m != -1 && m == len(fr)-1 {
 		fr = fr[:m] + pencil.GetRest() + "\n"
 	}
+	fr += strings.Repeat(" ", len(format)-len(fr))
 	return fmt.Fprintf(w, fr, a...)
 
 }
@@ -140,30 +141,24 @@ func FBFprintln(w io.Writer, foregroundColor, backgroundColor color.Color,
 
 // FBFprintFunc returns a new function that prints the passed arguments as
 // colorized with color.Fprint().
-func FBFprintFunc() func(w io.Writer, foregroundColor, backgroundColor color.Color,
-	a ...interface{}) {
-	return func(w io.Writer, foregroundColor, backgroundColor color.Color,
-		a ...interface{}) {
+func FBFprintFunc(w io.Writer, foregroundColor, backgroundColor color.Color) func(a ...interface{}) {
+	return func(a ...interface{}) {
 		FBFprint(w, foregroundColor, backgroundColor, a...)
 	}
 }
 
 // FBFprintfFunc returns a new function that prints the passed arguments as
 // colorized with color.Fprintf().
-func FBFprintfFunc() func(w io.Writer, foregroundColor, backgroundColor color.Color,
-	format string, a ...interface{}) {
-	return func(w io.Writer, foregroundColor, backgroundColor color.Color,
-		format string, a ...interface{}) {
+func FBFprintfFunc(w io.Writer, foregroundColor, backgroundColor color.Color) func(format string, a ...interface{}) {
+	return func(format string, a ...interface{}) {
 		FBFprintf(w, foregroundColor, backgroundColor, format, a...)
 	}
 }
 
 // FBFprintlnFunc returns a new function that prints the passed arguments as
 // colorized with color.Fprintln().
-func FBFprintlnFunc() func(w io.Writer, foregroundColor, backgroundColor color.Color,
-	a ...interface{}) {
-	return func(w io.Writer, foregroundColor, backgroundColor color.Color,
-		a ...interface{}) {
+func FBFprintlnFunc(w io.Writer, foregroundColor, backgroundColor color.Color) func(a ...interface{}) {
+	return func(a ...interface{}) {
 		FBFprintln(w, foregroundColor, backgroundColor, a...)
 	}
 }
