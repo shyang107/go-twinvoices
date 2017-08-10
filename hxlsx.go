@@ -76,6 +76,8 @@ func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	var vh, dh headType
 	_, vh.head = getFieldsAndTags(Invoice{}, "cht")
 	_, dh.head = getFieldsAndTags(Detail{}, "cht")
+	vh.prepend("項次")
+	dh.prepend("項次")
 	//
 	fx := xlsx.NewFile()
 	sht, _ := fx.AddSheet("消費發票")
@@ -99,20 +101,28 @@ type headType struct {
 	head []string
 }
 
-func (ht headType) addTo(r *xlsx.Row, isDetail bool) {
+func (ht *headType) prepend(value string) {
+	ht.head = append(ht.head, "")
+	copy(ht.head[1:], ht.head[0:])
+	ht.head[0] = value
+}
+
+func (ht *headType) addTo(r *xlsx.Row, isDetail bool) {
 	// style := getDefaultInvoiceCellStyle()
 	if isDetail {
 		r.AddCell()
 		// style = getDefaultDetailCellStyle()
 	}
-	cell := r.AddCell()
-	cell.SetString("項次")
+	// cell := r.AddCell()
+	// cell.SetString("項次")
 	// cell.SetStyle(style)
-	for i := 0; i < len(ht.head); i++ {
-		cell := r.AddCell()
-		cell.SetString(ht.head[i])
-		// cell.SetStyle(style)
-
+	// for i := 0; i < len(ht.head); i++ {
+	// 	cell := r.AddCell()
+	// 	cell.SetString(ht.head[i])
+	// 	// cell.SetStyle(style)
+	// }
+	if res := r.WriteSlice(&ht.head, -1); res < 0 {
+		Glog.Errorf("write slice to row failed (%d); the slice must be ptr.", res)
 	}
 }
 
@@ -135,7 +145,7 @@ func (d *Detail) addTo(r *xlsx.Row, id int) {
 	r.AddCell()
 	cell := r.AddCell()
 	cell.SetInt(id)
-	cell.SetStyle(style)
+	// cell.SetStyle(style)
 	//
 	val := reflect.ValueOf(*d)
 	n := val.NumField() // typ.NumField()
@@ -174,7 +184,7 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 	//
 	cell := r.AddCell()
 	cell.SetInt(id)
-	cell.SetStyle(style)
+	// cell.SetStyle(style)
 	//
 	val := reflect.ValueOf(*v)
 	n := val.NumField()
