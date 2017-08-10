@@ -78,7 +78,7 @@ func FBPrint(foregroundColor, backgroundColor color.Color, a ...interface{}) (n 
 	bc := Set(backgroundColor, pencil.Background).Set()
 	defer fc.unset()
 	defer bc.unset()
-	if fc.isNoColorSet() || pencil.NoColor {
+	if fc.isNoColorSet() {
 		return fmt.Fprint(pencil.Output, a...)
 	}
 	m := len(a)
@@ -99,7 +99,7 @@ func FBPrintf(foregroundColor, backgroundColor color.Color,
 	bc := Set(backgroundColor, pencil.Background).Set()
 	defer fc.unset()
 	defer bc.unset()
-	if fc.isNoColorSet() || pencil.NoColor {
+	if fc.isNoColorSet() {
 		return fmt.Fprintf(pencil.Output, format, a...)
 	}
 	fr := strings.TrimRight(format, " ")
@@ -121,7 +121,7 @@ func FBPrintln(foregroundColor, backgroundColor color.Color, a ...interface{}) (
 	bc := Set(backgroundColor, pencil.Background).Set()
 	defer fc.unset()
 	defer bc.unset()
-	if fc.isNoColorSet() || pencil.NoColor {
+	if fc.isNoColorSet() {
 		return fmt.Fprintln(pencil.Output, a...)
 	}
 	a = append(a, pencil.GetRest())

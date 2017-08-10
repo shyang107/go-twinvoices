@@ -81,7 +81,7 @@ func FBFprint(w io.Writer, foregroundColor, backgroundColor color.Color,
 
 	// return fmt.Fprint(w, a...)
 
-	if fc.isNoColorSet() || pencil.NoColor {
+	if fc.isNoColorSet() {
 		return fmt.Fprint(w, a...)
 	}
 	m := len(a)
@@ -106,7 +106,7 @@ func FBFprintf(w io.Writer, foregroundColor, backgroundColor color.Color,
 
 	// return fmt.Fprintf(w, format, a...)
 
-	if fc.isNoColorSet() || pencil.NoColor {
+	if fc.isNoColorSet() {
 		return fmt.Fprintf(w, format, a...)
 	}
 	fr := strings.TrimRight(format, " ")
@@ -132,7 +132,7 @@ func FBFprintln(w io.Writer, foregroundColor, backgroundColor color.Color,
 
 	// return fmt.Fprintln(w, a...)
 
-	if fc.isNoColorSet() || pencil.NoColor {
+	if fc.isNoColorSet() {
 		return fmt.Fprintln(w, a...)
 	}
 	a = append(a, pencil.GetRest())

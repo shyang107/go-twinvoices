@@ -55,7 +55,7 @@ func (c *Color) SprintlnFunc() func(a ...interface{}) string {
 func fbcolor(foregroundColor, backgroundColor color.Color) string {
 	fc := New(foregroundColor, pencil.Foreground)
 	bc := New(backgroundColor, pencil.Background)
-	if fc.isNoColorSet() || pencil.NoColor {
+	if fc.isNoColorSet() {
 		return ""
 	}
 	return fc.Fg() + bc.Bg()
@@ -64,7 +64,7 @@ func fbcolor(foregroundColor, backgroundColor color.Color) string {
 // FBSprint is just like Print, but returns a string instead of printing it.
 func FBSprint(foregroundColor, backgroundColor color.Color, a ...interface{}) string {
 	fb := fbcolor(foregroundColor, backgroundColor)
-	if len(fb) > 0 {
+	if len(fb) > 0 && !pencil.NoColor {
 		a = append(a, pencil.GetRest())
 	}
 	return fb + fmt.Sprint(a...)
@@ -73,7 +73,7 @@ func FBSprint(foregroundColor, backgroundColor color.Color, a ...interface{}) st
 // FBSprintln is just like Println, but returns a string instead of printing it.
 func FBSprintln(foregroundColor, backgroundColor color.Color, a ...interface{}) string {
 	fb := fbcolor(foregroundColor, backgroundColor)
-	if len(fb) > 0 {
+	if len(fb) > 0 && !pencil.NoColor {
 		a = append(a, pencil.GetRest())
 	}
 	return fb + fmt.Sprintln(a...)
@@ -83,7 +83,7 @@ func FBSprintln(foregroundColor, backgroundColor color.Color, a ...interface{}) 
 func FBSprintf(foregroundColor, backgroundColor color.Color,
 	format string, a ...interface{}) string {
 	fb := fbcolor(foregroundColor, backgroundColor)
-	if len(fb) > 0 {
+	if len(fb) > 0 && !pencil.NoColor {
 		format = fb + format + pencil.GetRest()
 	}
 	return fmt.Sprintf(format, a...)
