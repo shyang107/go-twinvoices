@@ -20,6 +20,7 @@ func ptype(p interface{}) {
 	pt := reflect.TypeOf(p)
 	fmt.Printf("%v\n", pt)
 }
+
 func printAll256Colors() {
 	// var code pencil.ColorCode = 13
 	// ptype(code)
