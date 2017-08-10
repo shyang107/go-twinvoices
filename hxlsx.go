@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/stanim/xlsxtra"
-	// "github.com/stanim/xlsxtra"
 	"github.com/shyang107/go-twinvoices/util"
+	// "github.com/stanim/xlsxtra"
+
 	"github.com/tealeg/xlsx"
 )
 
@@ -48,9 +48,19 @@ const (
 )
 
 var (
-	letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	// letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	// numbers = []rune("0123456789")
+	// letters = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
 	numbers = []rune("0123456789")
+	letters = make(map[int]string)
 )
+
+func init() {
+	for k, v := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
+		letters[k] = string(v)
+	}
+}
 
 // XlsxMarshaller :
 type XlsxMarshaller struct{}
@@ -64,12 +74,11 @@ func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
 	var vh, dh headType
-	_, vh.head = getFieldNameAndChtag(Invoice{})
-	_, dh.head = getFieldNameAndChtag(Detail{})
+	_, vh.head = getFieldsAndTags(Invoice{}, "cht")
+	_, dh.head = getFieldsAndTags(Detail{}, "cht")
 	//
 	fx := xlsx.NewFile()
-	s, _ := fx.AddSheet("消費發票")
-	sht := &xlsxtra.Sheet{Sheet: s}
+	sht, _ := fx.AddSheet("消費發票")
 	for i := 0; i < len(pvs); i++ {
 		vh.addTo(sht.AddRow(), false)
 		rowi := sht.AddRow()
@@ -90,25 +99,19 @@ type headType struct {
 	head []string
 }
 
-func (ht headType) addTo(r *xlsxtra.Row, isDetail bool) {
-	border := xlsx.NewBorder("", "", "thin", "thin")
-	style := xlsxtra.NewStyle(
-		"",
-		nil,
-		border,
-		nil,
-	)
+func (ht headType) addTo(r *xlsx.Row, isDetail bool) {
+	// style := getDefaultInvoiceCellStyle()
 	if isDetail {
-		r.AddString("")
+		r.AddCell()
+		// style = getDefaultDetailCellStyle()
 	}
 	cell := r.AddCell()
 	cell.SetString("項次")
-	cell.SetStyle(style)
+	// cell.SetStyle(style)
 	for i := 0; i < len(ht.head); i++ {
-		// r.AddString(ht.head[i])
 		cell := r.AddCell()
 		cell.SetString(ht.head[i])
-		cell.SetStyle(style)
+		// cell.SetStyle(style)
 
 	}
 }
@@ -126,24 +129,30 @@ func getDefaultDetailCellStyle() *xlsx.Style {
 	return s
 }
 
-func (d *Detail) addTo(r *xlsxtra.Row, id int) {
+func (d *Detail) addTo(r *xlsx.Row, id int) {
 	style := getDefaultDetailCellStyle()
 	//
 	r.AddCell()
-	r.AddInt(id).SetStyle(style)
+	cell := r.AddCell()
+	cell.SetInt(id)
+	cell.SetStyle(style)
 	//
 	val := reflect.ValueOf(*d)
 	n := val.NumField() // typ.NumField()
 	for i := 0; i < n; i++ {
 		vi := val.Field(i).Interface()
+		cell := &xlsx.Cell{}
+		// cell := r.AddCell()
+		cell.SetStyle(style)
 		switch vi.(type) {
 		case gorm.Model:
 			continue
 		case float64:
-			r.AddFloat(numfmtAccountant, vi.(float64)).SetStyle(style)
+			cell.SetFloat(vi.(float64))
 		default:
-			r.AddString(vi.(string)).SetStyle(style)
+			cell.SetString(vi.(string))
 		}
+		r.Cells = append(r.Cells, cell)
 	}
 }
 
@@ -160,50 +169,69 @@ func getDefaultInvoiceCellStyle() *xlsx.Style {
 	return s
 }
 
-func (v *Invoice) addTo(r *xlsxtra.Row, id int) {
+func (v *Invoice) addTo(r *xlsx.Row, id int) {
 	style := getDefaultInvoiceCellStyle()
 	//
-	r.AddInt(id)
+	cell := r.AddCell()
+	cell.SetInt(id)
+	cell.SetStyle(style)
 	//
 	val := reflect.ValueOf(*v)
 	n := val.NumField()
 	for i := 0; i < n; i++ {
 		vvi := val.Field(i).Interface()
+		cell := &xlsx.Cell{}
 		// cell := r.AddCell()
-		// cell.SetStyle(style)
+		cell.SetStyle(style)
 		switch vvi.(type) {
 		case gorm.Model, []*Detail:
 			continue
 		case time.Time:
-			r.AddCell().SetDate(vvi.(time.Time))
+			cell.SetDate(vvi.(time.Time))
 		case float64:
-			r.AddFloat(numfmtAccountant, vvi.(float64))
+			cell.SetFloatWithFormat(vvi.(float64), numfmtAccountant)
 		default:
-			// cell.SetString(vv.String())
-			r.AddString(vvi.(string))
+			cell.SetString(vvi.(string))
 		}
+		r.Cells = append(r.Cells, cell)
 	}
-	r.SetStyle(style)
 	return
 }
 
-func getFieldNameAndChtag(obj interface{}) (fldn, cfldn []string) {
-	vv := reflect.ValueOf(obj)
-	tv := vv.Type()
-	for i := 0; i < vv.NumField(); i++ {
-		field := tv.Field(i)
-		// typename := field.Type.String()
-		switch vv.Field(i).Interface().(type) {
+func getFieldsAndTags(obj interface{}, tag string) (fldnames, tagnames []string) {
+	objval := reflect.ValueOf(obj)
+	objtyp := objval.Type()
+	for i := 0; i < objval.NumField(); i++ {
+		fldval := objval.Field(i)
+		fldtyp := objtyp.Field(i)
+		switch fldval.Interface().(type) {
 		case gorm.Model, []*Detail:
 			continue
 		default:
-			fldn = append(fldn, field.Name)
-			cname := tv.Field(i).Tag.Get("cht")
-			cfldn = append(cfldn, cname)
+			fldnames = append(fldnames, fldtyp.Name)
+			tagnames = append(tagnames, fldtyp.Tag.Get(tag))
 		}
 	}
-	return
+	return fldnames, tagnames
 }
+
+// func getFieldNameAndChtag(obj interface{}) (fldn, cfldn []string) {
+// 	vv := reflect.ValueOf(obj)
+// 	tv := vv.Type()
+// 	for i := 0; i < vv.NumField(); i++ {
+// 		field := tv.Field(i)
+// 		// typename := field.Type.String()
+// 		switch vv.Field(i).Interface().(type) {
+// 		case gorm.Model, []*Detail:
+// 			continue
+// 		default:
+// 			fldn = append(fldn, field.Name)
+// 			cname := tv.Field(i).Tag.Get("cht")
+// 			cfldn = append(cfldn, cname)
+// 		}
+// 	}
+// 	return
+// }
 
 // UnmarshalInvoices unmarshal the records of invoice using in .xlsx file
 func (XlsxMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {

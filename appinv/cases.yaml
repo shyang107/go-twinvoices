@@ -78,7 +78,7 @@
     isoutput: true
   - filename: ./out/09102989061-4.xlsx
     suffix: .xlsx
-    isoutput: false
+    isoutput: true
   - filename: ./out/09102989061-4.yaml
     suffix: .yaml
     isoutput: true
