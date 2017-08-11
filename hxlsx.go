@@ -73,11 +73,10 @@ func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	if pvs == nil || len(pvs) == 0 {
 		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
-	var vh, dh headType
-	_, _, _, vh.head = util.GetFieldsInfo(Invoice{}, "cht", "Model")
-	_, _, _, dh.head = util.GetFieldsInfo(Detail{}, "cht", "Model")
-	vh.prepend("項次")
-	dh.prepend("項次")
+	var vh = headType{head: []string{"項次"}}
+	var dh = headType{head: []string{"項次"}}
+	vh.head = append(vh.head, invoiceCtagNames...)
+	dh.head = append(dh.head, detailCtagNames...)
 
 	fx := xlsx.NewFile()
 	sht, _ := fx.AddSheet("消費發票")
@@ -206,41 +205,6 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 	}
 	return
 }
-
-// func getFieldsAndTags(obj interface{}, tag string) (fldnames, tagnames []string) {
-// 	objval := reflect.ValueOf(obj)
-// 	objtyp := objval.Type()
-// 	for i := 0; i < objval.NumField(); i++ {
-// 		fldval := objval.Field(i)
-// 		fldtyp := objtyp.Field(i)
-// 		switch fldval.Interface().(type) {
-// 		case gorm.Model, []*Detail:
-// 			continue
-// 		default:
-// 			fldnames = append(fldnames, fldtyp.Name)
-// 			tagnames = append(tagnames, fldtyp.Tag.Get(tag))
-// 		}
-// 	}
-// 	return fldnames, tagnames
-// }
-
-// func getFieldNameAndChtag(obj interface{}) (fldn, cfldn []string) {
-// 	vv := reflect.ValueOf(obj)
-// 	tv := vv.Type()
-// 	for i := 0; i < vv.NumField(); i++ {
-// 		field := tv.Field(i)
-// 		// typename := field.Type.String()
-// 		switch vv.Field(i).Interface().(type) {
-// 		case gorm.Model, []*Detail:
-// 			continue
-// 		default:
-// 			fldn = append(fldn, field.Name)
-// 			cname := tv.Field(i).Tag.Get("cht")
-// 			cfldn = append(cfldn, cname)
-// 		}
-// 	}
-// 	return
-// }
 
 // UnmarshalInvoices unmarshal the records of invoice using in .xlsx file
 func (XlsxMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
