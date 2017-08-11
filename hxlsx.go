@@ -44,23 +44,23 @@ const (
 	//
 	numfmtAccountant = `_($* #,##0.0_);_($* (#,##0.0);_($* "-"??_);_(@_)`
 	numfmtDollar     = `"NT$"#,##0.0_);[red]"NT$"-#,##0.0`
-	numfmt           = `#,##0 ;[red]-#,##0`
+	numfmt           = `#,##0.0 ;[red]-#,##0.0 `
 )
 
-var (
-	// letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	// numbers = []rune("0123456789")
-	// letters = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+// var (
+// 	// letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+// 	// numbers = []rune("0123456789")
+// 	// letters = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-	numbers = []rune("0123456789")
-	letters = make(map[int]string)
-)
+// 	numbers = []rune("0123456789")
+// 	letters = make(map[int]string)
+// )
 
-func init() {
-	for k, v := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
-		letters[k] = string(v)
-	}
-}
+// func init() {
+// 	for k, v := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
+// 		letters[k] = string(v)
+// 	}
+// }
 
 // XlsxMarshaller :
 type XlsxMarshaller struct{}
@@ -74,8 +74,9 @@ func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
 	var vh, dh headType
-	_, vh.head = getFieldsAndTags(Invoice{}, "cht")
-	_, dh.head = getFieldsAndTags(Detail{}, "cht")
+	_, _, _, vh.head = util.GetFieldsInfo(Invoice{}, "cht", "Model")
+	_, _, _, dh.head = util.GetFieldsInfo(Detail{}, "cht", "Model")
+
 	//
 	fx := xlsx.NewFile()
 	sht, _ := fx.AddSheet("消費發票")
@@ -112,7 +113,6 @@ func (ht headType) addTo(r *xlsx.Row, isDetail bool) {
 		cell := r.AddCell()
 		cell.SetString(ht.head[i])
 		// cell.SetStyle(style)
-
 	}
 }
 
@@ -135,8 +135,8 @@ func (d *Detail) addTo(r *xlsx.Row, id int) {
 	r.AddCell()
 	cell := r.AddCell()
 	cell.SetInt(id)
-	cell.SetStyle(style)
-	//
+	// cell.SetStyle(style)
+
 	val := reflect.ValueOf(*d)
 	n := val.NumField() // typ.NumField()
 	for i := 0; i < n; i++ {
@@ -148,7 +148,8 @@ func (d *Detail) addTo(r *xlsx.Row, id int) {
 		case gorm.Model:
 			continue
 		case float64:
-			cell.SetFloat(vi.(float64))
+			// cell.SetFloat(vi.(float64))
+			cell.SetFloatWithFormat(vi.(float64), numfmt)
 		default:
 			cell.SetString(vi.(string))
 		}
@@ -174,8 +175,8 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 	//
 	cell := r.AddCell()
 	cell.SetInt(id)
-	cell.SetStyle(style)
-	//
+	// cell.SetStyle(style)
+
 	val := reflect.ValueOf(*v)
 	n := val.NumField()
 	for i := 0; i < n; i++ {
@@ -189,7 +190,8 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 		case time.Time:
 			cell.SetDate(vvi.(time.Time))
 		case float64:
-			cell.SetFloatWithFormat(vvi.(float64), numfmtAccountant)
+			// cell.SetFloatWithFormat(vvi.(float64), numfmtAccountant)
+			cell.SetFloatWithFormat(vvi.(float64), numfmt)
 		default:
 			cell.SetString(vvi.(string))
 		}
@@ -198,22 +200,22 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 	return
 }
 
-func getFieldsAndTags(obj interface{}, tag string) (fldnames, tagnames []string) {
-	objval := reflect.ValueOf(obj)
-	objtyp := objval.Type()
-	for i := 0; i < objval.NumField(); i++ {
-		fldval := objval.Field(i)
-		fldtyp := objtyp.Field(i)
-		switch fldval.Interface().(type) {
-		case gorm.Model, []*Detail:
-			continue
-		default:
-			fldnames = append(fldnames, fldtyp.Name)
-			tagnames = append(tagnames, fldtyp.Tag.Get(tag))
-		}
-	}
-	return fldnames, tagnames
-}
+// func getFieldsAndTags(obj interface{}, tag string) (fldnames, tagnames []string) {
+// 	objval := reflect.ValueOf(obj)
+// 	objtyp := objval.Type()
+// 	for i := 0; i < objval.NumField(); i++ {
+// 		fldval := objval.Field(i)
+// 		fldtyp := objtyp.Field(i)
+// 		switch fldval.Interface().(type) {
+// 		case gorm.Model, []*Detail:
+// 			continue
+// 		default:
+// 			fldnames = append(fldnames, fldtyp.Name)
+// 			tagnames = append(tagnames, fldtyp.Tag.Get(tag))
+// 		}
+// 	}
+// 	return fldnames, tagnames
+// }
 
 // func getFieldNameAndChtag(obj interface{}) (fldn, cfldn []string) {
 // 	vv := reflect.ValueOf(obj)
