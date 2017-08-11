@@ -90,12 +90,12 @@ func (c Case) String() string {
 		of := c.Outputs[i]
 		data = append(data, i+1, of.Filename, of.IsOutput)
 	}
-	tab += util.ArgsTableN(title, 4, false, heads, data...)
+	tab += util.ArgsTableN(title, 4, true, heads, data...)
 	return tab
 }
 
 // GetTable returns the string of arguments table
-func (c Case) GetTable(title string) string {
+func (c *Case) GetTable(title string) string {
 	strdashk := strings.Repeat("-", 15)
 	strdashv := strings.Repeat("-", 30)
 	tab := util.ArgsTable(
@@ -120,7 +120,7 @@ func (c Case) GetTable(title string) string {
 		of := c.Outputs[i]
 		data = append(data, i+1, of.Filename, of.IsOutput)
 	}
-	tab += util.ArgsTableN(otitle, 4, false, heads, data...)
+	tab += util.ArgsTableN(otitle, 4, true, heads, data...)
 	return tab
 }
 

@@ -43,6 +43,17 @@ type Invoice struct {
 	Details []*Detail `cht:"明細清單" json:"DETAILS" yaml:"DETAILS" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
 }
 
+var invoiceFieldNames []string
+var invoiceCtagNames []string
+var invoiceIndeces = make(map[string]int)
+
+func init() {
+	invoiceFieldNames, _, _, invoiceCtagNames = util.GetFieldsInfo(Invoice{}, "cht", "Model")
+	for i := 0; i < len(invoiceFieldNames); i++ {
+		invoiceIndeces[invoiceFieldNames[i]] = i
+	}
+}
+
 func (pv Invoice) String() string {
 	Sf, Ff := fmt.Sprintf, fmt.Fprintf
 	var b bytes.Buffer
@@ -50,21 +61,22 @@ func (pv Invoice) String() string {
 	fld := val.Type()
 	var str string
 	for i := 0; i < val.NumField(); i++ {
-		fldi := fld.Field(i)
-		valintf := val.Field(i).Interface()
-		switch fldi.Name {
-		case "Model", "Details":
+		f := fld.Field(i)
+		v := val.Field(i)
+		switch f.Name {
+		case invoiceFieldNames[invoiceIndeces["Model"]],
+			invoiceFieldNames[invoiceIndeces["Details"]]:
 			continue
-		case "Date":
-			str = valintf.(time.Time).Format(ShortDateFormat)
-		case "Total":
-			str = Sf("%.1f", valintf.(float64))
-		case "UINumber":
-			str = valintf.(string)[0:2] + "-" + valintf.(string)[2:]
+		case invoiceFieldNames[invoiceIndeces["Date"]]:
+			str = v.Interface().(time.Time).Format(ShortDateFormat)
+		case invoiceFieldNames[invoiceIndeces["Total"]]:
+			str = Sf("%.1f", v.Interface().(float64))
+		case invoiceFieldNames[invoiceIndeces["UINumber"]]:
+			str = v.Interface().(string)[0:2] + "-" + v.Interface().(string)[2:]
 		default:
-			str = valintf.(string)
+			str = v.Interface().(string)
 		}
-		Ff(&b, " %s : %s |", fldi.Tag.Get("cht"), str)
+		Ff(&b, " %s : %s |", invoiceCtagNames[invoiceIndeces[f.Name]], str)
 	}
 	Ff(&b, "\n")
 	lspaces := util.StrSpaces(4)
@@ -109,9 +121,8 @@ func (pv *Invoice) GetArgsTable(title string) string {
 	}
 	// heads := []string{"表頭", "發票狀態", "發票號碼", "發票日期",
 	// "商店統編", "商店店名", "載具名稱", "載具號碼", "總金額", "明細清單"}
-	_, _, _, heads := util.GetFieldsInfo(Invoice{}, "cht", "Model")
 	lensp := 0
-	table := util.ArgsTableN(title, lensp, false, heads, pv.Head, pv.State,
+	table := util.ArgsTableN(title, lensp, false, invoiceCtagNames, pv.Head, pv.State,
 		pv.UINumber[0:2]+"-"+pv.UINumber[2:], pv.Date.Format(ShortDateFormat),
 		pv.SUN, pv.SName, pv.CName, pv.CNumber,
 		Sf("%.1f", pv.Total), "[如下...]")
@@ -131,18 +142,18 @@ type detailSlcie struct {
 // GetInvoicesTable returns the table string of the list of []*Invoice
 func GetInvoicesTable(pinvs []*Invoice) string {
 	Sf, StrSpaces, StrThickLine, StrThinLine := util.Sf, util.StrSpaces, util.StrThickLine, util.StrThinLine
-	vheads := []string{"項次", "表頭", "發票狀態", "發票號碼", "發票日期",
-		"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
-	dheads := []string{"項次", "表頭", "發票號碼", "小計", "品項名稱"}
-	vnf := len(vheads)
-	dnf := len(dheads)
+	// vheads := []string{"項次", "表頭", "發票狀態", "發票號碼", "發票日期",
+	// 	"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
+	// dheads := []string{"項次", "表頭", "發票號碼", "小計", "品項名稱"}
+	vnf := len(invoiceCtagNames)
+	dnf := len(detailCtagNames)
 	vsizes := make([]int, vnf)
 	dsizes := make([]int, vnf)
 	for i := 0; i < vnf; i++ {
-		_, _, vsizes[i] = util.CountChars(vheads[i])
+		_, _, vsizes[i] = util.CountChars(invoiceCtagNames[i])
 	}
 	for i := 0; i < dnf; i++ {
-		_, _, dsizes[i] = util.CountChars(vheads[i])
+		_, _, dsizes[i] = util.CountChars(invoiceCtagNames[i])
 	}
 	//
 	invs := make([]invoiceSlcie, len(pinvs))
@@ -188,7 +199,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vhtab := StrThickLine(vn)
 	svfields := make([]string, vnf)
 	for i := 0; i < vnf; i++ {
-		svfields[i] = util.GetColStr(vheads[i], vsizes[i], isleft)
+		svfields[i] = util.GetColStr(invoiceCtagNames[i], vsizes[i], isleft)
 		switch i {
 		case 0:
 			vhtab += Sf("%v", svfields[i])
@@ -202,7 +213,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	dhtab := lspaces + StrThickLine(dn)
 	sdfields := make([]string, dnf)
 	for i := 0; i < dnf; i++ {
-		sdfields[i] = util.GetColStr(dheads[i], dsizes[i], isleft)
+		sdfields[i] = util.GetColStr(detailCtagNames[i], dsizes[i], isleft)
 		switch i {
 		case 0:
 			dhtab += lspaces + Sf("%v", sdfields[i])

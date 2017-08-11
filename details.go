@@ -27,6 +27,17 @@ type Detail struct {
 	// Invoice  *Invoice   `json:"-"`
 }
 
+var detailFieldNames []string
+var detailCtagNames []string
+var detailIndeces = make(map[string]int)
+
+func init() {
+	detailFieldNames, _, _, detailCtagNames = util.GetFieldsInfo(Detail{}, "cht", "Model")
+	for i := 0; i < len(detailFieldNames); i++ {
+		detailIndeces[detailFieldNames[i]] = i
+	}
+}
+
 func (d Detail) String() string {
 	Sf, Ff := fmt.Sprintf, fmt.Fprintf
 	var b bytes.Buffer
@@ -34,17 +45,19 @@ func (d Detail) String() string {
 	fld := val.Type()
 	var str string
 	for i := 0; i < val.NumField(); i++ {
-		switch fld.Field(i).Name {
-		case "Model":
+		v := val.Field(i)
+		f := fld.Field(i)
+		switch f.Name {
+		case detailFieldNames[detailIndeces["Model"]]:
 			continue
-		case "Subtotal":
-			str = Sf("%.1f", val.Field(i).Interface().(float64))
-		case "UINumber":
-			str = val.Field(i).Interface().(string)[0:2] + "-" + val.Field(i).Interface().(string)[2:]
+		case detailFieldNames[detailIndeces["Subtotal"]]:
+			str = Sf("%.1f", v.Interface().(float64))
+		case detailFieldNames[detailIndeces["UINumber"]]:
+			str = v.Interface().(string)[0:2] + "-" + v.Interface().(string)[2:]
 		default:
-			str = val.Field(i).Interface().(string)
+			str = v.Interface().(string)
 		}
-		Ff(&b, " %s : %s |", fld.Field(i).Tag.Get("cht"), str)
+		Ff(&b, " %s : %s |", detailCtagNames[detailIndeces[f.Name]], str)
 	}
 	Ff(&b, "\n")
 	return b.String()
@@ -57,11 +70,10 @@ func (d *Detail) GetArgsTable(title string, lensp int) string {
 		title = "明細清單"
 	}
 	// dheads := []string{"表頭", "發票號碼", "小計", "品項名稱"}
-	_, _, _, dheads := util.GetFieldsInfo(Detail{}, "cht", "Model")
 	if lensp < 0 {
 		lensp = 0
 	}
-	table := util.ArgsTableN(title, lensp, false, dheads, d.Head,
+	table := util.ArgsTableN(title, lensp, false, detailCtagNames, d.Head,
 		d.UINumber[0:2]+"-", d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
 	return table
 }
@@ -98,8 +110,7 @@ func GetDetailsTable(pds []*Detail, lensp int) string {
 	Sf := fmt.Sprintf
 	title := "明細清單"
 	dheads := []string{"項次"} //, "表頭", "發票號碼", "小計", "品項名稱"}
-	_, _, _, tmp := util.GetFieldsInfo(Detail{}, "cht", "Model")
-	dheads = append(dheads, tmp...)
+	dheads = append(dheads, detailCtagNames...)
 	if lensp < 0 {
 		lensp = 0
 	}

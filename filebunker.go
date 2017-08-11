@@ -24,6 +24,17 @@ type FileBunker struct {
 	Contents []byte     `cht:"內容" json:"-" yaml:"-"`
 }
 
+var fileBunkerFieldNames []string
+var fileBunkerCtagNames []string
+var fileBunkerIndeces = make(map[string]int)
+
+func init() {
+	fileBunkerFieldNames, _, _, fileBunkerCtagNames = util.GetFieldsInfo(FileBunker{}, "cht", "Model")
+	for i := 0; i < len(fileBunkerFieldNames); i++ {
+		fileBunkerIndeces[fileBunkerFieldNames[i]] = i
+	}
+}
+
 func (f FileBunker) String() string {
 	Sf := fmt.Sprintf
 	location, _ := time.LoadLocation("Local")
@@ -32,20 +43,23 @@ func (f FileBunker) String() string {
 	var str string
 	var cols = make([]string, 0)
 	for i := 0; i < val.NumField(); i++ {
-		switch fld.Field(i).Name {
-		case "Model":
+		v := val.Field(i)
+		f := fld.Field(i)
+
+		switch f.Name {
+		case fileBunkerFieldNames[fileBunkerIndeces["Model"]]:
 			continue
-		case "ModAt":
-			str = Sf("%v", val.Field(i).Interface().(time.Time).In(location))
-		case "Size":
-			str = util.BytesSizeToString(val.Field(i).Interface().(int))
-		case "Contents":
+		case fileBunkerFieldNames[fileBunkerIndeces["ModAt"]]:
+			str = Sf("%v", v.Interface().(time.Time).In(location))
+		case fileBunkerFieldNames[fileBunkerIndeces["Size"]]:
+			str = util.BytesSizeToString(v.Interface().(int))
+		case fileBunkerFieldNames[fileBunkerIndeces["Contents"]]:
 			str = "[略...]"
 		default:
-			// str = val.Field(i).Interface().(string)
-			str = util.Sf("%v", val.Field(i).Interface().(string))
+			// str = v.Interface().(string)
+			str = util.Sf("%v", v.Interface().(string))
 		}
-		cols = append(cols, Sf("%s:%s", fld.Field(i).Tag.Get("cht"), str))
+		cols = append(cols, Sf("%s:%s", fileBunkerCtagNames[fileBunkerIndeces[f.Name]], str))
 	}
 	return strings.Join(cols, csvSep)
 }
@@ -65,13 +79,13 @@ func (f *FileBunker) GetArgsTable(title string, lensp int) string {
 		title = "原始發票檔案清單"
 	}
 	// var heads = []string{"項次"}
-	_, _, _, heads := util.GetFieldsInfo(FileBunker{}, "cht", "Model")
+	// _, _, _, heads := util.GetFieldsInfo(FileBunker{}, "cht", "Model")
 	if lensp < 0 {
 		lensp = 0
 	}
 	// heads = append(heads, tmp...)
 	strSize := util.BytesSizeToString(f.Size)
-	table := util.ArgsTableN(title, lensp, true, heads,
+	table := util.ArgsTableN(title, lensp, true, fileBunkerCtagNames,
 		f.Name, strSize, f.ModAt.In(location), f.Encoding, f.Checksum, "[略...]")
 	return table
 }
@@ -83,8 +97,8 @@ func GetFileBunkerTable(pfbs []*FileBunker, lensp int) string {
 	location, _ := time.LoadLocation("Local")
 	title := "原始發票檔案清單"
 	heads := []string{"項次"}
-	_, _, _, tmp := util.GetFieldsInfo(FileBunker{}, "cht", "Model")
-	heads = append(heads, tmp...)
+	// _, _, _, tmp := util.GetFieldsInfo(FileBunker{}, "cht", "Model")
+	heads = append(heads, fileBunkerCtagNames...)
 	if lensp < 0 {
 		lensp = 0
 	}
