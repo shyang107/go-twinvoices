@@ -74,9 +74,16 @@ func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
 	var vh, dh headType
+<<<<<<< HEAD
 	_, _, _, vh.head = util.GetFieldsInfo(Invoice{}, "cht", "Model")
 	_, _, _, dh.head = util.GetFieldsInfo(Detail{}, "cht", "Model")
 
+=======
+	_, vh.head = getFieldsAndTags(Invoice{}, "cht")
+	_, dh.head = getFieldsAndTags(Detail{}, "cht")
+	vh.prepend("項次")
+	dh.prepend("項次")
+>>>>>>> origin/master
 	//
 	fx := xlsx.NewFile()
 	sht, _ := fx.AddSheet("消費發票")
@@ -100,19 +107,35 @@ type headType struct {
 	head []string
 }
 
-func (ht headType) addTo(r *xlsx.Row, isDetail bool) {
+func (ht *headType) prepend(value string) {
+	ht.head = append(ht.head, "")
+	copy(ht.head[1:], ht.head[0:])
+	ht.head[0] = value
+}
+
+func (ht *headType) addTo(r *xlsx.Row, isDetail bool) {
 	// style := getDefaultInvoiceCellStyle()
 	if isDetail {
 		r.AddCell()
 		// style = getDefaultDetailCellStyle()
 	}
-	cell := r.AddCell()
-	cell.SetString("項次")
+	// cell := r.AddCell()
+	// cell.SetString("項次")
 	// cell.SetStyle(style)
+<<<<<<< HEAD
 	for i := 0; i < len(ht.head); i++ {
 		cell := r.AddCell()
 		cell.SetString(ht.head[i])
 		// cell.SetStyle(style)
+=======
+	// for i := 0; i < len(ht.head); i++ {
+	// 	cell := r.AddCell()
+	// 	cell.SetString(ht.head[i])
+	// 	// cell.SetStyle(style)
+	// }
+	if res := r.WriteSlice(&ht.head, -1); res < 0 {
+		Glog.Errorf("write slice to row failed (%d); the slice must be ptr.", res)
+>>>>>>> origin/master
 	}
 }
 
@@ -136,7 +159,11 @@ func (d *Detail) addTo(r *xlsx.Row, id int) {
 	cell := r.AddCell()
 	cell.SetInt(id)
 	// cell.SetStyle(style)
+<<<<<<< HEAD
 
+=======
+	//
+>>>>>>> origin/master
 	val := reflect.ValueOf(*d)
 	n := val.NumField() // typ.NumField()
 	for i := 0; i < n; i++ {
@@ -176,7 +203,11 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 	cell := r.AddCell()
 	cell.SetInt(id)
 	// cell.SetStyle(style)
+<<<<<<< HEAD
 
+=======
+	//
+>>>>>>> origin/master
 	val := reflect.ValueOf(*v)
 	n := val.NumField()
 	for i := 0; i < n; i++ {
