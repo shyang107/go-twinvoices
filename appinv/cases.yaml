@@ -76,9 +76,9 @@
   - filename: ./out/09102989061-4.xml
     suffix: .xml
     isoutput: true
-  - filename: ./out/09102989061-4.xlsx
-    suffix: .xlsx
-    isoutput: true
+  # - filename: ./out/09102989061-4.xlsx
+  #   suffix: .xlsx
+  #   isoutput: true
   - filename: ./out/09102989061-4.yaml
     suffix: .yaml
     isoutput: true
