@@ -69,7 +69,7 @@ type XlsxMarshaller struct{}
 func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 	// Prun("  > Writing data to .xlsx file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Writing data to .xlsx file [%s] ...", util.LogColorString("info", fn))
+	Glog.Infof("➥  Writing data to .xlsx file [%s] ...", util.LogColorString("info", fn))
 	if pvs == nil || len(pvs) == 0 {
 		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
@@ -80,10 +80,13 @@ func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 
 	fx := xlsx.NewFile()
 	sht, _ := fx.AddSheet("消費發票")
+
+	total := 0.0
 	for i := 0; i < len(pvs); i++ {
 		vh.addTo(sht.AddRow(), false)
 		rowi := sht.AddRow()
 		pvs[i].addTo(rowi, i+1)
+		total += pvs[i].Total
 		if len(pvs[i].Details) > 0 {
 			dh.addTo(sht.AddRow(), true)
 			for j := 0; j < len(pvs[i].Details); j++ {
@@ -92,8 +95,41 @@ func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
 			}
 		}
 	}
+
+	msg := fmt.Sprintf("發票 %d 至 %d 累計金額：", 1, len(pvs))
+	sht.AddRow()
+	addSum(sht.AddRow(), msg, 3, total)
+
 	fx.Save(fn)
 	return nil
+}
+
+func addSum(r *xlsx.Row, msg string, mergedcells int, value float64) {
+	cell := r.AddCell()
+	cell.Merge(mergedcells, 0)
+	cell.SetValue(msg)
+
+	s := xlsx.NewStyle()
+	s.Alignment.Horizontal = "right"
+	s.ApplyAlignment = true
+	cell.SetStyle(s)
+
+	for i := 0; i < mergedcells; i++ {
+		r.AddCell()
+	}
+	cell = r.AddCell()
+	cell.SetFloatWithFormat(value, numfmt)
+
+	s = xlsx.NewStyle()
+	// s.Fill = xlsx.Fill{PatternType: "solid", BgColor: darkBlue, FgColor: ivory}
+	s.Fill = *xlsx.NewFill("solid", ivory, "")
+	s.Font.Color = blue
+	s.Font.Bold = true
+	s.ApplyFill = true
+	border := *xlsx.NewBorder("thin", "thin", "thin", "thin")
+	s.Border = border
+	s.ApplyBorder = true
+	cell.SetStyle(s)
 }
 
 type headType struct {
@@ -209,7 +245,7 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 // UnmarshalInvoices unmarshal the records of invoice using in .xlsx file
 func (XlsxMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	util.DebugPrintCaller()
-	glInfof("➥  Reading data from .xlsx file %s ...", util.LogColorString("info", fn))
-	glWarnf("☹  TODO: %q", util.CallerName(1))
+	Glog.Infof("➥  Reading data from .xlsx file %s ...", util.LogColorString("info", fn))
+	Glog.Warnf("☹  TODO: %q", util.CallerName(1))
 	return nil, nil
 }
