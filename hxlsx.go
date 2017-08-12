@@ -186,20 +186,20 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 	val := reflect.ValueOf(*v)
 	n := val.NumField()
 	for i := 0; i < n; i++ {
-		vvi := val.Field(i).Interface()
+		v := val.Field(i)
 		cell := &xlsx.Cell{}
 		// cell := r.AddCell()
 		cell.SetStyle(style)
-		switch vvi.(type) {
+		switch v.Interface().(type) {
 		case gorm.Model, []*Detail:
 			continue
 		case time.Time:
-			cell.SetDate(vvi.(time.Time))
+			cell.SetDate(v.Interface().(time.Time))
 		case float64:
-			// cell.SetFloatWithFormat(vvi.(float64), numfmtAccountant)
-			cell.SetFloatWithFormat(vvi.(float64), numfmt)
+			// cell.SetFloatWithFormat(v.(float64), numfmtAccountant)
+			cell.SetFloatWithFormat(v.Interface().(float64), numfmt)
 		default:
-			cell.SetString(vvi.(string))
+			cell.SetString(v.Interface().(string))
 		}
 		r.Cells = append(r.Cells, cell)
 	}

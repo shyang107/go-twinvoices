@@ -82,6 +82,16 @@ func IsChineseChar(str string) bool {
 	return false
 }
 
+// NewSize is filled and returns len(e), e is element of slice h
+func NewSize(h []string) []int {
+	n := len(h)
+	sizes := make([]int, n)
+	for i := 0; i < n; i++ {
+		_, _, sizes[i] = CountChars(h[i])
+	}
+	return sizes
+}
+
 // ArgsTable prints a nice table with input arguments
 //  Input:
 //   title -- title of table; e.g. INPUT ARGUMENTS
@@ -117,10 +127,9 @@ func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...i
 	}
 	lspaces := StrSpaces(nledsp)
 	nlines := ndat / nf
-	sizes := make([]int, nf)
-	for i := 0; i < nf; i++ {
-		_, _, sizes[i] = CountChars(heads[i])
-	}
+
+	sizes := NewSize(heads)
+
 	for i := 0; i < nlines; i++ {
 		if i*nf+(nf-1) >= ndat {
 			return Sf("ArgsTable: input arguments are not a multiple of %d\n", nf)
@@ -131,15 +140,19 @@ func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...i
 			sizes[j] = Imax(sizes[j], nmix)
 		}
 	}
-	// strfmt := Sf("%%v  %%v  %%v\n")
-	n := Isum(sizes...) + nf + (nf-1)*2 + 1 // sizes[0] + sizes[1] + sizes[2] + 3 + 4
-	_, _, l := CountChars(title)
-	m := (n - l) / 2
-	//
+
 	var b bytes.Buffer
 	bw := b.WriteString
-	//
-	bw(StrSpaces(m+nledsp) + title + "\n")
+
+	// strfmt := Sf("%%v  %%v  %%v\n")
+	n := Isum(sizes...) + nf + (nf-1)*2 + 1 // sizes[0] + sizes[1] + sizes[2] + 3 + 4
+
+	if len(title) > 0 {
+		_, _, l := CountChars(title)
+		m := (n - l) / 2
+		bw(StrSpaces(m+nledsp) + title + "\n")
+	}
+
 	bw(lspaces + StrThickLine(n))
 	sfields := make([]string, nf)
 	for i := 0; i < nf; i++ {

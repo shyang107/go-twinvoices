@@ -45,42 +45,45 @@ type Invoice struct {
 
 var invoiceFieldNames []string
 var invoiceCtagNames []string
-var invoiceIndeces = make(map[string]int)
+var invoiceIndex = make(map[string]int)
 
 func init() {
-	invoiceFieldNames, _, _, invoiceCtagNames = util.GetFieldsInfo(Invoice{}, "cht", "Model")
+	invoiceFieldNames, _, _, invoiceCtagNames = util.GetFieldsInfo(Invoice{}, "cht", "Model", "Details")
 	for i := 0; i < len(invoiceFieldNames); i++ {
-		invoiceIndeces[invoiceFieldNames[i]] = i
+		invoiceIndex[invoiceFieldNames[i]] = i
 	}
 }
 
-func (pv Invoice) String() string {
+func (v Invoice) String() string {
 	Sf, Ff := fmt.Sprintf, fmt.Fprintf
 	var b bytes.Buffer
-	val := reflect.ValueOf(pv) //.Elem()
+	val := reflect.ValueOf(v) //.Elem()
 	fld := val.Type()
 	var str string
 	for i := 0; i < val.NumField(); i++ {
 		f := fld.Field(i)
 		v := val.Field(i)
-		switch f.Name {
-		case invoiceFieldNames[invoiceIndeces["Model"]],
-			invoiceFieldNames[invoiceIndeces["Details"]]:
+
+		switch v.Interface().(type) {
+		case gorm.Model, []*Detail:
 			continue
-		case invoiceFieldNames[invoiceIndeces["Date"]]:
+		case time.Time:
 			str = v.Interface().(time.Time).Format(ShortDateFormat)
-		case invoiceFieldNames[invoiceIndeces["Total"]]:
+		case float64:
 			str = Sf("%.1f", v.Interface().(float64))
-		case invoiceFieldNames[invoiceIndeces["UINumber"]]:
-			str = v.Interface().(string)[0:2] + "-" + v.Interface().(string)[2:]
 		default:
-			str = v.Interface().(string)
+			switch f.Name {
+			case invoiceFieldNames[invoiceIndex["UINumber"]]:
+				str = v.Interface().(string)[0:2] + "-" + v.Interface().(string)[2:]
+			default:
+				str = v.Interface().(string)
+			}
 		}
-		Ff(&b, " %s : %s |", invoiceCtagNames[invoiceIndeces[f.Name]], str)
+		Ff(&b, " %s : %s |", invoiceCtagNames[invoiceIndex[f.Name]], str)
 	}
 	Ff(&b, "\n")
 	lspaces := util.StrSpaces(4)
-	for i, d := range pv.Details {
+	for i, d := range v.Details {
 		Ff(&b, "%s> %2d. %s", lspaces, i+1, d)
 	}
 	return b.String()
@@ -114,7 +117,7 @@ func setCachedInvoices(obj *Invoice) {
 }
 
 // GetArgsTable :
-func (pv *Invoice) GetArgsTable(title string) string {
+func (v *Invoice) GetArgsTable(title string) string {
 	Sf := fmt.Sprintf
 	if len(title) == 0 {
 		title = "發票清單"
@@ -122,142 +125,106 @@ func (pv *Invoice) GetArgsTable(title string) string {
 	// heads := []string{"表頭", "發票狀態", "發票號碼", "發票日期",
 	// "商店統編", "商店店名", "載具名稱", "載具號碼", "總金額", "明細清單"}
 	lensp := 0
-	table := util.ArgsTableN(title, lensp, false, invoiceCtagNames, pv.Head, pv.State,
-		pv.UINumber[0:2]+"-"+pv.UINumber[2:], pv.Date.Format(ShortDateFormat),
-		pv.SUN, pv.SName, pv.CName, pv.CNumber,
-		Sf("%.1f", pv.Total), "[如下...]")
+	table := util.ArgsTableN(title, lensp, false, invoiceCtagNames, v.Head, v.State,
+		v.UINumber[0:2]+"-"+v.UINumber[2:], v.Date.Format(ShortDateFormat),
+		v.SUN, v.SName, v.CName, v.CNumber,
+		Sf("%.1f", v.Total), "[如下...]")
 	lensp = 7
-	table += GetDetailsTable(pv.Details, lensp)
+	table += GetDetailsTable(v.Details, lensp, false)
 	return table
 }
 
-type invoiceSlcie struct {
-	data    []string
-	details []detailSlcie
+func (v *Invoice) mapToStringSlice(idx int) []string {
+	return []string{
+		fmt.Sprintf("%d", idx), v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+		v.Date.Format(ShortDateFormat),
+		v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+	}
 }
-type detailSlcie struct {
-	data []string
+
+func (v *Invoice) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
+	data := v.mapToStringSlice(idx)
+	return sliceToString(leading, data, sizes, isleft)
+}
+
+func setMaxSizes(sizes *[]int, data *[]string) {
+	for j, d := range *data {
+		str := fmt.Sprintf("%v", d)
+		_, _, nmix := util.CountChars(str)
+		(*sizes)[j] = util.Imax((*sizes)[j], nmix)
+	}
+}
+
+func sliceToString(leading string, data []string, sizes []int, isleft bool) string {
+	str := ""
+	for i, d := range data {
+		sdf := util.GetColStr(d, sizes[i], isleft)
+		if i == 0 {
+			str += leading + fmt.Sprintf("%v", sdf)
+			continue
+		}
+		str += fmt.Sprintf("  %v", sdf)
+	}
+	return str
 }
 
 // GetInvoicesTable returns the table string of the list of []*Invoice
 func GetInvoicesTable(pinvs []*Invoice) string {
-	Sf, StrSpaces, StrThickLine, StrThinLine := util.Sf, util.StrSpaces, util.StrThickLine, util.StrThinLine
 	// vheads := []string{"項次", "表頭", "發票狀態", "發票號碼", "發票日期",
 	// 	"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
 	// dheads := []string{"項次", "表頭", "發票號碼", "小計", "品項名稱"}
-	vnf := len(invoiceCtagNames)
-	dnf := len(detailCtagNames)
-	vsizes := make([]int, vnf)
-	dsizes := make([]int, vnf)
-	for i := 0; i < vnf; i++ {
-		_, _, vsizes[i] = util.CountChars(invoiceCtagNames[i])
-	}
-	for i := 0; i < dnf; i++ {
-		_, _, dsizes[i] = util.CountChars(invoiceCtagNames[i])
-	}
-	//
-	invs := make([]invoiceSlcie, len(pinvs))
-	for i := 0; i < len(pinvs); i++ {
-		p := pinvs[i]
-		invs[i].data = []string{
-			Sf("%d", i+1), p.Head, p.State, p.UINumber[0:2] + "-" + p.UINumber[2:],
-			p.Date.Format(ShortDateFormat),
-			p.SUN, p.SName, p.CName, p.CNumber, Sf("%.1f", p.Total),
-		}
-		for j := 0; j < vnf; j++ {
-			str := Sf("%v", invs[i].data[j])
-			_, _, nmix := util.CountChars(str)
-			vsizes[j] = util.Imax(vsizes[j], nmix)
-		}
-		for j := 0; j < len(p.Details); j++ {
-			d := p.Details[j]
-			detail := detailSlcie{
-				data: []string{
-					Sf("%d", j+1), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-					Sf("%.1f", d.Subtotal), d.Name,
-				},
-			}
-			invs[i].details = append(invs[i].details, detail)
-			for k := 0; k < dnf; k++ {
-				str := Sf("%v", detail.data[k])
-				_, _, nmix := util.CountChars(str)
-				dsizes[k] = util.Imax(dsizes[k], nmix)
-			}
+
+	vheads := append([]string{"項次"}, invoiceCtagNames...)
+	dheads := append([]string{"項次"}, detailCtagNames...)
+	vsizes, dsizes := util.NewSize(vheads), util.NewSize(dheads)
+
+	for i, p := range pinvs {
+		vdata := p.mapToStringSlice(i + 1)
+		setMaxSizes(&vsizes, &vdata)
+		for j, d := range p.Details {
+			ddata := d.mapToStringSlice(j + 1)
+			setMaxSizes(&dsizes, &ddata)
 		}
 	}
+
+	var b bytes.Buffer
+	bws := b.WriteString
+
+	vnf := len(vheads)
 	vn := util.Isum(vsizes...) + vnf + (vnf-1)*2 + 1
 	title := "發票清單"
 	_, _, vl := util.CountChars(title)
 	vm := (vn - vl) / 2
+	bws(util.StrSpaces(vm) + title + "\n")
+
 	isleft := true
-	//
-	var b bytes.Buffer
-	bws := b.WriteString
-	//
-	bws(StrSpaces(vm) + title + "\n")
-	//
-	vhtab := StrThickLine(vn)
-	svfields := make([]string, vnf)
-	for i := 0; i < vnf; i++ {
-		svfields[i] = util.GetColStr(invoiceCtagNames[i], vsizes[i], isleft)
-		switch i {
-		case 0:
-			vhtab += Sf("%v", svfields[i])
-		default:
-			vhtab += Sf("  %v", svfields[i])
-		}
-	}
-	vhtab += "\n" + StrThinLine(vn)
+	vhtab := util.StrThickLine(vn)
+	vhtab += sliceToString("", vheads, vsizes, isleft)
+	vhtab += "\n" + util.StrThinLine(vn)
+
 	lspaces := util.StrSpaces(7)
+	dnf := len(dheads)
 	dn := util.Isum(dsizes...) + dnf + (dnf-1)*2 + 1
-	dhtab := lspaces + StrThickLine(dn)
-	sdfields := make([]string, dnf)
-	for i := 0; i < dnf; i++ {
-		sdfields[i] = util.GetColStr(detailCtagNames[i], dsizes[i], isleft)
-		switch i {
-		case 0:
-			dhtab += lspaces + Sf("%v", sdfields[i])
-		default:
-			dhtab += Sf("  %v", sdfields[i])
-		}
-	}
-	dhtab += "\n" + lspaces + StrThinLine(dn)
-	//
-	for i := 0; i < len(invs); i++ {
-		v := &invs[i].data
+	dhtab := lspaces + util.StrThickLine(dn)
+	dhtab += sliceToString(lspaces, dheads, dsizes, isleft)
+	dhtab += "\n" + lspaces + util.StrThinLine(dn)
+
+	for i, p := range pinvs {
 		bws(vhtab)
-		// pchk("%v : %v \n", vnf, v)
-		for j := 0; j < vnf; j++ {
-			svfields[j] = util.GetColStr((*v)[j], vsizes[j], isleft)
-			switch j {
-			case 0:
-				bws(Sf("%v", svfields[j]))
-			default:
-				bws(Sf("  %v", svfields[j]))
-			}
-		}
+		bws(p.toTableRowString("", i+1, vsizes, isleft))
 		bws("\n")
-		//
-		details := invs[i].details
-		ndetails := len(details)
-		if ndetails > 0 {
+
+		// bws(GetDetailsTable(p.Details, 7, false))
+		if len(p.Details) > 0 {
 			bws(dhtab)
-			for k := 0; k < len(details); k++ {
-				d := &details[k].data
-				for j := 0; j < dnf; j++ {
-					sdfields[j] = util.GetColStr((*d)[j], dsizes[j], isleft)
-					switch j {
-					case 0:
-						bws(lspaces + Sf("%v", sdfields[j]))
-					default:
-						bws(Sf("  %v", sdfields[j]))
-					}
-				}
+			for j, d := range p.Details {
+				bws(d.toTableRowString(lspaces, j+1, dsizes, isleft))
 				bws("\n")
 			}
-			bws(lspaces + StrThickLine(dn))
+			bws(lspaces + util.StrThickLine(dn))
 		}
 	}
+
 	return b.String()
 }
 
