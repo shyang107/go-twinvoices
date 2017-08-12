@@ -32,15 +32,15 @@ var (
 
 // simplied name of called function
 var (
-	Glog     = util.Glog
-	glInfo   = Glog.Info
-	glInfof  = Glog.Infof
-	glWarn   = Glog.Warn
-	glWarnf  = Glog.Warnf
-	glError  = Glog.Error
-	glErrorf = Glog.Errorf
-	glDebug  = Glog.Debug
-	glDebugf = Glog.Debugf
+	Glog = util.Glog
+	// glInfo   = Glog.Info
+	// glInfof  = Glog.Infof
+	// glWarn   = Glog.Warn
+	// glWarnf  = Glog.Warnf
+	// glError  = Glog.Error
+	// glErrorf = Glog.Errorf
+	// glDebug  = Glog.Debug
+	// glDebugf = Glog.Debugf
 )
 
 func init() {
@@ -116,7 +116,7 @@ func GetDefualtConfig() *Config {
 func (c *Config) ReadConfigs() error {
 	util.DebugPrintCaller()
 	// Prun("  > Reading configuration from  %q ...\n", CfgFile)
-	glInfof("➥  Reading configuration from  [%s] ...", util.LogColorString("info", CfgFile))
+	Glog.Infof("➥  Reading configuration from  [%s] ...", util.LogColorString("info", CfgFile))
 	//
 	if util.IsFileExist(CfgFile) {
 		b, err := util.ReadFile(CfgFile)

@@ -29,7 +29,12 @@ var fileBunkerCtagNames []string
 var fileBunkerIndeces = make(map[string]int)
 
 func init() {
-	fileBunkerFieldNames, _, _, fileBunkerCtagNames = util.GetFieldsInfo(FileBunker{}, "cht", "Model")
+	var err error
+	fileBunkerFieldNames, _, _, fileBunkerCtagNames, err = util.GetFieldsInfo(&FileBunker{}, "cht", "Model")
+	if err != nil {
+		panic(err)
+	}
+
 	for i := 0; i < len(fileBunkerFieldNames); i++ {
 		fileBunkerIndeces[fileBunkerFieldNames[i]] = i
 	}

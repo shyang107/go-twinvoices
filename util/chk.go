@@ -52,6 +52,11 @@ func CheckErr(err error) {
 	}
 }
 
+// Err returns a new error
+func Err(msg string, prm ...interface{}) error {
+	return fmt.Errorf(msg, prm...)
+}
+
 // FuncCallerInfo describes the information of callers of function
 type FuncCallerInfo struct {
 	PackageName string

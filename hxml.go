@@ -106,7 +106,7 @@ type XMLMarshaller struct{}
 func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 	// Prun("  > Writing data to .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Writing data to .xml file [%s] ...", util.LogColorString("info", fn))
+	Glog.Infof("➥  Writing data to .xml file [%s] ...", util.LogColorString("info", fn))
 	xvs := xmlInvoices{Version: fileVersion}
 	xvs.Invoices = make([]*xmlInvoice, 0, len(vs))
 	for _, v := range vs {
@@ -126,7 +126,7 @@ func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("  > Reading data from .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Reading data from .xml file [%s] ...", util.LogColorString("info", fn))
+	Glog.Infof("➥  Reading data from .xml file [%s] ...", util.LogColorString("info", fn))
 	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Plog(GetInvoicesTable(pvs))
 	// pchk("%v\n", vsToTable(pvs))
 	// Prun("    updating database ...\n")
-	glInfof("Invoices list ---\n%s", GetInvoicesTable(pvs))
+	Glog.Infof("Invoices list ---\n%s", GetInvoicesTable(pvs))
 	// pchk("%v\n", vsToTable(pvs))
 	dbInsertFrom(pvs)
 	return pvs, nil

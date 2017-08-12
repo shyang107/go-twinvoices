@@ -48,10 +48,15 @@ var invoiceCtagNames []string
 var invoiceIndex = make(map[string]int)
 
 func init() {
-	invoiceFieldNames, _, _, invoiceCtagNames = util.GetFieldsInfo(Invoice{}, "cht", "Model", "Details")
+	var err error
+	invoiceFieldNames, _, _, invoiceCtagNames, err = util.GetFieldsInfo(&Invoice{}, "cht", "Model", "Details")
+	if err != nil {
+		panic(err)
+	}
 	for i := 0; i < len(invoiceFieldNames); i++ {
 		invoiceIndex[invoiceFieldNames[i]] = i
 	}
+
 }
 
 func (v Invoice) String() string {
@@ -251,7 +256,7 @@ func printInvList(pvs []*Invoice) {
 		// fp(&b, "\n")
 	}
 	//util.Pchk("%s", b.String())
-	glDebugf("%s", b.String())
+	Glog.Debugf("%s", b.String())
 }
 
 //=========================================================

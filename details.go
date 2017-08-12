@@ -32,7 +32,11 @@ var detailCtagNames []string
 var detailIndex = make(map[string]int)
 
 func init() {
-	detailFieldNames, _, _, detailCtagNames = util.GetFieldsInfo(Detail{}, "cht", "Model")
+	var err error
+	detailFieldNames, _, _, detailCtagNames, err = util.GetFieldsInfo(&Detail{}, "cht", "Model")
+	if err != nil {
+		panic(err)
+	}
 	for i := 0; i < len(detailFieldNames); i++ {
 		detailIndex[detailFieldNames[i]] = i
 	}

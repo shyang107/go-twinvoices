@@ -1,7 +1,9 @@
 package util
 
 import (
+	"bufio"
 	"bytes"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -55,9 +57,50 @@ func ReadFile(fn string) (b []byte, err error) {
 	return ioutil.ReadFile(os.ExpandEnv(fn))
 }
 
+// ReadLinesCallback is used in ReadLines to process line by line during reading of a file
+type ReadLinesCallback func(idx int, line string) (stop bool)
+
+// ReadLinesFile reads lines from a file and calls ReadLinesCallback to process each line being read
+func ReadLinesFile(fil *os.File, cb ReadLinesCallback) (oserr error) {
+	r := bufio.NewReader(fil)
+	idx := 0
+	for {
+		lin, prefix, errl := r.ReadLine()
+		if prefix {
+			return Err("cannot read long line. file = <%s>", fil.Name())
+		}
+		if errl == io.EOF {
+			break
+		}
+		if errl != nil {
+			return Err("cannot read line. file = <%s>", fil.Name())
+		}
+		stop := cb(idx, string(lin))
+		if stop {
+			break
+		}
+		idx++
+	}
+	return
+}
+
 // AppendToFile appends data to an existent (or new) file
 func AppendToFile(fn string, buffer ...*bytes.Buffer) {
 	fil, err := os.OpenFile(os.ExpandEnv(fn), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		Panic("cannot create file <%s>", fn)
+	}
+	defer fil.Close()
+	for k := range buffer {
+		if buffer[k] != nil {
+			fil.Write(buffer[k].Bytes())
+		}
+	}
+}
+
+// WriteFile writes data to a new file with given bytes.Buffer(s)
+func WriteFile(fn string, buffer ...*bytes.Buffer) {
+	fil, err := os.Create(os.ExpandEnv(fn))
 	if err != nil {
 		Panic("cannot create file <%s>", fn)
 	}

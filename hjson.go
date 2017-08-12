@@ -21,7 +21,7 @@ type JSONMarshaller struct{}
 func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 	// Prun("  > Writing data to .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Writing data to .json file [%s] ...", util.LogColorString("info", fn))
+	Glog.Infof("➥  Writing data to .json file [%s] ...", util.LogColorString("info", fn))
 	j := JSONInvoices{
 		FileType:    fileType,
 		FileVersion: fileVersion,
@@ -40,7 +40,7 @@ func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Prun("  > Reading data from .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
-	glInfof("➥  Reading data from .json file [%s] ...", util.LogColorString("info", fn))
+	Glog.Infof("➥  Reading data from .json file [%s] ...", util.LogColorString("info", fn))
 	b, err := util.ReadFile(fn)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	}
 	// Plog(GetInvoicesTable(j.Invoices))
 	// Prun("    updating database ...\n")
-	glInfof("Invoices list ---\n%s", GetInvoicesTable(j.Invoices))
+	Glog.Infof("Invoices list ---\n%s", GetInvoicesTable(j.Invoices))
 	dbInsertFrom(j.Invoices)
 	return j.Invoices, nil
 }

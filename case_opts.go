@@ -134,7 +134,7 @@ func (c *Config) ReadCaseConfigs() ([]*Case, error) {
 	util.DebugPrintCaller()
 	fln := os.ExpandEnv(c.CaseFilename)
 	suffix := util.FnExt(fln)
-	glInfof("➥  Reading options from [%[2]s] file [%[1]s] ...",
+	Glog.Infof("➥  Reading options from [%[2]s] file [%[1]s] ...",
 		util.LogColorString("info", fln),
 		util.LogColorString("info", suffix))
 	b, err := util.ReadFile(fln)

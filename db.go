@@ -1,7 +1,6 @@
 package invoices
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -20,7 +19,7 @@ func Initialdb() error {
 	// util.Verbose = true
 	if util.IsFileExist(Cfg.DBfilename) {
 		// Pstat("  > Removing file %q ...\n", Cfg.DBfilename)
-		glInfof("☞  Removing file %q ...\n", Cfg.DBfilename)
+		Glog.Infof("☞  Removing file %q ...\n", Cfg.DBfilename)
 		err := os.Remove(Cfg.DBfilename)
 		if err != nil {
 			// panic(err)
@@ -28,7 +27,7 @@ func Initialdb() error {
 		}
 	}
 	// Pstat("  > Creating file %q ...\n", Cfg.DBfilename)
-	glInfof("♲  Creating file %q ...\n", Cfg.DBfilename)
+	Glog.Infof("♲  Creating file %q ...\n", Cfg.DBfilename)
 	db, err := gorm.Open("sqlite3", os.ExpandEnv(Cfg.DBfilename))
 	if err != nil {
 		// Panic("failed to connect database")
@@ -57,7 +56,7 @@ func Connectdb() {
 	} else {
 		// log.Print("connect database is success")
 		// Pinfo("* connect database is success\n")
-		glDebugf("♲  Connect database is success")
+		Glog.Debugf("♲  Connect database is success")
 	}
 	err = DB.DB().Ping()
 	if err != nil {
@@ -81,7 +80,7 @@ func dbGetAllInvoices() ([]*Invoice, error) {
 
 // dbInsertFrom creats records from []*Invoice into database
 func dbInsertFrom(pvs []*Invoice) {
-	glInfof("♲  Updating database ...")
+	Glog.Infof("♲  Updating database ...")
 	util.DebugPrintCaller()
 	for _, v := range pvs {
 		// io.Pforan("# %v", *v)
@@ -94,44 +93,18 @@ func dbInsertFrom(pvs []*Invoice) {
 func DBDumpData(dumpFilename string) error {
 	util.DebugPrintCaller()
 	// Prun("  > Dumping data from %q ...\n", Cfg.DBfilename)
-	glInfof("♲  Dumping data from %q ...", Cfg.DBfilename)
+	Glog.Infof("♲  Dumping data from %q ...", Cfg.DBfilename)
 	pvs, err := dbGetAllInvoices()
 	if err != nil {
 		return err
 	}
-	return dbWriteInvoices(pvs, dumpFilename)
-}
 
-// dbWriteInvoices write all invoices to the file
-func dbWriteInvoices(invs []*Invoice, fln string) error {
-	util.DebugPrintCaller()
-	fln = os.ExpandEnv(fln)
-	// fn := PathKey(fln) // + ".json"
-	ext := util.FnExt(fln)
-	// Prun("  ➾  Prepare %[2]q data, and then write to %[1]q ...\n", fln, ext)
-	glInfof("➾  Prepare %[2]q data, and then write to %[1]q ...", fln, ext)
-	var marshaller InvoiceMarshaller
-	switch ext {
-	case ".csv":
-		logdebugmarshaller("CsvMarshaller")
-		marshaller = CsvMarshaller{}
-	case ".jsn", ".json":
-		logdebugmarshaller("JSONMarshaller")
-		marshaller = JSONMarshaller{}
-	case ".yml", ".yaml":
-		logdebugmarshaller("YAMLMarshaller")
-		marshaller = YAMLMarshaller{}
-	case ".xml":
-		logdebugmarshaller("XMLMarshaller")
-		marshaller = XMLMarshaller{}
-	case ".xlsx":
-		logdebugmarshaller("XlsxMarshaller")
-		marshaller = XlsxMarshaller{}
+	// return dbWriteInvoices(pvs, dumpFilename)
+	out := &OutputFile{
+		Filename: os.ExpandEnv(dumpFilename),
+		Suffix:   util.FnExt(dumpFilename),
+		IsOutput: true,
 	}
-	if marshaller != nil {
-		err := marshaller.MarshalInvoices(fln, invs)
-		return err
-	}
-	return fmt.Errorf("☠  Not supprted %[2]q-type (%[1]q)",
-		util.LogColorString("error", fln), util.LogColorString("error", ext))
+
+	return out.WriteInvoices(pvs)
 }
