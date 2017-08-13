@@ -74,29 +74,72 @@ func (d Detail) String() string {
 }
 
 func (d *Detail) mapToStringSlice(idx int) []string {
+	// if idx < 0 {
+	// 	return []string{
+	// 		d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+	// 		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
+	// 	}
+	// }
+	// return []string{
+	// 	fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+	// 	fmt.Sprintf("%.1f", d.Subtotal), d.Name,
+	// }
+
+	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
+	cb["UINumber"] = func(value interface{}) interface{} {
+		a := value.(string)
+		return interface{}(a[0:2] + "-" + a[2:])
+	}
+	cb["Subtotal"] = func(value interface{}) interface{} {
+		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
+	}
+
+	out, err := util.StrValuesWithFunc(d, cb, "Model")
+	if err != nil {
+		util.Panic("retrive value of `*v` struct failed!")
+	}
+
 	if idx < 0 {
-		return []string{
-			d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-			fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-		}
+		return out
 	}
-	return []string{
-		fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-	}
+	res := []string{fmt.Sprintf("%d", idx)}
+	res = append(res, out...)
+
+	return res
 }
 
 func (d *Detail) mapToInterfaceSlice(idx int) []interface{} {
+	// if idx < 0 {
+	// 	return []interface{}{
+	// 		d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+	// 		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
+	// 	}
+	// }
+	// return []interface{}{
+	// 	fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+	// 	fmt.Sprintf("%.1f", d.Subtotal), d.Name,
+	// }
+	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
+	cb["UINumber"] = func(value interface{}) interface{} {
+		a := value.(string)
+		return interface{}(a[0:2] + "-" + a[2:])
+	}
+	cb["Subtotal"] = func(value interface{}) interface{} {
+		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
+	}
+
+	out, err := util.ValuesWithFunc(d, cb, "Model")
+	if err != nil {
+		util.Panic("retrive value of `*v` struct failed!")
+	}
+
 	if idx < 0 {
-		return []interface{}{
-			d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-			fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-		}
+		return out
 	}
-	return []interface{}{
-		fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-	}
+	res := []interface{}{fmt.Sprintf("%d", idx)}
+	res = append(res, out...)
+
+	return res
 }
 
 func (d *Detail) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
@@ -107,6 +150,15 @@ func (d *Detail) toTableRowString(leading string, idx int, sizes []int, isleft b
 	data[l-2] = util.AlignToRight(data[l-2], sizes[l-2])
 
 	return sliceToString(leading, data, sizes, isleft)
+}
+
+func getDeailTableRowString(data *[]string,
+	leading string, idx int, sizes []int, isleft bool) string {
+	// SubTotal
+	l := len(*data)
+	(*data)[l-2] = util.AlignToRight((*data)[l-2], sizes[l-2])
+
+	return sliceToString(leading, *data, sizes, isleft)
 }
 
 // GetArgsTable :

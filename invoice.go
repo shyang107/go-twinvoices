@@ -141,33 +141,83 @@ func (v *Invoice) GetArgsTable(title string) string {
 }
 
 func (v *Invoice) mapToInterfaceSlice(idx int) []interface{} {
+	// if idx < 0 {
+	// 	return []interface{}{
+	// 		v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+	// 		v.Date.Format(ShortDateFormat),
+	// 		v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+	// 	}
+	// }
+	// return []interface{}{
+	// 	fmt.Sprint(idx), v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+	// 	v.Date.Format(ShortDateFormat),
+	// 	v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+	// }
+	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
+	cb["UINumber"] = func(value interface{}) interface{} {
+		a := value.(string)
+		return interface{}(a[0:2] + "-" + a[2:])
+	}
+	cb["Date"] = func(value interface{}) interface{} {
+		a := value.(time.Time)
+		return interface{}(a.Format(ShortDateFormat))
+	}
+	cb["Total"] = func(value interface{}) interface{} {
+		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
+	}
+
+	out, err := util.ValuesWithFunc(v, cb, "Model", "Details")
+	if err != nil {
+		util.Panic("retrive value of `*v` struct failed!")
+	}
+
 	if idx < 0 {
-		return []interface{}{
-			v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
-			v.Date.Format(ShortDateFormat),
-			v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
-		}
+		return out
 	}
-	return []interface{}{
-		fmt.Sprint(idx), v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
-		v.Date.Format(ShortDateFormat),
-		v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
-	}
+	res := []interface{}{fmt.Sprintf("%d", idx)}
+	res = append(res, out...)
+
+	return res
 }
 
 func (v *Invoice) mapToStringSlice(idx int) []string {
+	// if idx < 0 {
+	// 	return []string{
+	// 		v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+	// 		v.Date.Format(ShortDateFormat),
+	// 		v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+	// 	}
+	// }
+	// return []string{
+	// 	fmt.Sprintf("%d", idx), v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+	// 	v.Date.Format(ShortDateFormat),
+	// 	v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+	// }
+	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
+	cb["UINumber"] = func(value interface{}) interface{} {
+		a := value.(string)
+		return interface{}(a[0:2] + "-" + a[2:])
+	}
+	cb["Date"] = func(value interface{}) interface{} {
+		a := value.(time.Time)
+		return interface{}(a.Format(ShortDateFormat))
+	}
+	cb["Total"] = func(value interface{}) interface{} {
+		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
+	}
+
+	out, err := util.StrValuesWithFunc(v, cb, "Model", "Details")
+	if err != nil {
+		util.Panic("retrive value of `*v` struct failed!")
+	}
+
 	if idx < 0 {
-		return []string{
-			v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
-			v.Date.Format(ShortDateFormat),
-			v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
-		}
+		return out
 	}
-	return []string{
-		fmt.Sprintf("%d", idx), v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
-		v.Date.Format(ShortDateFormat),
-		v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
-	}
+	res := []string{fmt.Sprintf("%d", idx)}
+	res = append(res, out...)
+
+	return res
 }
 
 func (v *Invoice) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
@@ -178,6 +228,15 @@ func (v *Invoice) toTableRowString(leading string, idx int, sizes []int, isleft 
 	data[l-1] = util.AlignToRight(data[l-1], sizes[l-1])
 
 	return sliceToString(leading, data, sizes, isleft)
+}
+
+func getInvoiceTableRowString(data *[]string,
+	leading string, idx int, sizes []int, isleft bool) string {
+	// Total
+	l := len(*data)
+	(*data)[l-1] = util.AlignToRight((*data)[l-1], sizes[l-1])
+
+	return sliceToString(leading, *data, sizes, isleft)
 }
 
 func setMaxSizes(sizes *[]int, data *[]string) {
@@ -207,9 +266,11 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	// 	"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
 	// dheads := []string{"項次", "表頭", "發票號碼", "小計", "品項名稱"}
 
+	// nv := len(pinvs)
 	vheads := append([]string{"項次"}, invoiceCtagNames...)
 	dheads := append([]string{"項次"}, detailCtagNames...)
 	vsizes, dsizes := util.NewSize(vheads), util.NewSize(dheads)
+	vnf, dnf := len(vheads), len(dheads)
 
 	for i, p := range pinvs {
 		vdata := p.mapToStringSlice(i + 1)
@@ -217,13 +278,13 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 		for j, d := range p.Details {
 			ddata := d.mapToStringSlice(j + 1)
 			setMaxSizes(&dsizes, &ddata)
+			// dmap[dkey{i, j}] = &ddata
 		}
 	}
 
 	var b bytes.Buffer
 	bws := b.WriteString
 
-	vnf := len(vheads)
 	vn := util.Isum(vsizes...) + vnf + (vnf-1)*2 + 1
 	title := "發票清單"
 	_, _, vl := util.CountChars(title)
@@ -237,7 +298,6 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vhtab += "\n" + util.StrThinLine(vn)
 
 	lspaces := util.StrSpaces(7)
-	dnf := len(dheads)
 	dn := util.Isum(dsizes...) + dnf + (dnf-1)*2 + 1
 	dheads[dnf-2] = util.AlignToRight(dheads[dnf-2], dsizes[dnf-2]) // SubTitle
 	dhtab := lspaces + util.StrThickLine(dn)

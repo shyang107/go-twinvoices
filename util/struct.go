@@ -79,8 +79,8 @@ func isValidStruct(e interface{}) error {
 	return nil
 }
 
-// StringValues returns an string array with all the values
-func StringValues(e interface{}, ignoreFields ...string) ([]string, error) {
+// StrValues returns an string array with all the values
+func StrValues(e interface{}, ignoreFields ...string) ([]string, error) {
 	extract := structextract.New(e).IgnoreField(ignoreFields...)
 	values, err := extract.Values()
 	if err != nil {
@@ -91,4 +91,61 @@ func StringValues(e interface{}, ignoreFields ...string) ([]string, error) {
 		s = append(s, fmt.Sprintf("%v", v))
 	}
 	return s, nil
+}
+
+// StrValuesCallback is used in StrValuesWithFunc to process line by line during reading of a file
+type StrValuesCallback map[string]func(value interface{}) interface{}
+
+//ValuesWithFunc returns an interface array with all the values
+func ValuesWithFunc(e interface{},
+	cb StrValuesCallback,
+	ignoredFields ...string) (out []interface{}, err error) {
+
+	if err := isValidStruct(e); err != nil {
+		return nil, err
+	}
+
+	s := reflect.ValueOf(e).Elem()
+	for i := 0; i < s.NumField(); i++ {
+		t := s.Type().Field(i)
+		if isIgnored(t.Name, ignoredFields...) {
+			continue
+		}
+		f, ok := cb[t.Name]
+		if !ok {
+			out = append(out, s.Field(i).Interface())
+			continue
+		}
+		value := f(s.Field(i).Interface())
+		out = append(out, value)
+	}
+
+	return
+}
+
+// StrValuesWithFunc returns an interface array with all the string-values
+func StrValuesWithFunc(e interface{},
+	cb StrValuesCallback,
+	ignoredFields ...string) (out []string, err error) {
+
+	if err := isValidStruct(e); err != nil {
+		return nil, err
+	}
+
+	s := reflect.ValueOf(e).Elem()
+	for i := 0; i < s.NumField(); i++ {
+		t := s.Type().Field(i)
+		if isIgnored(t.Name, ignoredFields...) {
+			continue
+		}
+		f, ok := cb[t.Name]
+		if !ok {
+			out = append(out, fmt.Sprintf("%v", s.Field(i).Interface()))
+			continue
+		}
+		value := f(s.Field(i).Interface())
+		out = append(out, fmt.Sprintf("%v", value))
+	}
+
+	return
 }
