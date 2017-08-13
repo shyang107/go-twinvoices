@@ -107,13 +107,13 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	if err != nil {
 		return nil, err
 	}
-	// combineInvoice(pinvs, pdets)
-	// fmt.Println("♲  Invoices list:")
-	// for i, v := range pinvs {
-	// 	fmt.Printf("%d: %v", i, v)
-	// }
 	vslice.Combine(&dslice)
+	// fmt.Println("♲  Invoices list:")
+	// for i, v := range vslice {
+	// 	fmt.Printf("%d: %v", i, *v)
+	// }
 	Glog.Infof("♲  Invoices list:\n%s", vslice.GetInvoicesTable())
+	// vslice.printInvList()
 
 	// dbInsertFrom(pinvs)
 	vslice.AddToDB()

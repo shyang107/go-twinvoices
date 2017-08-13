@@ -74,21 +74,43 @@ func (d Detail) String() string {
 }
 
 func (d *Detail) mapToStringSlice(idx int) []string {
-	Sf := fmt.Sprintf
+	if idx < 0 {
+		return []string{
+			d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+			fmt.Sprintf("%.1f", d.Subtotal), d.Name,
+		}
+	}
 	return []string{
-		Sf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-		Sf("%.1f", d.Subtotal), d.Name,
+		fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
+	}
+}
+
+func (d *Detail) mapToInterfaceSlice(idx int) []interface{} {
+	if idx < 0 {
+		return []interface{}{
+			d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+			fmt.Sprintf("%.1f", d.Subtotal), d.Name,
+		}
+	}
+	return []interface{}{
+		fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
+		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
 	}
 }
 
 func (d *Detail) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
 	data := d.mapToStringSlice(idx)
+
+	// SubTotal
+	l := len(data)
+	data[l-2] = util.AlignToRight(data[l-2], sizes[l-2])
+
 	return sliceToString(leading, data, sizes, isleft)
 }
 
 // GetArgsTable :
 func (d *Detail) GetArgsTable(title string, lensp int) string {
-	Sf := fmt.Sprintf
 	if len(title) == 0 {
 		title = "明細清單"
 	}
@@ -96,8 +118,10 @@ func (d *Detail) GetArgsTable(title string, lensp int) string {
 	if lensp < 0 {
 		lensp = 0
 	}
-	table := util.ArgsTableN(title, lensp, false, detailCtagNames, d.Head,
-		d.UINumber[0:2]+"-", d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
+	// table := util.ArgsTableN(title, lensp, false, detailCtagNames, d.Head,
+	// d.UINumber[0:2]+"-", d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
+	slice := d.mapToInterfaceSlice(-1)
+	table := util.ArgsTableN(title, lensp, false, detailCtagNames, slice...)
 	return table
 }
 
@@ -107,24 +131,24 @@ func (Detail) TableName() string {
 	return "details"
 }
 
-func getCachedInvoicesFrom(obj *Detail) (*Invoice, error) {
+func getCachedInvoicesFrom(e *Detail) (*Invoice, error) {
 	invoicesCacheMu.Lock()
 	defer invoicesCacheMu.Unlock()
-	invoice, ok := invoicesCache[obj.UINumber]
+	invoice, ok := invoicesCache[e.UINumber]
 	if !ok {
-		return nil, fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", obj.UINumber)
+		return nil, fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", e.UINumber)
 	}
 	return invoice, nil
 }
 
-func setCachedInvoicesFrom(obj *Detail) error {
+func setCachedInvoicesFrom(e *Detail) error {
 	invoicesCacheMu.Lock()
 	defer invoicesCacheMu.Unlock()
-	invoice, ok := invoicesCache[obj.UINumber]
+	invoice, ok := invoicesCache[e.UINumber]
 	if !ok {
-		return fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", obj.UINumber)
+		return fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", e.UINumber)
 	}
-	invoice.Details = append(invoice.Details, obj)
+	invoice.Details = append(invoice.Details, e)
 	return nil
 }
 
@@ -141,10 +165,11 @@ func GetDetailsTable(pds []*Detail, lensp int, isTitle bool) string {
 	}
 	var data []interface{}
 	for i, d := range pds {
-		data = append(data, i+1, d.Head,
-			d.UINumber[0:2]+"-"+d.UINumber[2:], fmt.Sprintf("%.1f", d.Subtotal), d.Name)
+		// data = append(data, i+1, d.Head,
+		// 	d.UINumber[0:2]+"-"+d.UINumber[2:], fmt.Sprintf("%.1f", d.Subtotal), d.Name)
+		data = append(data, d.mapToInterfaceSlice(i+1)...)
 	}
-	table := util.ArgsTableN(title, lensp, false, dheads, data...)
+	table := util.ArgsTableN(title, lensp, true, dheads, data...)
 	return table
 }
 

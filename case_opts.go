@@ -105,13 +105,6 @@ func (c *Case) GetTable(title string) string {
 		"file type", "Input.Suffix", c.Input.Suffix,
 		"Is Big-5 encoding?", "Input.IsBig5", c.Input.IsBig5,
 		"Output -----------", strdashk, "[as the following ...]",
-		// "file name", "Output.Filename", c.Output.Filename,
-		// "file type", "Output.Suffix", c.Output.Suffix,
-		// "do output?", "Output.IsWrite", c.Output.IsWrite,
-		// "Punch ------------", strdashk, strdashv,
-		// "file name", "Punch.Filename", c.Punch.Filename,
-		// "file type", "Punch.Suffix", c.Punch.Suffix,
-		// "do output?", "Punch.IsWrite", c.Punch.IsWrite,
 	)
 	otitle := "OUTPUT List"
 	heads := []string{"No", "Filename", "IsOutput"}

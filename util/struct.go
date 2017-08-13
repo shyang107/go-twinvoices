@@ -36,7 +36,6 @@ func GetTags(obj interface{}, tag string) map[string]string {
 func GetFieldsInfo(obj interface{},
 	tagname string,
 	ignoreFields ...string) (fields, types, kinds, tags []string, err error) {
-	Sf := fmt.Sprintf
 
 	if err = isValidStruct(obj); err != nil {
 		return nil, nil, nil, nil, err
@@ -49,8 +48,8 @@ func GetFieldsInfo(obj interface{},
 			continue
 		}
 		fields = append(fields, t.Name)
-		types = append(types, Sf("%v", t.Type))
-		kinds = append(kinds, Sf("%v", t.Type.Kind()))
+		types = append(types, fmt.Sprintf("%v", t.Type))
+		kinds = append(kinds, fmt.Sprintf("%v", t.Type.Kind()))
 		if name, ok := t.Tag.Lookup(tagname); ok {
 			tags = append(tags, name)
 		}

@@ -54,6 +54,14 @@ func GetColStr(s string, size int, isleft bool) string {
 	return " " + tab
 }
 
+// AlignToRight returns a string aligned to right
+func AlignToRight(s string, size int) string {
+	_, _, n := CountChars(s)
+	spaces := strings.Repeat(" ", size-n)
+	s = spaces + s
+	return s
+}
+
 // CountChars returns the number of each other of chinses and english characters
 func CountChars(str string) (nc, ne, n int) {
 	for _, r := range str {

@@ -123,23 +123,46 @@ func setCachedInvoices(obj *Invoice) {
 
 // GetArgsTable :
 func (v *Invoice) GetArgsTable(title string) string {
-	Sf := fmt.Sprintf
 	if len(title) == 0 {
 		title = "發票清單"
 	}
 	// heads := []string{"表頭", "發票狀態", "發票號碼", "發票日期",
 	// "商店統編", "商店店名", "載具名稱", "載具號碼", "總金額", "明細清單"}
 	lensp := 0
-	table := util.ArgsTableN(title, lensp, false, invoiceCtagNames, v.Head, v.State,
-		v.UINumber[0:2]+"-"+v.UINumber[2:], v.Date.Format(ShortDateFormat),
-		v.SUN, v.SName, v.CName, v.CNumber,
-		Sf("%.1f", v.Total), "[如下...]")
+	// table := util.ArgsTableN(title, lensp, true, invoiceCtagNames, v.Head, v.State,
+	// 	v.UINumber[0:2]+"-"+v.UINumber[2:], v.Date.Format(ShortDateFormat),
+	// 	v.SUN, v.SName, v.CName, v.CNumber,
+	// 	 fmt.Sprintf("%.1f", v.Total), "[如下...]")
+	data := v.mapToInterfaceSlice(-1)
+	table := util.ArgsTableN(title, lensp, true, invoiceCtagNames, data...)
 	lensp = 7
 	table += GetDetailsTable(v.Details, lensp, false)
 	return table
 }
 
+func (v *Invoice) mapToInterfaceSlice(idx int) []interface{} {
+	if idx < 0 {
+		return []interface{}{
+			v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+			v.Date.Format(ShortDateFormat),
+			v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+		}
+	}
+	return []interface{}{
+		fmt.Sprint(idx), v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+		v.Date.Format(ShortDateFormat),
+		v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+	}
+}
+
 func (v *Invoice) mapToStringSlice(idx int) []string {
+	if idx < 0 {
+		return []string{
+			v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
+			v.Date.Format(ShortDateFormat),
+			v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
+		}
+	}
 	return []string{
 		fmt.Sprintf("%d", idx), v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
 		v.Date.Format(ShortDateFormat),
@@ -149,6 +172,11 @@ func (v *Invoice) mapToStringSlice(idx int) []string {
 
 func (v *Invoice) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
 	data := v.mapToStringSlice(idx)
+
+	// Total
+	l := len(data)
+	data[l-1] = util.AlignToRight(data[l-1], sizes[l-1])
+
 	return sliceToString(leading, data, sizes, isleft)
 }
 
@@ -203,6 +231,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	bws(util.StrSpaces(vm) + title + "\n")
 
 	isleft := true
+	vheads[vnf-1] = util.AlignToRight(vheads[vnf-1], vsizes[vnf-1]) // Title
 	vhtab := util.StrThickLine(vn)
 	vhtab += sliceToString("", vheads, vsizes, isleft)
 	vhtab += "\n" + util.StrThinLine(vn)
@@ -210,6 +239,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	lspaces := util.StrSpaces(7)
 	dnf := len(dheads)
 	dn := util.Isum(dsizes...) + dnf + (dnf-1)*2 + 1
+	dheads[dnf-2] = util.AlignToRight(dheads[dnf-2], dsizes[dnf-2]) // SubTitle
 	dhtab := lspaces + util.StrThickLine(dn)
 	dhtab += sliceToString(lspaces, dheads, dsizes, isleft)
 	dhtab += "\n" + lspaces + util.StrThinLine(dn)
@@ -246,16 +276,9 @@ func dumpCachedInvoicesTable() string {
 
 func printInvList(pvs []*Invoice) {
 	var b bytes.Buffer
-	fp := fmt.Fprintf
 	for ip, pv := range pvs {
-		// fp(&b, "%d : %s", ip+1, pv)
-		fp(&b, "%s", pv.GetArgsTable(util.Sf("發票 %d", ip+1)))
-		// for id, pd := range pv.Details {
-		// 	fp(&b, "%s", pd.GetArgsTable(io.Sf("Invoices[%d] -- Details[%d]", ip, id), 7))
-		// }
-		// fp(&b, "\n")
+		fmt.Fprintf(&b, "%s", pv.GetArgsTable(util.Sf("發票 %d", ip+1)))
 	}
-	//util.Pchk("%s", b.String())
 	Glog.Debugf("%s", b.String())
 }
 
