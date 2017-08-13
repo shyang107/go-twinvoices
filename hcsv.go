@@ -18,14 +18,14 @@ const (
 type CsvMarshaller struct{}
 
 // MarshalInvoices marshalls the .csv data of invoices
-func (CsvMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
+func (CsvMarshaller) MarshalInvoices(fn string, vslice *InvoiceCollection) error {
 	// Prun("  > Writing data to .csv file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Writing data to .csv file [%s] ...", util.LogColorString("info", fn))
 	var b bytes.Buffer
 	fmt.Fprintln(&b, fileType)
 	fmt.Fprintln(&b, fmt.Sprintf("%v", fileVersion))
-	for _, pv := range pvs {
+	for _, pv := range *vslice {
 		fmt.Fprintln(&b, pv.toCSVString())
 		for _, d := range pv.Details {
 			fmt.Fprintln(&b, d.toCSVString())
@@ -61,7 +61,7 @@ func (d *Detail) toCSVString() string {
 }
 
 // UnmarshalInvoices unmarshalls the .csv data of invoices
-func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
+func (CsvMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Reading data from .csv file [%s] ...", util.LogColorString("info", fn))
@@ -70,8 +70,9 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if err != nil {
 		return nil, err
 	}
-	var pinvs []*Invoice
-	var pdets []*Detail
+
+	var vslice InvoiceCollection
+	var dslice DetailCollection
 	err = util.ReadLinesFile(f, func(idx int, line string) (stop bool) {
 		// plog("line = %v\n", line)
 		if inpIsBig5 {
@@ -95,10 +96,10 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 		switch head {
 		case "M": // invoice
 			pinv := unmarshalCSVInvoice(recs)
-			pinvs = append(pinvs, pinv)
+			vslice.Add(pinv)
 		case "D": // deltail of invoice
 			pdet := unmarshalCSVDetail(recs)
-			pdets = append(pdets, pdet)
+			dslice.Add(pdet)
 		}
 		return
 	})
@@ -106,14 +107,19 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if err != nil {
 		return nil, err
 	}
-	combineInvoice(pinvs, pdets)
+	// combineInvoice(pinvs, pdets)
 	// fmt.Println("♲  Invoices list:")
 	// for i, v := range pinvs {
 	// 	fmt.Printf("%d: %v", i, v)
 	// }
-	Glog.Infof("♲  Invoices list:\n%s", GetInvoicesTable(pinvs))
-	dbInsertFrom(pinvs)
-	return pinvs, nil
+	vslice.Combine(&dslice)
+	Glog.Infof("♲  Invoices list:\n%s", vslice.GetInvoicesTable())
+
+	// dbInsertFrom(pinvs)
+	vslice.AddToDB()
+
+	// return pinvs, nil
+	return &vslice, nil
 }
 
 func combineInvoice(pvs []*Invoice, pds []*Detail) {

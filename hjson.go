@@ -9,16 +9,16 @@ import (
 
 // JSONInvoices is used for JSON file type
 type JSONInvoices struct {
-	FileType    string     `json:"FILE_TYPE"`
-	FileVersion int        `json:"FILE_VERSION"`
-	Invoices    []*Invoice `json:"INVOICES"`
+	FileType    string             `json:"FILE_TYPE"`
+	FileVersion int                `json:"FILE_VERSION"`
+	Invoices    *InvoiceCollection `json:"INVOICES"`
 }
 
 // JSONMarshaller collects the mathods marshalling or unmarshalling the csv-type data
 type JSONMarshaller struct{}
 
 // MarshalInvoices marshalls the .json-type data of invoices
-func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
+func (JSONMarshaller) MarshalInvoices(fn string, invoices *InvoiceCollection) error {
 	// Prun("  > Writing data to .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Writing data to .json file [%s] ...", util.LogColorString("info", fn))
@@ -37,7 +37,7 @@ func (JSONMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 }
 
 // UnmarshalInvoices unmarshalls the .json-type data of invoices
-func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
+func (JSONMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	// Prun("  > Reading data from .jsn or .json file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Reading data from .json file [%s] ...", util.LogColorString("info", fn))
@@ -58,7 +58,7 @@ func (JSONMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	}
 	// Plog(GetInvoicesTable(j.Invoices))
 	// Prun("    updating database ...\n")
-	Glog.Infof("Invoices list ---\n%s", GetInvoicesTable(j.Invoices))
-	dbInsertFrom(j.Invoices)
+	Glog.Infof("Invoices list ---\n%s", j.Invoices.GetInvoicesTable())
+	j.Invoices.AddToDB()
 	return j.Invoices, nil
 }

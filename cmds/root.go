@@ -21,6 +21,7 @@ func init() {
 	// ut.Verbose = vp.Cfg.Verbose
 	// ut.Pdebug("root.init called\n")
 	util.DebugPrintCaller()
+
 	RootApp.Version = vp.Version
 	RootApp.Authors = []cli.Author{
 		{Name: "S.H. Yang", Email: "shyang107@gmail.com"},

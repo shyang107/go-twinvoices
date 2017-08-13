@@ -14,12 +14,14 @@ var (
 
 // InvoiceMarshaller is marshal-operator of invoices
 type InvoiceMarshaller interface {
-	MarshalInvoices(fn string, pvs []*Invoice) error
+	// MarshalInvoices(fn string, pvs []*Invoice) error
+	MarshalInvoices(fn string, pvs *InvoiceCollection) error
 }
 
 // InvoiceUnmarshaller is unmarshal-operator of invoices
 type InvoiceUnmarshaller interface {
-	UnmarshalInvoices(fn string) ([]*Invoice, error)
+	// UnmarshalInvoices(fn string) ([]*Invoice, error)
+	UnmarshalInvoices(fn string) (*InvoiceCollection, error)
 }
 
 func logdebugmarshaller(marshaller string) {
@@ -27,7 +29,7 @@ func logdebugmarshaller(marshaller string) {
 }
 
 // ReadInvoices reads invoice-record from fn
-func (c *InputFile) ReadInvoices() ([]*Invoice, error) {
+func (c *InputFile) ReadInvoices() (*InvoiceCollection, error) {
 	util.DebugPrintCaller()
 
 	var unmarshaller InvoiceUnmarshaller
@@ -63,7 +65,7 @@ func (c *InputFile) ReadInvoices() ([]*Invoice, error) {
 }
 
 // WriteInvoices reads invoice-record from fn
-func (o *OutputFile) WriteInvoices(invs []*Invoice) error {
+func (o *OutputFile) WriteInvoices(invs *InvoiceCollection) error {
 	util.DebugPrintCaller()
 
 	var marshaller InvoiceMarshaller

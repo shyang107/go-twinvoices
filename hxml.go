@@ -103,13 +103,13 @@ func (d *Detail) toXMLDetail() xmlDetail {
 type XMLMarshaller struct{}
 
 // MarshalInvoices :
-func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
+func (XMLMarshaller) MarshalInvoices(fn string, vs *InvoiceCollection) error {
 	// Prun("  > Writing data to .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Writing data to .xml file [%s] ...", util.LogColorString("info", fn))
 	xvs := xmlInvoices{Version: fileVersion}
-	xvs.Invoices = make([]*xmlInvoice, 0, len(vs))
-	for _, v := range vs {
+	xvs.Invoices = make([]*xmlInvoice, 0, len(*vs))
+	for _, v := range *vs {
 		xvs.Invoices = append(xvs.Invoices, v.toXMLInvoice())
 	}
 	io.WriteBytesToFile(fn, []byte(xml.Header))
@@ -123,7 +123,7 @@ func (XMLMarshaller) MarshalInvoices(fn string, vs []*Invoice) error {
 }
 
 // UnmarshalInvoices is used to unmarshal invoices
-func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
+func (XMLMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	// Prun("  > Reading data from .xml file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Reading data from .xml file [%s] ...", util.LogColorString("info", fn))
@@ -139,9 +139,9 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	if pxvs.Version > fileVersion {
 		return nil, fmt.Errorf("☠  version %d is too new to read", pxvs.Version)
 	}
-	pvs := []*Invoice{}
+	pvs := InvoiceCollection{}
 	for _, xinv := range pxvs.Invoices {
-		pvs = append(pvs, xinv.toInvoice())
+		pvs.Add(xinv.toInvoice())
 	}
 	// for _, p := range pvs {
 	// 	pchk("%#q\n", *p)
@@ -149,8 +149,8 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	// Plog(GetInvoicesTable(pvs))
 	// pchk("%v\n", vsToTable(pvs))
 	// Prun("    updating database ...\n")
-	Glog.Infof("Invoices list ---\n%s", GetInvoicesTable(pvs))
+	Glog.Infof("Invoices list ---\n%s", pvs.GetInvoicesTable())
 	// pchk("%v\n", vsToTable(pvs))
-	dbInsertFrom(pvs)
-	return pvs, nil
+	pvs.AddToDB()
+	return &pvs, nil
 }

@@ -9,6 +9,23 @@ import (
 	"github.com/shyang107/go-twinvoices/util"
 )
 
+var (
+	detailFieldNames []string
+	detailCtagNames  []string
+	detailIndex      = make(map[string]int)
+)
+
+func init() {
+	var err error
+	detailFieldNames, _, _, detailCtagNames, err = util.GetFieldsInfo(&Detail{}, "cht", "Model")
+	if err != nil {
+		panic(err)
+	}
+	for i := 0; i < len(detailFieldNames); i++ {
+		detailIndex[detailFieldNames[i]] = i
+	}
+}
+
 // Detail : 消費發票明細
 // 明細=D	發票號碼 小計 品項名稱
 // 範例：
@@ -25,21 +42,6 @@ type Detail struct {
 	Subtotal float64 `cht:"小計" json:"SUBTOTAL_AMOUNT" yaml:"SUBTOTAL_AMOUNT"`
 	Name     string  `cht:"品項名稱" json:"NAME" yaml:"NAME"`
 	// Invoice  *Invoice   `json:"-"`
-}
-
-var detailFieldNames []string
-var detailCtagNames []string
-var detailIndex = make(map[string]int)
-
-func init() {
-	var err error
-	detailFieldNames, _, _, detailCtagNames, err = util.GetFieldsInfo(&Detail{}, "cht", "Model")
-	if err != nil {
-		panic(err)
-	}
-	for i := 0; i < len(detailFieldNames); i++ {
-		detailIndex[detailFieldNames[i]] = i
-	}
 }
 
 func (d Detail) String() string {
@@ -144,4 +146,23 @@ func GetDetailsTable(pds []*Detail, lensp int, isTitle bool) string {
 	}
 	table := util.ArgsTableN(title, lensp, false, dheads, data...)
 	return table
+}
+
+//=========================================================
+
+// DetailCollection is the collection of "*Detail"
+type DetailCollection []*Detail
+
+func (d DetailCollection) String() string {
+	return d.GetDetailsTable(0, true)
+}
+
+// GetDetailsTable returns the table string of the list of []*Detail
+func (d *DetailCollection) GetDetailsTable(lensp int, isTitle bool) string {
+	return GetDetailsTable(([]*Detail)(*d), lensp, isTitle)
+}
+
+// Add adds `p` into `v`
+func (d *DetailCollection) Add(p *Detail) {
+	*d = append(*d, p)
 }

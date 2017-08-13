@@ -9,16 +9,16 @@ import (
 
 // YAMLInvoices is used for YAML file type
 type YAMLInvoices struct {
-	FileType    string     `yaml:"FILE_TYPE"`
-	FileVersion int        `yaml:"FILE_VERSION"`
-	Invoices    []*Invoice `yaml:"INVOICES"`
+	FileType    string             `yaml:"FILE_TYPE"`
+	FileVersion int                `yaml:"FILE_VERSION"`
+	Invoices    *InvoiceCollection `yaml:"INVOICES"`
 }
 
 // YAMLMarshaller collects the mathods marshalling or unmarshalling the csv-type data
 type YAMLMarshaller struct{}
 
 // MarshalInvoices marshalls the .yaml-type data of invoices
-func (YAMLMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
+func (YAMLMarshaller) MarshalInvoices(fn string, invoices *InvoiceCollection) error {
 	// Prun("  > Writing data to .jsn or .yaml file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Writing data to .yaml file [%s] ...", util.LogColorString("info", fn))
@@ -37,7 +37,7 @@ func (YAMLMarshaller) MarshalInvoices(fn string, invoices []*Invoice) error {
 }
 
 // UnmarshalInvoices unmarshalls the .yaml-type data of invoices
-func (YAMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
+func (YAMLMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	// Prun("  > Reading data from .jsn or .yaml file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Reading data from .yaml file [%s] ...", util.LogColorString("info", fn))
@@ -58,7 +58,7 @@ func (YAMLMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
 	}
 	// Plog(GetInvoicesTable(y.Invoices))
 	// Prun("    updating database ...\n")
-	Glog.Infof("Invoices list ---\n%s", GetInvoicesTable(y.Invoices))
-	dbInsertFrom(y.Invoices)
+	Glog.Infof("Invoices list ---\n%s", y.Invoices.GetInvoicesTable())
+	y.Invoices.AddToDB()
 	return y.Invoices, nil
 }

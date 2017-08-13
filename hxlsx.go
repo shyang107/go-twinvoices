@@ -66,37 +66,38 @@ const (
 type XlsxMarshaller struct{}
 
 // MarshalInvoices marshal the records of invoice using in .xlsx file
-func (XlsxMarshaller) MarshalInvoices(fn string, pvs []*Invoice) error {
+func (XlsxMarshaller) MarshalInvoices(fn string, pvs *InvoiceCollection) error {
 	// Prun("  > Writing data to .xlsx file %q ...\n", fn)
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Writing data to .xlsx file [%s] ...", util.LogColorString("info", fn))
-	if pvs == nil || len(pvs) == 0 {
+	if pvs == nil || len(*pvs) == 0 {
 		return fmt.Errorf("pvs []*Invoice = nil or it's len = 0 ")
 	}
 	var vh = headType{head: []string{"項次"}}
 	var dh = headType{head: []string{"項次"}}
-	vh.head = append(vh.head, invoiceCtagNames...)
-	dh.head = append(dh.head, detailCtagNames...)
+	vh.add(invoiceCtagNames...)
+	dh.add(detailCtagNames...)
 
 	fx := xlsx.NewFile()
 	sht, _ := fx.AddSheet("消費發票")
 
 	total := 0.0
-	for i := 0; i < len(pvs); i++ {
+
+	for i, p := range *pvs {
 		vh.addTo(sht.AddRow(), false)
 		rowi := sht.AddRow()
-		pvs[i].addTo(rowi, i+1)
-		total += pvs[i].Total
-		if len(pvs[i].Details) > 0 {
+		p.addTo(rowi, i+1)
+		total += p.Total
+		if len(p.Details) > 0 {
 			dh.addTo(sht.AddRow(), true)
-			for j := 0; j < len(pvs[i].Details); j++ {
+			for j, d := range p.Details {
 				rowd := sht.AddRow()
-				pvs[i].Details[j].addTo(rowd, j+1)
+				d.addTo(rowd, j+1)
 			}
 		}
 	}
 
-	msg := fmt.Sprintf("發票 %d 至 %d 累計金額：", 1, len(pvs))
+	msg := fmt.Sprintf("發票 %d 至 %d 累計金額：", 1, len(*pvs))
 	sht.AddRow()
 	addSum(sht.AddRow(), msg, 3, total)
 
@@ -134,6 +135,10 @@ func addSum(r *xlsx.Row, msg string, mergedcells int, value float64) {
 
 type headType struct {
 	head []string
+}
+
+func (ht *headType) add(heads ...string) {
+	ht.head = append(ht.head, heads...)
 }
 
 func (ht *headType) prepend(value string) {
@@ -243,7 +248,7 @@ func (v *Invoice) addTo(r *xlsx.Row, id int) {
 }
 
 // UnmarshalInvoices unmarshal the records of invoice using in .xlsx file
-func (XlsxMarshaller) UnmarshalInvoices(fn string) ([]*Invoice, error) {
+func (XlsxMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	util.DebugPrintCaller()
 	Glog.Infof("➥  Reading data from .xlsx file %s ...", util.LogColorString("info", fn))
 	Glog.Warnf("☹  TODO: %q", util.CallerName(1))

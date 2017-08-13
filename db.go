@@ -67,15 +67,15 @@ func Connectdb() {
 }
 
 // dbGetAllInvoices get the list from database
-func dbGetAllInvoices() ([]*Invoice, error) {
+func dbGetAllInvoices() (*InvoiceCollection, error) {
 	util.DebugPrintCaller()
 	invs := []*Invoice{}
 	DB.Find(&invs)
-	for i := range invs {
-		// DB.Model(invs[i]).Related(&invs[i].UINumber)
-		DB.Model(&invs[i]).Association("details").Find(&invs[i].Details)
+	for _, p := range invs {
+		DB.Model(&p).Association("details").Find(&p.Details)
 	}
-	return invs, nil
+	var res InvoiceCollection = invs
+	return &res, nil
 }
 
 // dbInsertFrom creats records from []*Invoice into database

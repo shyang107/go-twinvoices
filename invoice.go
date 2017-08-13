@@ -16,7 +16,23 @@ var (
 	// allows to reuse already created objects with required Attribute.
 	invoicesCache   = make(map[string]*Invoice)
 	invoicesCacheMu sync.Mutex // protects invoicesCache
+
+	invoiceFieldNames []string
+	invoiceCtagNames  []string
+	invoiceIndex      = make(map[string]int)
 )
+
+func init() {
+	var err error
+	invoiceFieldNames, _, _, invoiceCtagNames, err = util.GetFieldsInfo(&Invoice{}, "cht", "Model", "Details")
+	if err != nil {
+		panic(err)
+	}
+	for i := 0; i < len(invoiceFieldNames); i++ {
+		invoiceIndex[invoiceFieldNames[i]] = i
+	}
+
+}
 
 // Invoice : 消費發票
 // 表頭=M	發票狀態 發票號碼 發票日期 商店統編 商店店 載具名稱 載具號碼 總金額
@@ -26,7 +42,7 @@ type Invoice struct {
 	// auto-populate columns: id, created_at, updated_at, deleted_at
 	// gorm.Model
 	// Or alternatively write:
-	Model gorm.Model `json:"-" yaml:"-" gorm:"embedded"`
+	Model gorm.Model `json:"-" yaml:"-" gorm:"embedded" xlsx:"-"`
 	// ID    int    `json:"-" sql:"AUTO_INCREMENT" gorm:"primary_key"`
 	Head  string `cht:"表頭" json:"HEAD" yaml:"HEAD" sql:"DEFAULT:'M'"`
 	State string `cht:"發票狀態" json:"STATE" yaml:"STATE"`
@@ -40,23 +56,7 @@ type Invoice struct {
 	CNumber string  `cht:"載具號碼" json:"CARRIER_NUMBER" yaml:"CARRIER_NUMBER"`
 	Total   float64 `cht:"總金額" json:"TOTAL_AMOUNT" yaml:"TOTAL_AMOUNT"`
 	// one-to-many relationship
-	Details []*Detail `cht:"明細清單" json:"DETAILS" yaml:"DETAILS" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber"`
-}
-
-var invoiceFieldNames []string
-var invoiceCtagNames []string
-var invoiceIndex = make(map[string]int)
-
-func init() {
-	var err error
-	invoiceFieldNames, _, _, invoiceCtagNames, err = util.GetFieldsInfo(&Invoice{}, "cht", "Model", "Details")
-	if err != nil {
-		panic(err)
-	}
-	for i := 0; i < len(invoiceFieldNames); i++ {
-		invoiceIndex[invoiceFieldNames[i]] = i
-	}
-
+	Details []*Detail `cht:"明細清單" json:"DETAILS" yaml:"DETAILS" gorm:"ForeignKey:UINumber;AssociationForeignKey:UINumber" xlsx:"-"`
 }
 
 func (v Invoice) String() string {
@@ -260,3 +260,46 @@ func printInvList(pvs []*Invoice) {
 }
 
 //=========================================================
+
+// InvoiceCollection is the collection of "*Invoice"
+type InvoiceCollection []*Invoice
+
+func (v InvoiceCollection) String() string {
+	return v.GetInvoicesTable()
+}
+
+// GetInvoicesTable returns the table string of the list of []*Invoice
+func (v *InvoiceCollection) GetInvoicesTable() string {
+	return GetInvoicesTable(([]*Invoice)(*v))
+}
+
+// Add adds `p` into `v`
+func (v *InvoiceCollection) Add(p *Invoice) {
+	*v = append(*v, p)
+}
+
+// Combine combine DetailCollection into `v`
+func (v *InvoiceCollection) Combine(ds *DetailCollection) {
+	util.DebugPrintCaller()
+	Glog.Infof("♲  combining invoices ...")
+
+	for _, d := range *ds {
+		no := d.UINumber
+		for _, p := range *v {
+			if p.UINumber == no {
+				// d.Invoice = p
+				p.Details = append(p.Details, d)
+				break
+			}
+		}
+	}
+}
+
+func (v *InvoiceCollection) printInvList() {
+	printInvList(([]*Invoice)(*v))
+}
+
+// AddToDB creats records from []*Invoice into database
+func (v *InvoiceCollection) AddToDB() {
+	dbInsertFrom(([]*Invoice)(*v))
+}
