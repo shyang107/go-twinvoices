@@ -28,19 +28,9 @@ const (
 var (
 	// Cfg is configure
 	Cfg *Config
-)
 
-// simplied name of called function
-var (
+	// Glog is simplied name of called function
 	Glog = util.Glog
-	// glInfo   = Glog.Info
-	// glInfof  = Glog.Infof
-	// glWarn   = Glog.Warn
-	// glWarnf  = Glog.Warnf
-	// glError  = Glog.Error
-	// glErrorf = Glog.Errorf
-	// glDebug  = Glog.Debug
-	// glDebugf = Glog.Debugf
 )
 
 func init() {
@@ -89,7 +79,7 @@ func (c Config) String() string {
 
 // NewConfig return a new Config veriable
 func NewConfig() (cfg *Config, err error) {
-	if err := cfg.ReadConfigs(); err != nil {
+	if err = cfg.ReadConfigs(); err != nil {
 		// util.Panic("%v\n", err)
 		// fmt.Printf("%v\n", err)
 		cfg = GetDefualtConfig()

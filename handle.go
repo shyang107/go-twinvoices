@@ -8,6 +8,14 @@ import (
 	"github.com/shyang107/go-twinvoices/util"
 )
 
+// Suffix contains file types
+var Suffix = struct {
+	CSV, JSN, JSON, YML, YAML, XML, XLSX string
+}{
+	CSV: ".csv", JSN: ".jsn", JSON: ".json", YML: ".yml", YAML: ".yaml",
+	XML: ".xml", XLSX: ".xlsx",
+}
+
 var (
 	inpIsBig5 = false
 )
@@ -39,19 +47,19 @@ func (c *InputFile) ReadInvoices() (*InvoiceCollection, error) {
 	util.Glog.Infof("\n%s", fb.GetArgsTable("", 0))
 
 	switch c.Suffix {
-	case ".csv":
+	case Suffix.CSV:
 		logdebugmarshaller("CsvMarshaller")
 		unmarshaller = CsvMarshaller{}
-	case ".jsn", ".json":
+	case Suffix.JSN, Suffix.JSON:
 		logdebugmarshaller("JSONMarshaller")
 		unmarshaller = JSONMarshaller{}
-	case ".yml", ".yaml":
+	case Suffix.YML, Suffix.YAML:
 		logdebugmarshaller("YAMLMarshaller")
 		unmarshaller = YAMLMarshaller{}
-	case ".xml":
+	case Suffix.XML:
 		logdebugmarshaller("XMLMarshaller")
 		unmarshaller = XMLMarshaller{}
-	case ".xlsx":
+	case Suffix.XLSX:
 		logdebugmarshaller("XlsxMarshaller")
 		unmarshaller = XlsxMarshaller{}
 	}
@@ -71,19 +79,19 @@ func (o *OutputFile) WriteInvoices(invs *InvoiceCollection) error {
 	var marshaller InvoiceMarshaller
 
 	switch o.Suffix {
-	case ".csv":
+	case Suffix.CSV:
 		logdebugmarshaller("CsvMarshaller")
 		marshaller = CsvMarshaller{}
-	case ".jsn", ".json":
+	case Suffix.JSN, Suffix.JSON:
 		logdebugmarshaller("JSONMarshaller")
 		marshaller = JSONMarshaller{}
-	case ".yml", ".yaml":
+	case Suffix.YML, Suffix.YAML:
 		logdebugmarshaller("YAMLMarshaller")
 		marshaller = YAMLMarshaller{}
-	case ".xml":
+	case Suffix.XML:
 		logdebugmarshaller("XMLMarshaller")
 		marshaller = XMLMarshaller{}
-	case ".xlsx":
+	case Suffix.XLSX:
 		logdebugmarshaller("XlsxMarshaller")
 		marshaller = XlsxMarshaller{}
 	}

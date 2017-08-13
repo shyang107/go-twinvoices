@@ -24,9 +24,11 @@ type FileBunker struct {
 	Contents []byte     `cht:"內容" json:"-" yaml:"-"`
 }
 
-var fileBunkerFieldNames []string
-var fileBunkerCtagNames []string
-var fileBunkerIndeces = make(map[string]int)
+var (
+	fileBunkerFieldNames []string
+	fileBunkerCtagNames  []string
+	fileBunkerIndeces    = make(map[string]int)
+)
 
 func init() {
 	var err error
@@ -124,7 +126,7 @@ func (c *Case) UpdateFileBunker() error {
 	if err != nil {
 		return err
 	}
-	if strings.ToLower(c.Input.Suffix) == ".csv" && c.Input.IsBig5 {
+	if strings.ToLower(c.Input.Suffix) == Suffix.CSV && c.Input.IsBig5 {
 		b, err := util.ReadFile(c.Input.Filename)
 		if err != nil {
 			return err
