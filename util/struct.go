@@ -111,12 +111,13 @@ func ValuesWithFunc(e interface{},
 		if isIgnored(t.Name, ignoredFields...) {
 			continue
 		}
+		v := s.Field(i)
 		f, ok := cb[t.Name]
 		if !ok {
-			out = append(out, s.Field(i).Interface())
+			out = append(out, v.Interface())
 			continue
 		}
-		value := f(s.Field(i).Interface())
+		value := f(v.Interface())
 		out = append(out, value)
 	}
 
