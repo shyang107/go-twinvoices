@@ -19,11 +19,11 @@ func init() {
 
 func main() {
 	start := time.Now()
-	cmds.Execute()
+	cmds.Init()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	util.Glog.Println("\n", "run-time elapsed: ", time.Since(start).String())
+	util.Glog.Info("run-time elapsed: ", time.Since(start).String())
 }
 
 func readCases(fln string) {
