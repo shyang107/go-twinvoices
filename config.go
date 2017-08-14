@@ -5,7 +5,6 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/kataras/golog"
 	"github.com/shyang107/go-twinvoices/util"
 )
 
@@ -35,7 +34,7 @@ var (
 
 func init() {
 	// Level defaults to "info",but you can change it:
-	golog.SetLevel("disable")
+	// Glog.SetLevel("disable")
 	// Glog.SetLevel("debug")
 
 	// util.PfBlue("config.init called\n")

@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-
-	"github.com/intelligentpos/structextract"
 )
 
 // GetTypes returns map["Field"]="Type"
@@ -79,10 +77,80 @@ func isValidStruct(e interface{}) error {
 	return nil
 }
 
+func isFieldNameValid(e interface{}, fn string) bool {
+
+	s := reflect.ValueOf(e).Elem()
+
+	for i := 0; i < s.NumField(); i++ {
+		if s.Type().Field(i).Name == fn {
+			return true
+		}
+	}
+
+	return false
+}
+
+//Names returns an array with all the field names (with the same order) as defined on the struct
+func Names(e interface{}, ignoredFields ...string) (out []string, err error) {
+
+	if err := isValidStruct(e); err != nil {
+		return nil, err
+	}
+
+	s := reflect.ValueOf(e).Elem()
+	for i := 0; i < s.NumField(); i++ {
+		if isIgnored(s.Type().Field(i).Name, ignoredFields...) {
+			continue
+		}
+		out = append(out, s.Type().Field(i).Name)
+	}
+
+	return
+}
+
+//NamesFromTag returns an array with all the tag names for each field
+func NamesFromTag(e interface{}, tag string, ignoredFields ...string) (out []string, err error) {
+
+	if err := isValidStruct(e); err != nil {
+		return nil, err
+	}
+
+	s := reflect.ValueOf(e).Elem()
+
+	for i := 0; i < s.NumField(); i++ {
+		if isIgnored(s.Type().Field(i).Name, ignoredFields...) {
+			continue
+		}
+		if val, ok := s.Type().Field(i).Tag.Lookup(tag); ok {
+			out = append(out, val)
+		}
+	}
+
+	return
+}
+
+//Values returns an interface array with all the values
+func Values(e interface{}, ignoredFields ...string) (out []interface{}, err error) {
+
+	if err := isValidStruct(e); err != nil {
+		return nil, err
+	}
+
+	s := reflect.ValueOf(e).Elem()
+	for i := 0; i < s.NumField(); i++ {
+		if isIgnored(s.Type().Field(i).Name, ignoredFields...) {
+			continue
+		}
+		out = append(out, s.Field(i).Interface())
+
+	}
+
+	return
+}
+
 // StrValues returns an string array with all the values
-func StrValues(e interface{}, ignoreFields ...string) ([]string, error) {
-	extract := structextract.New(e).IgnoreField(ignoreFields...)
-	values, err := extract.Values()
+func StrValues(e interface{}, ignoredFields ...string) ([]string, error) {
+	values, err := Values(e, ignoredFields...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,12 +161,33 @@ func StrValues(e interface{}, ignoreFields ...string) ([]string, error) {
 	return s, nil
 }
 
-// StrValuesCallback is used in StrValuesWithFunc to process line by line during reading of a file
-type StrValuesCallback map[string]func(value interface{}) interface{}
+// ValuesCallback is used in (Str)ValuesWithFunc to process line by line during retriving of
+//  a field-value
+//  example:
+/*
+var cb ValuesCallback = func(fieldName string,
+v interface{}) (value interface{}, isIgnored bool) {
+switch fieldName {
+case "Model", "Details":
+	value, isIgnored = nil, true
+case "UINumber":
+	a := v.(string)
+	value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+case "Date":
+	value, isIgnored = interface{}(v.(time.Time).Format(ShortDateFormat)), false
+case "Total":
+	value, isIgnored = interface{}(fmt.Sprintf("%.1f", v.(float64))), false
+}
+default:
+	value, isIgnored = v, false
+return value, isIgnored
+}
+*/
+type ValuesCallback func(fieldName string, v interface{}) (value interface{}, isIgnored bool)
 
-//ValuesWithFunc returns an interface array with all the values
+// ValuesWithFunc returns an interface array with all the values
 func ValuesWithFunc(e interface{},
-	cb StrValuesCallback,
+	cb ValuesCallback,
 	ignoredFields ...string) (out []interface{}, err error) {
 
 	if err := isValidStruct(e); err != nil {
@@ -108,16 +197,20 @@ func ValuesWithFunc(e interface{},
 	s := reflect.ValueOf(e).Elem()
 	for i := 0; i < s.NumField(); i++ {
 		t := s.Type().Field(i)
-		if isIgnored(t.Name, ignoredFields...) {
+		// if isIgnored(t.Name, ignoredFields...) {
+		// 	continue
+		// }
+		// v := s.Field(i)
+		// f, ok := cb[t.Name]
+		// if !ok {
+		// 	out = append(out, v.Interface())
+		// 	continue
+		// }
+		// value := f(v.Interface())
+		value, isIgnored := cb(t.Name, s.Field(i).Interface())
+		if isIgnored {
 			continue
 		}
-		v := s.Field(i)
-		f, ok := cb[t.Name]
-		if !ok {
-			out = append(out, v.Interface())
-			continue
-		}
-		value := f(v.Interface())
 		out = append(out, value)
 	}
 
@@ -126,7 +219,7 @@ func ValuesWithFunc(e interface{},
 
 // StrValuesWithFunc returns an interface array with all the string-values
 func StrValuesWithFunc(e interface{},
-	cb StrValuesCallback,
+	cb ValuesCallback,
 	ignoredFields ...string) (out []string, err error) {
 
 	if err := isValidStruct(e); err != nil {
@@ -136,16 +229,66 @@ func StrValuesWithFunc(e interface{},
 	s := reflect.ValueOf(e).Elem()
 	for i := 0; i < s.NumField(); i++ {
 		t := s.Type().Field(i)
-		if isIgnored(t.Name, ignoredFields...) {
+		// if isIgnored(t.Name, ignoredFields...) {
+		// 	continue
+		// }
+		// f, ok := cb[t.Name]
+		// if !ok {
+		// 	out = append(out, fmt.Sprintf("%v", s.Field(i).Interface()))
+		// 	continue
+		// }
+		// value := f(s.Field(i).Interface())
+		value, isIgnored := cb(t.Name, s.Field(i).Interface())
+		if isIgnored {
 			continue
 		}
-		f, ok := cb[t.Name]
-		if !ok {
-			out = append(out, fmt.Sprintf("%v", s.Field(i).Interface()))
-			continue
-		}
-		value := f(s.Field(i).Interface())
 		out = append(out, fmt.Sprintf("%v", value))
+	}
+
+	return
+}
+
+// FieldValueMap returns a string to interface map,
+// key: field as defined on the struct
+// value: the value of the field
+func FieldValueMap(e interface{}, ignoredFields ...string) (out map[string]interface{}, err error) {
+
+	if err := isValidStruct(e); err != nil {
+		return nil, err
+	}
+
+	out = make(map[string]interface{})
+	s := reflect.ValueOf(e).Elem()
+	for i := 0; i < s.NumField(); i++ {
+		if isIgnored(s.Type().Field(i).Name, ignoredFields...) {
+			continue
+		}
+		out[s.Type().Field(i).Name] = s.Field(i).Interface()
+	}
+
+	return
+}
+
+// FieldValueFromTagMap returns a string to interface map that uses as key the tag name,
+// key: tag name for the given field
+// value: the value of the field
+func FieldValueFromTagMap(e interface{}, tag string, ignoredFields ...string) (out map[string]interface{}, err error) {
+
+	if err := isValidStruct(e); err != nil {
+		return nil, err
+	}
+
+	out = make(map[string]interface{})
+	s := reflect.ValueOf(e).Elem()
+	for i := 0; i < s.NumField(); i++ {
+		if isIgnored(s.Type().Field(i).Name, ignoredFields...) {
+			continue
+		}
+
+		if val, ok := s.Type().Field(i).Tag.Lookup(tag); ok {
+			out[val] = s.Field(i).Interface()
+		}
+
 	}
 
 	return

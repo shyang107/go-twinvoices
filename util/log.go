@@ -28,7 +28,7 @@ func InitLogger() {
 	// you can change it to something else or disable it with:
 	// Glog.SetTimeFormat("2006/01/02 15:04:05")
 	Glog.SetTimeFormat("")
-	Glog.SetLevel("info")
+	// Glog.SetLevel("info")
 	pencil.NoColor = !Glog.Printer.IsTerminal
 }
 

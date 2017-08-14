@@ -73,7 +73,7 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 
 	var vslice InvoiceCollection
 	var dslice DetailCollection
-	err = util.ReadLinesFile(f, func(idx int, line string) (stop bool) {
+	var cb util.ReadLinesCallback = func(idx int, line string) (stop bool) {
 		// plog("line = %v\n", line)
 		if inpIsBig5 {
 			line = big5ToUtf8(line)
@@ -102,7 +102,8 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 			dslice.Add(pdet)
 		}
 		return
-	})
+	}
+	err = util.ReadLinesFile(f, cb)
 
 	if err != nil {
 		return nil, err

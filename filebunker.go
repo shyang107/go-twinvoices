@@ -32,11 +32,12 @@ var (
 
 func init() {
 	var err error
-	fileBunkerFieldNames, _, _, fileBunkerCtagNames, err = util.GetFieldsInfo(&FileBunker{}, "cht", "Model")
-	if err != nil {
-		panic(err)
+	if fileBunkerFieldNames, err = util.Names(&FileBunker{}, "Model"); err != nil {
+		util.Panic("retrive field names failed (%q)!", "fileBunkerFieldNames")
 	}
-
+	if fileBunkerCtagNames, err = util.NamesFromTag(&FileBunker{}, "cht", "Model"); err != nil {
+		util.Panic("retrive field-tag names failed [(%q).Tag(%q)]!", "fileBunkerCtagNames", "cht")
+	}
 	for i := 0; i < len(fileBunkerFieldNames); i++ {
 		fileBunkerIndeces[fileBunkerFieldNames[i]] = i
 	}

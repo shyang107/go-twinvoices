@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/shyang107/go-twinvoices/util"
 )
@@ -18,6 +19,7 @@ var Suffix = struct {
 
 var (
 	inpIsBig5 = false
+	cacheMu   sync.Mutex
 )
 
 // InvoiceMarshaller is marshal-operator of invoices
@@ -38,6 +40,9 @@ func logdebugmarshaller(marshaller string) {
 
 // ReadInvoices reads invoice-record from fn
 func (c *InputFile) ReadInvoices() (*InvoiceCollection, error) {
+	// cacheMu.Lock()
+	// defer cacheMu.Unlock()
+
 	util.DebugPrintCaller()
 
 	var unmarshaller InvoiceUnmarshaller
@@ -74,6 +79,9 @@ func (c *InputFile) ReadInvoices() (*InvoiceCollection, error) {
 
 // WriteInvoices reads invoice-record from fn
 func (o *OutputFile) WriteInvoices(invs *InvoiceCollection) error {
+	// cacheMu.Lock()
+	// defer cacheMu.Unlock()
+
 	util.DebugPrintCaller()
 
 	var marshaller InvoiceMarshaller

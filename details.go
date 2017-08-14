@@ -17,9 +17,11 @@ var (
 
 func init() {
 	var err error
-	detailFieldNames, _, _, detailCtagNames, err = util.GetFieldsInfo(&Detail{}, "cht", "Model")
-	if err != nil {
-		panic(err)
+	if detailFieldNames, err = util.Names(&Detail{}, "Model"); err != nil {
+		util.Panic("retrive field names failed (%q)!", "detailFieldNames")
+	}
+	if detailCtagNames, err = util.NamesFromTag(&Detail{}, "cht", "Model"); err != nil {
+		util.Panic("retrive field-tag names failed [(%q).Tag(%q)]!", "detailCtagNames", "cht")
 	}
 	for i := 0; i < len(detailFieldNames); i++ {
 		detailIndex[detailFieldNames[i]] = i
@@ -85,16 +87,31 @@ func (d *Detail) mapToStringSlice(idx int) []string {
 	// 	fmt.Sprintf("%.1f", d.Subtotal), d.Name,
 	// }
 
-	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
-	cb["UINumber"] = func(value interface{}) interface{} {
-		a := value.(string)
-		return interface{}(a[0:2] + "-" + a[2:])
+	// var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
+	// cb["UINumber"] = func(value interface{}) interface{} {
+	// 	a := value.(string)
+	// 	return interface{}(a[0:2] + "-" + a[2:])
+	// }
+	// cb["Subtotal"] = func(value interface{}) interface{} {
+	// 	return interface{}(fmt.Sprintf("%.1f", value.(float64)))
+	// }
+	var cb util.ValuesCallback = func(fieldName string,
+		v interface{}) (value interface{}, isIgnored bool) {
+		switch fieldName {
+		case "Model": // ignored
+			value, isIgnored = nil, true
+		case "UINumber":
+			a := v.(string)
+			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+		case "Subtotal":
+			a := v.(float64)
+			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
+		default:
+			value, isIgnored = v, false
+		}
+		return value, isIgnored
 	}
-	cb["Subtotal"] = func(value interface{}) interface{} {
-		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
-	}
-
-	out, err := util.StrValuesWithFunc(d, cb, "Model")
+	out, err := util.StrValuesWithFunc(d, cb)
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
@@ -116,18 +133,22 @@ func (d *Detail) mapToInterfaceSlice(idx int) []interface{} {
 	// 	}
 	// }
 	// return []interface{}{
-	// 	fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-	// 	fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-	// }
-	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
-	cb["UINumber"] = func(value interface{}) interface{} {
-		a := value.(string)
-		return interface{}(a[0:2] + "-" + a[2:])
+	var cb util.ValuesCallback = func(fieldName string,
+		v interface{}) (value interface{}, isIgnored bool) {
+		switch fieldName {
+		case "Model": // ignored
+			value, isIgnored = nil, true
+		case "UINumber":
+			a := v.(string)
+			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+		case "Subtotal":
+			a := v.(float64)
+			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
+		default:
+			value, isIgnored = v, false
+		}
+		return value, isIgnored
 	}
-	cb["Subtotal"] = func(value interface{}) interface{} {
-		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
-	}
-
 	out, err := util.ValuesWithFunc(d, cb, "Model")
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
@@ -181,27 +202,6 @@ func (d *Detail) GetArgsTable(title string, lensp int) string {
 func (Detail) TableName() string {
 	// custom table name, this is default
 	return "details"
-}
-
-func getCachedInvoicesFrom(e *Detail) (*Invoice, error) {
-	invoicesCacheMu.Lock()
-	defer invoicesCacheMu.Unlock()
-	invoice, ok := invoicesCache[e.UINumber]
-	if !ok {
-		return nil, fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", e.UINumber)
-	}
-	return invoice, nil
-}
-
-func setCachedInvoicesFrom(e *Detail) error {
-	invoicesCacheMu.Lock()
-	defer invoicesCacheMu.Unlock()
-	invoice, ok := invoicesCache[e.UINumber]
-	if !ok {
-		return fmt.Errorf("the corresponding invoice does not exist (UINumber: %s)", e.UINumber)
-	}
-	invoice.Details = append(invoice.Details, e)
-	return nil
 }
 
 // GetDetailsTable returns the table string of the list of []*Detail

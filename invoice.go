@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
-	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -12,11 +11,6 @@ import (
 )
 
 var (
-	// invoicesCache is used to reduce the count of created Invoice objects and
-	// allows to reuse already created objects with required Attribute.
-	invoicesCache   = make(map[string]*Invoice)
-	invoicesCacheMu sync.Mutex // protects invoicesCache
-
 	invoiceFieldNames []string
 	invoiceCtagNames  []string
 	invoiceIndex      = make(map[string]int)
@@ -24,9 +18,11 @@ var (
 
 func init() {
 	var err error
-	invoiceFieldNames, _, _, invoiceCtagNames, err = util.GetFieldsInfo(&Invoice{}, "cht", "Model", "Details")
-	if err != nil {
-		panic(err)
+	if invoiceFieldNames, err = util.Names(&Invoice{}, "Model", "Details"); err != nil {
+		util.Panic("retrive field names failed (%q)!", "invoiceFieldNames")
+	}
+	if invoiceCtagNames, err = util.NamesFromTag(&Invoice{}, "cht", "Model", "Details"); err != nil {
+		util.Panic("retrive field-tag names failed [(%q).Tag(%q)]!", "invoiceCtagNames", "cht")
 	}
 	for i := 0; i < len(invoiceFieldNames); i++ {
 		invoiceIndex[invoiceFieldNames[i]] = i
@@ -101,26 +97,6 @@ func (Invoice) TableName() string {
 	return "invoices"
 }
 
-func getCachedInvoices(obj *Invoice) *Invoice {
-	invoicesCacheMu.Lock()
-	defer invoicesCacheMu.Unlock()
-	invoice, ok := invoicesCache[obj.UINumber]
-	if !ok {
-		invoicesCache[obj.UINumber] = obj
-	}
-	return invoice
-}
-
-func setCachedInvoices(obj *Invoice) {
-	invoicesCacheMu.Lock()
-	defer invoicesCacheMu.Unlock()
-	_, ok := invoicesCache[obj.UINumber]
-	if !ok {
-		invoicesCache[obj.UINumber] = obj
-	}
-	return
-}
-
 // GetArgsTable :
 func (v *Invoice) GetArgsTable(title string) string {
 	if len(title) == 0 {
@@ -153,20 +129,28 @@ func (v *Invoice) mapToInterfaceSlice(idx int) []interface{} {
 	// 	v.Date.Format(ShortDateFormat),
 	// 	v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
 	// }
-	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
-	cb["UINumber"] = func(value interface{}) interface{} {
-		a := value.(string)
-		return interface{}(a[0:2] + "-" + a[2:])
-	}
-	cb["Date"] = func(value interface{}) interface{} {
-		a := value.(time.Time)
-		return interface{}(a.Format(ShortDateFormat))
-	}
-	cb["Total"] = func(value interface{}) interface{} {
-		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
+
+	var cb util.ValuesCallback = func(fieldName string,
+		v interface{}) (value interface{}, isIgnored bool) {
+		switch fieldName {
+		case "Model", "Details": // ignored
+			value, isIgnored = nil, true
+		case "UINumber":
+			a := v.(string)
+			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+		case "Date":
+			a := v.(time.Time)
+			value, isIgnored = interface{}(a.Format(ShortDateFormat)), false
+		case "Total":
+			a := v.(float64)
+			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
+		default:
+			value, isIgnored = v, false
+		}
+		return value, isIgnored
 	}
 
-	out, err := util.ValuesWithFunc(v, cb, "Model", "Details")
+	out, err := util.ValuesWithFunc(v, cb)
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
@@ -193,20 +177,27 @@ func (v *Invoice) mapToStringSlice(idx int) []string {
 	// 	v.Date.Format(ShortDateFormat),
 	// 	v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
 	// }
-	var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
-	cb["UINumber"] = func(value interface{}) interface{} {
-		a := value.(string)
-		return interface{}(a[0:2] + "-" + a[2:])
-	}
-	cb["Date"] = func(value interface{}) interface{} {
-		a := value.(time.Time)
-		return interface{}(a.Format(ShortDateFormat))
-	}
-	cb["Total"] = func(value interface{}) interface{} {
-		return interface{}(fmt.Sprintf("%.1f", value.(float64)))
+	var cb util.ValuesCallback = func(fieldName string,
+		v interface{}) (value interface{}, isIgnored bool) {
+		switch fieldName {
+		case "Model", "Details": // ignored
+			value, isIgnored = nil, true
+		case "UINumber":
+			a := v.(string)
+			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+		case "Date":
+			a := v.(time.Time)
+			value, isIgnored = interface{}(a.Format(ShortDateFormat)), false
+		case "Total":
+			a := v.(float64)
+			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
+		default:
+			value, isIgnored = v, false
+		}
+		return value, isIgnored
 	}
 
-	out, err := util.StrValuesWithFunc(v, cb, "Model", "Details")
+	out, err := util.StrValuesWithFunc(v, cb)
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
@@ -321,17 +312,6 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	}
 
 	return b.String()
-}
-
-// dumpCachedInvoicesTable returns the table string of "invoicesCache"
-func dumpCachedInvoicesTable() string {
-	invoicesCacheMu.Lock()
-	defer invoicesCacheMu.Unlock()
-	pinvs := make([]*Invoice, 0)
-	for _, v := range invoicesCache {
-		pinvs = append(pinvs, v)
-	}
-	return GetInvoicesTable(pinvs)
 }
 
 func printInvList(pvs []*Invoice) {

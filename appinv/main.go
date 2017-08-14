@@ -18,12 +18,15 @@ func init() {
 }
 
 func main() {
+	// os.Args = []string{"-V disable", "e"}
+	// os.Args = []string{"e"}
 	start := time.Now()
 	cmds.Init()
 	// outConfig("config.yaml")
 	// outCases("ycases.yaml")
 	// readCases("./cases.yaml")
-	util.Glog.Info("run-time elapsed: ", time.Since(start).String())
+	// util.Glog.Info("run-time elapsed: ", time.Since(start).String())
+	fmt.Println("run-time elapsed: ", time.Since(start).String())
 }
 
 func readCases(fln string) {

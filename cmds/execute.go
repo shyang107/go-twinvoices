@@ -1,8 +1,8 @@
 package cmds
 
 import (
+	"fmt"
 	"os"
-	"strings"
 
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
@@ -27,9 +27,9 @@ backup to invoices.db (sqlite3), and output specified file-type.`,
 }
 
 func executeAction(c *cli.Context) error {
-	level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
+	// level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
+	// setglog(level)
 	// util.Glog.Debugf("log level: %s\n", level)
-	setglog(level)
 
 	util.DebugPrintCaller()
 
@@ -69,31 +69,73 @@ func execute() (err error) {
 
 	vp.Connectdb() // connect to database
 
-	for _, c := range vp.Cases { // run every case
-		util.Glog.Infof("\n%v", c)
+	// for _, c := range vp.Cases { // run every case
+	// 	util.Glog.Infof("\n%v", c)
 
-		if err := c.UpdateFileBunker(); err != nil {
-			util.Glog.Error(err.Error())
-			return err
-		}
+	// 	if err := c.UpdateFileBunker(); err != nil {
+	// 		util.Glog.Error(err.Error())
+	// 		return err
+	// 	}
 
-		pvs, err := (&c.Input).ReadInvoices()
-		if err != nil {
-			util.Glog.Errorf("%v\n", err)
-			return err
-		}
+	// 	pvs, err := (&c.Input).ReadInvoices()
+	// 	if err != nil {
+	// 		util.Glog.Errorf("%v\n", err)
+	// 		return err
+	// 	}
 
-		for _, out := range c.Outputs {
-			if out.IsOutput {
-				err = out.WriteInvoices(pvs)
-				if err != nil {
-					util.Glog.Error(err.Error())
-					return err
+	// 	for _, out := range c.Outputs {
+	// 		if out.IsOutput {
+	// 			err = out.WriteInvoices(pvs)
+	// 			if err != nil {
+	// 				util.Glog.Error(err.Error())
+	// 				return err
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	ch := make(chan string)
+	for idx, c := range vp.Cases { // run every case
+
+		go func(c *vp.Case, idx int) {
+
+			util.Glog.Infof("\n%v", c)
+
+			if err := c.UpdateFileBunker(); err != nil {
+				util.Glog.Error(err.Error())
+				// return err
+			}
+
+			pvs, err := (&c.Input).ReadInvoices()
+			if err != nil {
+				util.Glog.Errorf("%v\n", err)
+				// return err
+			}
+
+			for _, out := range c.Outputs {
+				if out.IsOutput {
+					err = out.WriteInvoices(pvs)
+					if err != nil {
+						util.Glog.Error(err.Error())
+						// return err
+					}
 				}
 			}
-		}
+			ch <- fmt.Sprintf("* ch: run case %d", idx+1)
+		}(c, idx)
 	}
+
+	for range vp.Cases {
+		fmt.Println(<-ch)
+	}
+
 	return nil
+}
+
+type chCase struct {
+	invoices *vp.InvoiceCollection
+	outs     []*vp.OutputFile
+	idx      int
 }
 
 // initConfig reads in config file and ENV variables if set.

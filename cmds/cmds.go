@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kataras/golog"
+
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
@@ -13,7 +15,9 @@ import (
 func Init() {
 	util.DebugPrintCaller()
 	util.InitLogger()
-	util.Glog.SetLevel("debug")
+	// util.Glog.SetLevel("debug")
+	golog.SetLevel("disable")
+	util.Glog.SetLevel("disable")
 	// ut.Verbose = vp.Cfg.Verbose
 	// ut.Pdebug("root.init called\n")
 
