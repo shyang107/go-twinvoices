@@ -84,6 +84,24 @@ func ReadLinesFile(fil *os.File, cb ReadLinesCallback) (oserr error) {
 	return
 }
 
+// ReadLines reads lines from a []byte and calls ReadLinesCallback to process each line being read
+func ReadLines(b []byte, cb ReadLinesCallback) {
+	r := bytes.NewReader(b)
+	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
+
+	idx := 0
+	for scanner.Scan() {
+		line := scanner.Text()
+		stop := cb(idx, line)
+		if stop {
+			break
+		}
+		idx++
+	}
+	return
+}
+
 // AppendToFile appends data to an existent (or new) file
 func AppendToFile(fn string, buffer ...*bytes.Buffer) {
 	fil, err := os.OpenFile(os.ExpandEnv(fn), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)

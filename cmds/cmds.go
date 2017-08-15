@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kataras/golog"
-
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
 	"github.com/urfave/cli"
@@ -16,8 +14,8 @@ func Init() {
 	util.DebugPrintCaller()
 	util.InitLogger()
 	// util.Glog.SetLevel("debug")
-	golog.SetLevel("disable")
-	util.Glog.SetLevel("disable")
+	// golog.SetLevel("disable")
+	// util.Glog.SetLevel("disable")
 	// ut.Verbose = vp.Cfg.Verbose
 	// ut.Pdebug("root.init called\n")
 
@@ -40,6 +38,7 @@ func Init() {
 		ExecuteCommand(),
 		InitialCommand(),
 		DumpCommand(),
+		RecoveryCommand(),
 	}
 
 	app.Flags = []cli.Flag{

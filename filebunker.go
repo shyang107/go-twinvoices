@@ -98,8 +98,8 @@ func (f *FileBunker) GetArgsTable(title string, lensp int) string {
 	return table
 }
 
-// GetFileBunkerTable returns the table string of the list of []*Detail
-func GetFileBunkerTable(pfbs []*FileBunker, lensp int) string {
+// GetFileBunkersTable returns the table string of the list of []*Detail
+func GetFileBunkersTable(pfbs []*FileBunker, lensp int) string {
 	util.DebugPrintCaller()
 	Sf := fmt.Sprintf
 	location, _ := time.LoadLocation("Local")
@@ -147,4 +147,33 @@ func (c *Case) UpdateFileBunker() error {
 	}
 	// plog((&fb).GetArgsTable("", 0))
 	return nil
+}
+
+//=========================================================
+
+// FileBunkerCollection is the collection of "*FileBunker"
+type FileBunkerCollection []*FileBunker
+
+func (p FileBunkerCollection) String() string {
+	return p.GetFileBunkersTable()
+}
+
+// GetFileBunkersTable returns the table string of the list of []*FileBunker
+func (p *FileBunkerCollection) GetFileBunkersTable() string {
+	return GetFileBunkersTable(([]*FileBunker)(*p), 0)
+}
+
+// GetAllOriginalDataFromDB gets all original records from database
+func GetAllOriginalDataFromDB() *FileBunkerCollection {
+	util.DebugPrintCaller()
+
+	fbs := []*FileBunker{}
+	DB.Find(&fbs)
+	var fbc FileBunkerCollection = fbs
+	return &fbc
+}
+
+// GetAllFromDB gets all original records from database
+func (p *FileBunkerCollection) GetAllFromDB() {
+	p = GetAllOriginalDataFromDB()
 }

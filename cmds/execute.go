@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
@@ -27,8 +28,8 @@ backup to invoices.db (sqlite3), and output specified file-type.`,
 }
 
 func executeAction(c *cli.Context) error {
-	// level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
-	// setglog(level)
+	level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
+	setglog(level)
 	// util.Glog.Debugf("log level: %s\n", level)
 
 	util.DebugPrintCaller()
@@ -94,48 +95,59 @@ func execute() (err error) {
 	// 	}
 	// }
 
-	ch := make(chan string)
+	type item struct {
+		msg    string
+		errors error
+	}
+
+	ch := make(chan item, len(vp.Cases))
 	for idx, c := range vp.Cases { // run every case
 
 		go func(c *vp.Case, idx int) {
-
+			var it item
 			util.Glog.Infof("\n%v", c)
 
-			if err := c.UpdateFileBunker(); err != nil {
-				util.Glog.Error(err.Error())
+			if it.errors = c.UpdateFileBunker(); it.errors != nil {
+				ch <- it
 				// return err
 			}
 
-			pvs, err := (&c.Input).ReadInvoices()
-			if err != nil {
-				util.Glog.Errorf("%v\n", err)
+			var pvs *vp.InvoiceCollection
+			pvs, it.errors = (&c.Input).ReadInvoices()
+			if it.errors != nil {
+				ch <- it
 				// return err
 			}
 
 			for _, out := range c.Outputs {
 				if out.IsOutput {
-					err = out.WriteInvoices(pvs)
+					it.errors = out.WriteInvoices(pvs)
 					if err != nil {
-						util.Glog.Error(err.Error())
 						// return err
+						ch <- it
 					}
 				}
 			}
-			ch <- fmt.Sprintf("* ch: run case %d", idx+1)
+			it.msg = fmt.Sprintf("* ch: end case %d", idx+1)
+			ch <- it
+
 		}(c, idx)
 	}
 
+	// Wait for goroutines to complete.
 	for range vp.Cases {
-		fmt.Println(<-ch)
+		it := <-ch
+
+		if it.errors != nil {
+			return it.errors
+		}
+
+		if len(it.msg) > 0 {
+			fmt.Println(it.msg)
+		}
 	}
 
 	return nil
-}
-
-type chCase struct {
-	invoices *vp.InvoiceCollection
-	outs     []*vp.OutputFile
-	idx      int
 }
 
 // initConfig reads in config file and ENV variables if set.

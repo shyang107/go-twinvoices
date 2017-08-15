@@ -17,18 +17,30 @@ var DB *gorm.DB
 func Initialdb() error {
 	util.DebugPrintCaller()
 	// util.Verbose = true
-	if util.IsFileExist(Cfg.DBfilename) {
-		// Pstat("  > Removing file %q ...\n", Cfg.DBfilename)
-		Glog.Infof("☞  Removing file %q ...\n", Cfg.DBfilename)
-		err := os.Remove(Cfg.DBfilename)
+	// if util.IsFileExist(Cfg.DBfilename) {
+	// 	// Pstat("  > Removing file %q ...\n", Cfg.DBfilename)
+	// 	Glog.Infof("☞  Removing file %q ...\n", Cfg.DBfilename)
+	// 	err := os.Remove(Cfg.DBfilename)
+	// 	if err != nil {
+	// 		// panic(err)
+	// 		return err
+	// 	}
+	// }
+	fl := os.ExpandEnv(Cfg.DBfilename)
+	_, err := os.Stat(fl)
+	Glog.Debug(err)
+	if !os.IsNotExist(err) {
+		Glog.Infof("♲  Removing file %q ...\n", fl)
+		err := os.RemoveAll(fl)
 		if err != nil {
 			// panic(err)
+			Glog.Error(err)
 			return err
 		}
 	}
 	// Pstat("  > Creating file %q ...\n", Cfg.DBfilename)
-	Glog.Infof("♲  Creating file %q ...\n", Cfg.DBfilename)
-	db, err := gorm.Open("sqlite3", os.ExpandEnv(Cfg.DBfilename))
+	Glog.Infof("♲  Creating file %q ...\n", fl)
+	db, err := gorm.Open("sqlite3", fl)
 	if err != nil {
 		// Panic("failed to connect database")
 		return err
@@ -80,6 +92,9 @@ func dbGetAllInvoices() (*InvoiceCollection, error) {
 
 // dbInsertFrom creats records from []*Invoice into database
 func dbInsertFrom(pvs []*Invoice) {
+	cacheMu.Lock()
+	defer cacheMu.Unlock()
+
 	Glog.Infof("♲  Updating database ...")
 	util.DebugPrintCaller()
 	for _, v := range pvs {

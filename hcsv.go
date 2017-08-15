@@ -76,7 +76,7 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	var cb util.ReadLinesCallback = func(idx int, line string) (stop bool) {
 		// plog("line = %v\n", line)
 		if inpIsBig5 {
-			line = big5ToUtf8(line)
+			line = Big5ToUtf8(line)
 		} else {
 			switch idx {
 			case 0:
@@ -95,19 +95,19 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 		head := recs[0]
 		switch head {
 		case "M": // invoice
-			pinv := unmarshalCSVInvoice(recs)
+			pinv := UnmarshalCSVInvoice(recs)
 			vslice.Add(pinv)
 		case "D": // deltail of invoice
-			pdet := unmarshalCSVDetail(recs)
+			pdet := UnmarshalCSVDetail(recs)
 			dslice.Add(pdet)
 		}
 		return
 	}
 	err = util.ReadLinesFile(f, cb)
-
 	if err != nil {
 		return nil, err
 	}
+
 	vslice.Combine(&dslice)
 	// fmt.Println("♲  Invoices list:")
 	// for i, v := range vslice {
@@ -137,7 +137,8 @@ func combineInvoice(pvs []*Invoice, pds []*Detail) {
 	}
 }
 
-func unmarshalCSVDetail(recs []string) *Detail {
+// UnmarshalCSVDetail unmarshal CSV string to Detail{}
+func UnmarshalCSVDetail(recs []string) *Detail {
 	det := Detail{
 		Head:     recs[0],
 		UINumber: recs[1],
@@ -147,7 +148,8 @@ func unmarshalCSVDetail(recs []string) *Detail {
 	return &det
 }
 
-func unmarshalCSVInvoice(recs []string) *Invoice {
+// UnmarshalCSVInvoice unmarshal CSV string to Invoice{}
+func UnmarshalCSVInvoice(recs []string) *Invoice {
 	date, err := time.Parse(dateFormat, recs[3])
 	location, _ := time.LoadLocation("Local")
 	if err != nil {
@@ -167,7 +169,8 @@ func unmarshalCSVInvoice(recs []string) *Invoice {
 	return &inv
 }
 
-func big5ToUtf8(str string) string {
+// Big5ToUtf8 convert big-5 string to utf-8 encoding
+func Big5ToUtf8(str string) string {
 	res, err := iconv.ConvertString(str, "big5", "utf-8")
 	util.CheckErr(err)
 	return res
