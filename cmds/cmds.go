@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
@@ -13,9 +14,6 @@ import (
 func Init() {
 	util.DebugPrintCaller()
 	util.InitLogger()
-	// util.Glog.SetLevel("debug")
-	// golog.SetLevel("disable")
-	// util.Glog.SetLevel("disable")
 	// ut.Verbose = vp.Cfg.Verbose
 	// ut.Pdebug("root.init called\n")
 
@@ -39,6 +37,7 @@ func Init() {
 		InitialCommand(),
 		DumpCommand(),
 		RecoveryCommand(),
+		ListCommand(),
 	}
 
 	app.Flags = []cli.Flag{
@@ -60,33 +59,26 @@ func Init() {
 	}
 }
 
+func checkVerbose(c *cli.Context) {
+	level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
+	// util.Glog.Debugf("log level: %s\n", level)
+	setglog(level)
+}
+
 func setglog(level string) {
 	if len(level) > 0 {
 		vp.Cfg.Verbose, util.Verbose = true, true
 		util.ColorsOn = vp.Cfg.ColorsOn
 	}
 	switch level {
-	case "warn":
-	case "error":
-	case "debug":
 	case "disable":
+	case "fatal":
+	case "error":
+	case "warn":
+	case "debug":
+	// case "goro":
 	default:
 		level = "info"
 	}
 	util.Glog.SetLevel(level)
 }
-
-// // Execute adds all child commands to the root command and sets flags appropriately.
-// // This is called by main.main(). It only needs to happen once to the RootApp.
-// func Execute() {
-// 	util.DebugPrintCaller()
-
-// 	sort.Sort(cli.FlagsByName(RootApp.Flags))
-// 	sort.Sort(cli.CommandsByName(RootApp.Commands))
-
-// 	if err := RootApp.Run(os.Args); err != nil {
-// 		fmt.Println(err)
-// 		os.Exit(-1)
-// 	}
-// 	//
-// }
