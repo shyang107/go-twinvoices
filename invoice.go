@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -60,7 +61,7 @@ func (v Invoice) String() string {
 	var b bytes.Buffer
 	val := reflect.ValueOf(v) //.Elem()
 	fld := val.Type()
-	var str string
+	var str, line string
 	for i := 0; i < val.NumField(); i++ {
 		f := fld.Field(i)
 		v := val.Field(i)
@@ -80,9 +81,10 @@ func (v Invoice) String() string {
 				str = v.Interface().(string)
 			}
 		}
-		Ff(&b, " %s : %s |", invoiceCtagNames[invoiceIndex[f.Name]], str)
+		line += Sf(" %s : %s |", invoiceCtagNames[invoiceIndex[f.Name]], str)
 	}
-	Ff(&b, "\n")
+	line = strings.Trim(line, " ")
+	Ff(&b, "%v\n", line)
 	lspaces := util.StrSpaces(4)
 	for i, d := range v.Details {
 		Ff(&b, "%s> %2d. %s", lspaces, i+1, d)
@@ -232,8 +234,8 @@ func getInvoiceTableRowString(data *[]string,
 
 func setMaxSizes(sizes *[]int, data *[]string) {
 	for j, d := range *data {
-		str := fmt.Sprintf("%v", d)
-		_, _, nmix := util.CountChars(str)
+		// str := fmt.Sprintf("%v", d)
+		_, _, nmix := util.CountChars(d)
 		(*sizes)[j] = util.Imax((*sizes)[j], nmix)
 	}
 }
@@ -246,9 +248,28 @@ func sliceToString(leading string, data []string, sizes []int, isleft bool) stri
 			str += leading + fmt.Sprintf("%v", sdf)
 			continue
 		}
-		str += fmt.Sprintf("  %v", sdf)
+		str += fmt.Sprintf(" %v", sdf)
 	}
 	return str
+}
+
+// getStringSlice returns all field-values to string slice and get max sizes into vsizes and dsizes
+// vdata [][]string : vdata[idx of invoices][idx of fields]
+// ddata [][][]string: ddata[idx of invoices][idx of details][idx of fields of detail]
+func getStringSlice(pinvs []*Invoice, vsizes, dsizes *[]int) (vdata [][]string, ddata [][][]string) {
+	vdata = make([][]string, len(pinvs))
+	ddata = make([][][]string, len(pinvs))
+	for i, p := range pinvs {
+		vdata[i] = p.mapToStringSlice(i + 1)
+		setMaxSizes(vsizes, &vdata[i])
+		ddata[i] = make([][]string, len(p.Details))
+		for j, d := range p.Details {
+			ddata[i][j] = d.mapToStringSlice(j + 1)
+			setMaxSizes(dsizes, &ddata[i][j])
+			// dmap[dkey{i, j}] = &ddata
+		}
+	}
+	return vdata, ddata
 }
 
 // GetInvoicesTable returns the table string of the list of []*Invoice
@@ -263,20 +284,12 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vsizes, dsizes := util.NewSize(vheads), util.NewSize(dheads)
 	vnf, dnf := len(vheads), len(dheads)
 
-	for i, p := range pinvs {
-		vdata := p.mapToStringSlice(i + 1)
-		setMaxSizes(&vsizes, &vdata)
-		for j, d := range p.Details {
-			ddata := d.mapToStringSlice(j + 1)
-			setMaxSizes(&dsizes, &ddata)
-			// dmap[dkey{i, j}] = &ddata
-		}
-	}
+	vdata, ddata := getStringSlice(pinvs, &vsizes, &dsizes)
 
 	var b bytes.Buffer
 	bws := b.WriteString
 
-	vn := util.Isum(vsizes...) + vnf + (vnf-1)*2 + 1
+	vn := util.Isum(vsizes...) + vnf + (vnf - 1) + 1
 	title := "發票清單"
 	_, _, vl := util.CountChars(title)
 	vm := (vn - vl) / 2
@@ -288,38 +301,36 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vhtab += sliceToString("", vheads, vsizes, isleft)
 	vhtab += "\n" + util.StrThinLine(vn)
 
-	lspaces := util.StrSpaces(7)
-	dn := util.Isum(dsizes...) + dnf + (dnf-1)*2 + 1
+	lspaces := util.StrSpaces(6)
+	dn := util.Isum(dsizes...) + dnf + (dnf - 1) + 1
 	dheads[dnf-2] = util.AlignToRight(dheads[dnf-2], dsizes[dnf-2]) // SubTitle
 	dhtab := lspaces + util.StrThickLine(dn)
 	dhtab += sliceToString(lspaces, dheads, dsizes, isleft)
 	dhtab += "\n" + lspaces + util.StrThinLine(dn)
 
-	for i, p := range pinvs {
+	for i := 0; i < len(vdata); i++ {
 		bws(vhtab)
-		bws(p.toTableRowString("", i+1, vsizes, isleft))
+		bws(getInvoiceTableRowString(&vdata[i], "", i+1, vsizes, isleft))
 		bws("\n")
 
-		// bws(GetDetailsTable(p.Details, 7, false))
-		if len(p.Details) > 0 {
-			bws(dhtab)
-			for j, d := range p.Details {
-				bws(d.toTableRowString(lspaces, j+1, dsizes, isleft))
-				bws("\n")
-			}
-			bws(lspaces + util.StrThickLine(dn))
+		bws(dhtab)
+		for j := 0; j < len(ddata[i]); j++ {
+			bws(getDeailTableRowString(&ddata[i][j], lspaces, j+1, dsizes, isleft))
+			bws("\n")
 		}
+		bws(lspaces + util.StrThickLine(dn))
 	}
 
 	return b.String()
 }
 
-func printInvList(pvs []*Invoice) {
+// GetInvoicesList returns the brief list string of invoices `pvs`
+func GetInvoicesList(pvs []*Invoice) string {
 	var b bytes.Buffer
 	for ip, pv := range pvs {
 		fmt.Fprintf(&b, "%s", pv.GetArgsTable(util.Sf("發票 %d", ip+1)))
 	}
-	Glog.Debugf("%s", b.String())
+	return b.String()
 }
 
 //=========================================================
@@ -328,7 +339,12 @@ func printInvList(pvs []*Invoice) {
 type InvoiceCollection []*Invoice
 
 func (v InvoiceCollection) String() string {
-	return v.GetInvoicesTable()
+	var b bytes.Buffer
+	// bws := b.WriteString
+	for i, p := range v {
+		fmt.Fprintf(&b, "Invoice #%d:\n%v", i, p)
+	}
+	return b.String()
 }
 
 // GetInvoicesTable returns the table string of the list of []*Invoice
@@ -358,8 +374,9 @@ func (v *InvoiceCollection) Combine(ds *DetailCollection) {
 	}
 }
 
-func (v *InvoiceCollection) printInvList() {
-	printInvList(([]*Invoice)(*v))
+// GetList returns the brief list string of invoices
+func (v *InvoiceCollection) GetList() string {
+	return GetInvoicesList(([]*Invoice)(*v))
 }
 
 // AddToDB creats records from []*Invoice into database

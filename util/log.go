@@ -13,9 +13,15 @@ import (
 )
 
 var (
+	// Logger is a basic logger of golog
+	// Logger = golog.New()
+
 	// Glog is a logger of golog
-	Glog = golog.New()
+	Glog = golog.New() // Logger.Child("util")
 )
+
+// GoroutineLevel is go-routine log level to log something about go routines
+// const GoroutineLevel golog.Level = 6
 
 // InitLogger initialize logger's environment
 func InitLogger() {
@@ -30,6 +36,17 @@ func InitLogger() {
 	Glog.SetTimeFormat("")
 	Glog.SetLevel("info")
 	pencil.NoColor = !Glog.Printer.IsTerminal
+
+	// GoroutineLevel = golog.InfoLevel
+	// Register our level, just three fields.
+
+	// golog.Levels[GoroutineLevel] = &golog.LevelMetadata{
+	// 	Name:             "goro",
+	// 	AlternativeNames: []string{"goroutine"},
+	// 	RawText:          "[GORO]",
+	// 	// ColorfulText (Green Color[GORO])
+	// 	ColorfulText: LogColorString("goro", "[GORO]"),
+	// }
 }
 
 //---------------------------------------------------------
@@ -61,6 +78,7 @@ var (
 	).SprintFunc()
 	debugColorStr2 = rgb16b.New(colornames.Darksalmon, pencil.Foreground).SprintFunc()
 	debugColorStr3 = rgb16b.New(colornames.Darkorange, pencil.Foreground).SprintFunc()
+	goroColorStr   = rgb16b.New(colornames.Greenyellow, pencil.Foreground).SprintFunc()
 	// LogColorStringFuncs maps to a serious of [*]ColorString functions with key as golog.Level
 	LogColorStringFuncs = map[string]func(a ...interface{}) string{
 		// golog.DisableLevel: func(s string) string { return s },
@@ -75,6 +93,7 @@ var (
 		"debug":   debugColorStr,
 		"debug2":  debugColorStr2,
 		"debug3":  debugColorStr2,
+		"goro":    goroColorStr,
 	}
 )
 
@@ -91,6 +110,10 @@ func fromLevelName(levelName string) golog.Level {
 		return golog.InfoLevel
 	case "debug":
 		return golog.DebugLevel
+	// case "goroutine":
+	// 	fallthrough
+	// case "goro":
+	// 	return GoroutineLevel
 	default:
 		return golog.DisableLevel
 	}

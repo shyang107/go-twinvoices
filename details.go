@@ -111,6 +111,7 @@ func (d *Detail) mapToStringSlice(idx int) []string {
 		}
 		return value, isIgnored
 	}
+
 	out, err := util.StrValuesWithFunc(d, cb)
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
