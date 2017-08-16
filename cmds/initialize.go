@@ -2,7 +2,6 @@ package cmds
 
 import (
 	"os"
-	"strings"
 
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
@@ -21,9 +20,7 @@ func InitialCommand() cli.Command {
 }
 
 func initialAction(c *cli.Context) error {
-	level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
-	// util.Glog.Debugf("log level: %s\n", level)
-	setglog(level)
+	checkVerbose(c)
 
 	util.DebugPrintCaller()
 

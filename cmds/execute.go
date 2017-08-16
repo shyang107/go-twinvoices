@@ -3,7 +3,6 @@ package cmds
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	vp "github.com/shyang107/go-twinvoices"
 	"github.com/shyang107/go-twinvoices/util"
@@ -28,9 +27,7 @@ backup to invoices.db (sqlite3), and output specified file-type.`,
 }
 
 func executeAction(c *cli.Context) error {
-	level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
-	setglog(level)
-	// util.Glog.Debugf("log level: %s\n", level)
+	checkVerbose(c)
 
 	util.DebugPrintCaller()
 
@@ -70,31 +67,18 @@ func execute() (err error) {
 
 	vp.Connectdb() // connect to database
 
-	// for _, c := range vp.Cases { // run every case
-	// 	util.Glog.Infof("\n%v", c)
-
-	// 	if err := c.UpdateFileBunker(); err != nil {
-	// 		util.Glog.Error(err.Error())
-	// 		return err
-	// 	}
-
-	// 	pvs, err := (&c.Input).ReadInvoices()
-	// 	if err != nil {
-	// 		util.Glog.Errorf("%v\n", err)
-	// 		return err
-	// 	}
-
-	// 	for _, out := range c.Outputs {
-	// 		if out.IsOutput {
-	// 			err = out.WriteInvoices(pvs)
-	// 			if err != nil {
-	// 				util.Glog.Error(err.Error())
-	// 				return err
-	// 			}
-	// 		}
-	// 	}
+	// if err = single(); err != nil {
+	// 	return err
 	// }
 
+	if err = multi(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func multi() error {
 	type item struct {
 		msg    string
 		errors error
@@ -122,15 +106,14 @@ func execute() (err error) {
 			for _, out := range c.Outputs {
 				if out.IsOutput {
 					it.errors = out.WriteInvoices(pvs)
-					if err != nil {
+					if it.errors != nil {
 						// return err
 						ch <- it
 					}
 				}
 			}
-			it.msg = fmt.Sprintf("* ch: end case %d", idx+1)
+			it.msg = fmt.Sprintf("* ch: ending case #%d: %q", idx+1, c.Input.Filename)
 			ch <- it
-
 		}(c, idx)
 	}
 
@@ -143,10 +126,40 @@ func execute() (err error) {
 		}
 
 		if len(it.msg) > 0 {
-			fmt.Println(it.msg)
+			// fmt.Println(it.msg)
+			util.Glog.Print("\n")
+			// util.Glog.Infof("%s\n", it.msg)
+			util.Glog.Child("<- Goroutine").Infof("%s\n", it.msg)
 		}
 	}
+	return nil
+}
 
+func single() error {
+	for _, c := range vp.Cases { // run every case
+		util.Glog.Infof("\n%v", c)
+
+		if err := c.UpdateFileBunker(); err != nil {
+			util.Glog.Error(err.Error())
+			return err
+		}
+
+		pvs, err := (&c.Input).ReadInvoices()
+		if err != nil {
+			util.Glog.Errorf("%v\n", err)
+			return err
+		}
+
+		for _, out := range c.Outputs {
+			if out.IsOutput {
+				err = out.WriteInvoices(pvs)
+				if err != nil {
+					util.Glog.Error(err.Error())
+					return err
+				}
+			}
+		}
+	}
 	return nil
 }
 

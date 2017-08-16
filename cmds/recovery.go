@@ -37,9 +37,7 @@ func droptables() {
 }
 
 func recoveryAction(c *cli.Context) error {
-	level := strings.ToLower(c.GlobalString("verbose")) // check command line options: "verbose"
-	// util.Glog.Debugf("log level: %s\n", level)
-	setglog(level)
+	checkVerbose(c)
 
 	util.DebugPrintCaller()
 
