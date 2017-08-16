@@ -78,8 +78,8 @@ func Connectdb() {
 	DB.Model(&Invoice{}).Related(&Detail{}, "uin")
 }
 
-// dbGetAllInvoices get the list from database
-func dbGetAllInvoices() (*InvoiceCollection, error) {
+// DBGetAllInvoices get the list from database
+func DBGetAllInvoices() (*InvoiceCollection, error) {
 	util.DebugPrintCaller()
 	invs := []*Invoice{}
 	DB.Find(&invs)
@@ -109,7 +109,7 @@ func DBDumpData(dumpFilename string) error {
 	util.DebugPrintCaller()
 	// Prun("  > Dumping data from %q ...\n", Cfg.DBfilename)
 	Glog.Infof("♲  Dumping data from %q ...", Cfg.DBfilename)
-	pvs, err := dbGetAllInvoices()
+	pvs, err := DBGetAllInvoices()
 	if err != nil {
 		return err
 	}
