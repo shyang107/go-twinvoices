@@ -183,7 +183,7 @@ default:
 return value, isIgnored
 }
 */
-type ValuesCallback func(fieldName string, v interface{}) (value interface{}, isIgnored bool)
+type ValuesCallback func(f reflect.StructField, v interface{}) (value interface{}, isIgnored bool)
 
 // ValuesWithFunc returns an interface array with all the values
 func ValuesWithFunc(e interface{},
@@ -197,17 +197,7 @@ func ValuesWithFunc(e interface{},
 	s := reflect.ValueOf(e).Elem()
 	for i := 0; i < s.NumField(); i++ {
 		t := s.Type().Field(i)
-		// if isIgnored(t.Name, ignoredFields...) {
-		// 	continue
-		// }
-		// v := s.Field(i)
-		// f, ok := cb[t.Name]
-		// if !ok {
-		// 	out = append(out, v.Interface())
-		// 	continue
-		// }
-		// value := f(v.Interface())
-		value, isIgnored := cb(t.Name, s.Field(i).Interface())
+		value, isIgnored := cb(t, s.Field(i).Interface())
 		if isIgnored {
 			continue
 		}
@@ -229,16 +219,7 @@ func StrValuesWithFunc(e interface{},
 	s := reflect.ValueOf(e).Elem()
 	for i := 0; i < s.NumField(); i++ {
 		t := s.Type().Field(i)
-		// if isIgnored(t.Name, ignoredFields...) {
-		// 	continue
-		// }
-		// f, ok := cb[t.Name]
-		// if !ok {
-		// 	out = append(out, fmt.Sprintf("%v", s.Field(i).Interface()))
-		// 	continue
-		// }
-		// value := f(s.Field(i).Interface())
-		value, isIgnored := cb(t.Name, s.Field(i).Interface())
+		value, isIgnored := cb(t, s.Field(i).Interface())
 		if isIgnored {
 			continue
 		}

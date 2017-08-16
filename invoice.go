@@ -85,6 +85,7 @@ func (v Invoice) String() string {
 	}
 	line = strings.Trim(line, " ")
 	Ff(&b, "%v\n", line)
+
 	lspaces := util.StrSpaces(4)
 	for i, d := range v.Details {
 		Ff(&b, "%s> %2d. %s", lspaces, i+1, d)
@@ -132,27 +133,7 @@ func (v *Invoice) mapToInterfaceSlice(idx int) []interface{} {
 	// 	v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
 	// }
 
-	var cb util.ValuesCallback = func(fieldName string,
-		v interface{}) (value interface{}, isIgnored bool) {
-		switch fieldName {
-		case "Model", "Details": // ignored
-			value, isIgnored = nil, true
-		case "UINumber":
-			a := v.(string)
-			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
-		case "Date":
-			a := v.(time.Time)
-			value, isIgnored = interface{}(a.Format(ShortDateFormat)), false
-		case "Total":
-			a := v.(float64)
-			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
-		default:
-			value, isIgnored = v, false
-		}
-		return value, isIgnored
-	}
-
-	out, err := util.ValuesWithFunc(v, cb)
+	out, err := util.ValuesWithFunc(v, vcb)
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
@@ -164,6 +145,30 @@ func (v *Invoice) mapToInterfaceSlice(idx int) []interface{} {
 	res = append(res, out...)
 
 	return res
+}
+
+var vcb util.ValuesCallback = func(f reflect.StructField,
+	v interface{}) (value interface{}, isIgnored bool) {
+
+	switch v.(type) {
+	case gorm.Model, []*Detail:
+		value, isIgnored = nil, true
+	case time.Time:
+		a := v.(time.Time)
+		value, isIgnored = interface{}(a.Format(ShortDateFormat)), false
+	case float64:
+		a := v.(float64)
+		value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
+	default:
+		switch f.Name {
+		case "UINumber":
+			a := v.(string)
+			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+		default:
+			value, isIgnored = v, false
+		}
+	}
+	return value, isIgnored
 }
 
 func (v *Invoice) mapToStringSlice(idx int) []string {
@@ -179,29 +184,10 @@ func (v *Invoice) mapToStringSlice(idx int) []string {
 	// 	v.Date.Format(ShortDateFormat),
 	// 	v.SUN, v.SName, v.CName, v.CNumber, fmt.Sprintf("%.1f", v.Total),
 	// }
-	var cb util.ValuesCallback = func(fieldName string,
-		v interface{}) (value interface{}, isIgnored bool) {
-		switch fieldName {
-		case "Model", "Details": // ignored
-			value, isIgnored = nil, true
-		case "UINumber":
-			a := v.(string)
-			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
-		case "Date":
-			a := v.(time.Time)
-			value, isIgnored = interface{}(a.Format(ShortDateFormat)), false
-		case "Total":
-			a := v.(float64)
-			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
-		default:
-			value, isIgnored = v, false
-		}
-		return value, isIgnored
-	}
 
-	out, err := util.StrValuesWithFunc(v, cb)
+	out, err := util.StrValuesWithFunc(v, vcb)
 	if err != nil {
-		util.Panic("retrive value of `*v` struct failed!")
+		util.Panic("retrive field-values of `*v` failed!")
 	}
 
 	if idx < 0 {
@@ -232,14 +218,6 @@ func getInvoiceTableRowString(data *[]string,
 	return sliceToString(leading, *data, sizes, isleft)
 }
 
-func setMaxSizes(sizes *[]int, data *[]string) {
-	for j, d := range *data {
-		// str := fmt.Sprintf("%v", d)
-		_, _, nmix := util.CountChars(d)
-		(*sizes)[j] = util.Imax((*sizes)[j], nmix)
-	}
-}
-
 func sliceToString(leading string, data []string, sizes []int, isleft bool) string {
 	str := ""
 	for i, d := range data {
@@ -256,20 +234,28 @@ func sliceToString(leading string, data []string, sizes []int, isleft bool) stri
 // getStringSlice returns all field-values to string slice and get max sizes into vsizes and dsizes
 // vdata [][]string : vdata[idx of invoices][idx of fields]
 // ddata [][][]string: ddata[idx of invoices][idx of details][idx of fields of detail]
-func getStringSlice(pinvs []*Invoice, vsizes, dsizes *[]int) (vdata [][]string, ddata [][][]string) {
+func getStringSlice(pinvs []*Invoice, vsizes, dsizes []int) (vdata [][]string, rvsizes []int,
+	ddata [][][]string, rdsizes []int) {
+	rvsizes, rdsizes = vsizes, dsizes
 	vdata = make([][]string, len(pinvs))
 	ddata = make([][][]string, len(pinvs))
 	for i, p := range pinvs {
 		vdata[i] = p.mapToStringSlice(i + 1)
-		setMaxSizes(vsizes, &vdata[i])
+		for k, f := range vdata[i] {
+			_, _, n := util.CountChars(f)
+			rvsizes[k] = util.Imax(rvsizes[k], n)
+		}
+
 		ddata[i] = make([][]string, len(p.Details))
 		for j, d := range p.Details {
 			ddata[i][j] = d.mapToStringSlice(j + 1)
-			setMaxSizes(dsizes, &ddata[i][j])
-			// dmap[dkey{i, j}] = &ddata
+			for k, f := range ddata[i][j] {
+				_, _, n := util.CountChars(f)
+				rdsizes[k] = util.Imax(rdsizes[k], n)
+			}
 		}
 	}
-	return vdata, ddata
+	return vdata, rvsizes, ddata, rdsizes
 }
 
 // GetInvoicesTable returns the table string of the list of []*Invoice
@@ -284,7 +270,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vsizes, dsizes := util.NewSize(vheads), util.NewSize(dheads)
 	vnf, dnf := len(vheads), len(dheads)
 
-	vdata, ddata := getStringSlice(pinvs, &vsizes, &dsizes)
+	vdata, vsizes, ddata, dsizes := getStringSlice(pinvs, vsizes, dsizes)
 
 	var b bytes.Buffer
 	bws := b.WriteString
@@ -340,7 +326,6 @@ type InvoiceCollection []*Invoice
 
 func (v InvoiceCollection) String() string {
 	var b bytes.Buffer
-	// bws := b.WriteString
 	for i, p := range v {
 		fmt.Fprintf(&b, "Invoice #%d:\n%v", i, p)
 	}

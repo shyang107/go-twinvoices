@@ -95,24 +95,8 @@ func (d *Detail) mapToStringSlice(idx int) []string {
 	// cb["Subtotal"] = func(value interface{}) interface{} {
 	// 	return interface{}(fmt.Sprintf("%.1f", value.(float64)))
 	// }
-	var cb util.ValuesCallback = func(fieldName string,
-		v interface{}) (value interface{}, isIgnored bool) {
-		switch fieldName {
-		case "Model": // ignored
-			value, isIgnored = nil, true
-		case "UINumber":
-			a := v.(string)
-			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
-		case "Subtotal":
-			a := v.(float64)
-			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
-		default:
-			value, isIgnored = v, false
-		}
-		return value, isIgnored
-	}
 
-	out, err := util.StrValuesWithFunc(d, cb)
+	out, err := util.StrValuesWithFunc(d, dcb)
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
@@ -126,6 +110,26 @@ func (d *Detail) mapToStringSlice(idx int) []string {
 	return res
 }
 
+var dcb util.ValuesCallback = func(f reflect.StructField,
+	v interface{}) (value interface{}, isIgnored bool) {
+	switch v.(type) {
+	case gorm.Model:
+		value, isIgnored = nil, true
+	case float64:
+		a := v.(float64)
+		value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
+	default:
+		switch f.Name {
+		case "UINumber":
+			a := v.(string)
+			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+		default:
+			value, isIgnored = v, false
+		}
+	}
+	return value, isIgnored
+}
+
 func (d *Detail) mapToInterfaceSlice(idx int) []interface{} {
 	// if idx < 0 {
 	// 	return []interface{}{
@@ -133,24 +137,8 @@ func (d *Detail) mapToInterfaceSlice(idx int) []interface{} {
 	// 		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
 	// 	}
 	// }
-	// return []interface{}{
-	var cb util.ValuesCallback = func(fieldName string,
-		v interface{}) (value interface{}, isIgnored bool) {
-		switch fieldName {
-		case "Model": // ignored
-			value, isIgnored = nil, true
-		case "UINumber":
-			a := v.(string)
-			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
-		case "Subtotal":
-			a := v.(float64)
-			value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
-		default:
-			value, isIgnored = v, false
-		}
-		return value, isIgnored
-	}
-	out, err := util.ValuesWithFunc(d, cb, "Model")
+
+	out, err := util.ValuesWithFunc(d, dcb, "Model")
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
