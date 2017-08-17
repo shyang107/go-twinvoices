@@ -18,7 +18,17 @@ var (
 	// invoiceCtagNames  []string
 	invoiceCtagNames = []string{"表頭", "發票狀態", "發票號碼", "發票日期",
 		"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
+	invoiceCtagMap = make(map[string]string)
+	// invoiceCtagMap = map[string]string{
+	// 	"Head": "表頭", "State": "發票狀態", "UINumber": "發票號碼", "Date": "發票日期",
+	// 	"SUN": "商店統編", "SName": "商店店名",
+	// 	"CName": "載具名稱", "CNumber": "載具號碼", "Total": "總金額",
+	// }
 	invoiceIndex = make(map[string]int)
+	// invoiceIndex = map[string]int{
+	// 	"Head": 0, "State": 1, "UINumber": 2, "Date": 3,
+	// 	"SUN": 4, "SName": 5, "CName": 6, "CNumber": 7, "Total": 8,
+	// }
 )
 
 func init() {
@@ -31,6 +41,7 @@ func init() {
 	// }
 	for i := 0; i < len(invoiceFieldNames); i++ {
 		invoiceIndex[invoiceFieldNames[i]] = i
+		invoiceCtagMap[invoiceFieldNames[i]] = invoiceCtagNames[i]
 	}
 
 }
@@ -68,24 +79,25 @@ func (v Invoice) String() string {
 	var str, line string
 	for i := 0; i < val.NumField(); i++ {
 		f := fld.Field(i)
-		v := val.Field(i)
+		v := val.Field(i).Interface()
+		tag := f.Tag
 
-		switch v.Interface().(type) {
+		switch v.(type) {
 		case gorm.Model, []*Detail:
 			continue
 		case time.Time:
-			str = v.Interface().(time.Time).Format(ShortDateFormat)
+			str = v.(time.Time).Format(ShortDateFormat)
 		case float64:
-			str = Sf("%.1f", v.Interface().(float64))
+			str = Sf("%.1f", v.(float64))
 		default:
 			switch f.Name {
-			case invoiceFieldNames[invoiceIndex["UINumber"]]:
-				str = v.Interface().(string)[0:2] + "-" + v.Interface().(string)[2:]
+			case "UINumber":
+				str = v.(string)[0:2] + "-" + v.(string)[2:]
 			default:
-				str = v.Interface().(string)
+				str = v.(string)
 			}
 		}
-		line += Sf(" %s : %s |", invoiceCtagNames[invoiceIndex[f.Name]], str)
+		line += Sf(" %s : %s |", tag.Get(f.Name), str)
 	}
 	line = strings.Trim(line, " ")
 	Ff(&b, "%v\n", line)
@@ -203,14 +215,9 @@ func (v *Invoice) stringSlice(idx int) []string {
 	return res
 }
 
-func (v *Invoice) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
+func (v *Invoice) rowString(leading string, idx int, sizes []int, isleft bool) string {
 	data := v.stringSlice(idx)
-
-	// Total
-	l := len(data)
-	data[l-1] = util.AlignToRight(data[l-1], sizes[l-1])
-
-	return sliceToString(leading, data, sizes, isleft)
+	return getInvoiceTableRowString(&data, leading, idx, sizes, isleft)
 }
 
 func getInvoiceTableRowString(data *[]string,
@@ -219,12 +226,12 @@ func getInvoiceTableRowString(data *[]string,
 	l := len(*data)
 	(*data)[l-1] = util.AlignToRight((*data)[l-1], sizes[l-1])
 
-	return sliceToString(leading, *data, sizes, isleft)
+	return sliceToString(leading, data, sizes, isleft)
 }
 
-func sliceToString(leading string, data []string, sizes []int, isleft bool) string {
+func sliceToString(leading string, data *[]string, sizes []int, isleft bool) string {
 	str := ""
-	for i, d := range data {
+	for i, d := range *data {
 		sdf := util.GetColStr(d, sizes[i], isleft)
 		if i == 0 {
 			str += leading + sdf // fmt.Sprintf("%v", sdf)
@@ -305,14 +312,14 @@ func (v *InvoiceCollection) Table() string {
 	isleft := true
 	vheads[vnf-1] = util.AlignToRight(vheads[vnf-1], vsizes[vnf-1]) // Title
 	vhtab := util.StrThickLine(vn)
-	vhtab += sliceToString("", vheads, vsizes, isleft)
+	vhtab += sliceToString("", &vheads, vsizes, isleft)
 	vhtab += "\n" + util.StrThinLine(vn)
 
 	lspaces := util.StrSpaces(6)
 	dn := util.Isum(dsizes...) + dnf + (dnf - 1) + 1
 	dheads[dnf-2] = util.AlignToRight(dheads[dnf-2], dsizes[dnf-2]) // SubTitle
 	dhtab := lspaces + util.StrThickLine(dn)
-	dhtab += sliceToString(lspaces, dheads, dsizes, isleft)
+	dhtab += sliceToString(lspaces, &dheads, dsizes, isleft)
 	dhtab += "\n" + lspaces + util.StrThinLine(dn)
 
 	for i := 0; i < len(vdata); i++ {

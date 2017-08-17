@@ -55,23 +55,24 @@ func (d Detail) String() string {
 	fld := val.Type()
 	var str string
 	for i := 0; i < val.NumField(); i++ {
-		v := val.Field(i)
+		v := val.Field(i).Interface()
 		f := fld.Field(i)
+		tag := f.Tag
 
-		switch v.Interface().(type) {
+		switch v.(type) {
 		case gorm.Model:
 			continue
 		case float64:
-			str = Sf("%.1f", v.Interface().(float64))
+			str = Sf("%.1f", v.(float64))
 		default:
 			switch f.Name {
-			case detailFieldNames[detailIndex["UINumber"]]:
-				str = v.Interface().(string)[0:2] + "-" + v.Interface().(string)[2:]
+			case "UINumber":
+				str = v.(string)[0:2] + "-" + v.(string)[2:]
 			default:
-				str = v.Interface().(string)
+				str = v.(string)
 			}
 		}
-		Ff(&b, " %s : %s |", detailCtagNames[detailIndex[f.Name]], str)
+		Ff(&b, " %s : %s |", tag.Get(f.Name), str)
 	}
 	Ff(&b, "\n")
 	return b.String()
@@ -154,14 +155,9 @@ func (d *Detail) interfaceSlice(idx int) []interface{} {
 	return res
 }
 
-func (d *Detail) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
+func (d *Detail) rowString(leading string, idx int, sizes []int, isleft bool) string {
 	data := d.stringSlice(idx)
-
-	// SubTotal
-	l := len(data)
-	data[l-2] = util.AlignToRight(data[l-2], sizes[l-2])
-
-	return sliceToString(leading, data, sizes, isleft)
+	return getDeailTableRowString(&data, leading, idx, sizes, isleft)
 }
 
 func getDeailTableRowString(data *[]string,
@@ -170,7 +166,7 @@ func getDeailTableRowString(data *[]string,
 	l := len(*data)
 	(*data)[l-2] = util.AlignToRight((*data)[l-2], sizes[l-2])
 
-	return sliceToString(leading, *data, sizes, isleft)
+	return sliceToString(leading, data, sizes, isleft)
 }
 
 // TableList :
