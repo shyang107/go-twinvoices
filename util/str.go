@@ -90,8 +90,8 @@ func IsChineseChar(str string) bool {
 	return false
 }
 
-// NewSize is filled and returns len(e), e is element of slice h
-func NewSize(h []string) []int {
+// GetSizes is filled and returns len(e), e is element of slice h
+func GetSizes(h []string) []int {
 	n := len(h)
 	sizes := make([]int, n)
 	for i := 0; i < n; i++ {
@@ -136,7 +136,7 @@ func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...i
 	lspaces := StrSpaces(nledsp)
 	nlines := ndat / nf
 
-	sizes := NewSize(heads)
+	sizes := GetSizes(heads)
 
 	for i := 0; i < nlines; i++ {
 		if i*nf+(nf-1) >= ndat {

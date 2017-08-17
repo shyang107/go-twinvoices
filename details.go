@@ -10,19 +10,21 @@ import (
 )
 
 var (
-	detailFieldNames []string
-	detailCtagNames  []string
-	detailIndex      = make(map[string]int)
+	// detailFieldNames []string
+	detailFieldNames = []string{"Head", "UINumber", "Subtotal", "Name"}
+	// detailCtagNames  []string
+	detailCtagNames = []string{"表頭", "發票號碼", "小計", "品項名稱"}
+	detailIndex     = make(map[string]int)
 )
 
 func init() {
-	var err error
-	if detailFieldNames, err = util.Names(&Detail{}, "Model"); err != nil {
-		util.Panic("retrive field names failed (%q)!", "detailFieldNames")
-	}
-	if detailCtagNames, err = util.NamesFromTag(&Detail{}, "cht", "Model"); err != nil {
-		util.Panic("retrive field-tag names failed [(%q).Tag(%q)]!", "detailCtagNames", "cht")
-	}
+	// var err error
+	// if detailFieldNames, err = util.Names(&Detail{}, "Model"); err != nil {
+	// 	util.Panic("retrive field names failed (%q)!", "detailFieldNames")
+	// }
+	// if detailCtagNames, err = util.NamesFromTag(&Detail{}, "cht", "Model"); err != nil {
+	// 	util.Panic("retrive field-tag names failed [(%q).Tag(%q)]!", "detailCtagNames", "cht")
+	// }
 	for i := 0; i < len(detailFieldNames); i++ {
 		detailIndex[detailFieldNames[i]] = i
 	}

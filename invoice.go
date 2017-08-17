@@ -12,19 +12,23 @@ import (
 )
 
 var (
-	invoiceFieldNames []string
-	invoiceCtagNames  []string
-	invoiceIndex      = make(map[string]int)
+	// invoiceFieldNames []string
+	invoiceFieldNames = []string{"Head", "State", "UINumber", "Date",
+		"SUN", "SName", "CName", "CNumber", "Total"}
+	// invoiceCtagNames  []string
+	invoiceCtagNames = []string{"表頭", "發票狀態", "發票號碼", "發票日期",
+		"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
+	invoiceIndex = make(map[string]int)
 )
 
 func init() {
-	var err error
-	if invoiceFieldNames, err = util.Names(&Invoice{}, "Model", "Details"); err != nil {
-		util.Panic("retrive field names failed (%q)!", "invoiceFieldNames")
-	}
-	if invoiceCtagNames, err = util.NamesFromTag(&Invoice{}, "cht", "Model", "Details"); err != nil {
-		util.Panic("retrive field-tag names failed [(%q).Tag(%q)]!", "invoiceCtagNames", "cht")
-	}
+	// var err error
+	// if invoiceFieldNames, err = util.Names(&Invoice{}, "Model", "Details"); err != nil {
+	// 	util.Panic("retrive field names failed (%q)!", "invoiceFieldNames")
+	// }
+	// if invoiceCtagNames, err = util.NamesFromTag(&Invoice{}, "cht", "Model", "Details"); err != nil {
+	// 	util.Panic("retrive field-tag names failed [(%q).Tag(%q)]!", "invoiceCtagNames", "cht")
+	// }
 	for i := 0; i < len(invoiceFieldNames); i++ {
 		invoiceIndex[invoiceFieldNames[i]] = i
 	}
@@ -284,7 +288,7 @@ func (v *InvoiceCollection) Table() string {
 	// nv := len(pinvs)
 	vheads := append([]string{"項次"}, invoiceCtagNames...)
 	dheads := append([]string{"項次"}, detailCtagNames...)
-	vsizes, dsizes := util.NewSize(vheads), util.NewSize(dheads)
+	vsizes, dsizes := util.GetSizes(vheads), util.GetSizes(dheads)
 	vnf, dnf := len(vheads), len(dheads)
 
 	vdata, vsizes, ddata, dsizes := v.stringSlice(vsizes, dsizes)
