@@ -100,8 +100,8 @@ func (Invoice) TableName() string {
 	return "invoices"
 }
 
-// GetArgsTable :
-func (v *Invoice) GetArgsTable(title string) string {
+// Table :
+func (v *Invoice) Table(title string) string {
 	if len(title) == 0 {
 		title = "發票清單"
 	}
@@ -112,14 +112,14 @@ func (v *Invoice) GetArgsTable(title string) string {
 	// 	v.UINumber[0:2]+"-"+v.UINumber[2:], v.Date.Format(ShortDateFormat),
 	// 	v.SUN, v.SName, v.CName, v.CNumber,
 	// 	 fmt.Sprintf("%.1f", v.Total), "[如下...]")
-	data := v.mapToInterfaceSlice(-1)
+	data := v.interfaceSlice(-1)
 	table := util.ArgsTableN(title, lensp, true, invoiceCtagNames, data...)
 	lensp = 7
 	table += GetDetailsTable(v.Details, lensp, false)
 	return table
 }
 
-func (v *Invoice) mapToInterfaceSlice(idx int) []interface{} {
+func (v *Invoice) interfaceSlice(idx int) []interface{} {
 	// if idx < 0 {
 	// 	return []interface{}{
 	// 		v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
@@ -171,7 +171,7 @@ var vcb util.ValuesCallback = func(f reflect.StructField,
 	return value, isIgnored
 }
 
-func (v *Invoice) mapToStringSlice(idx int) []string {
+func (v *Invoice) stringSlice(idx int) []string {
 	// if idx < 0 {
 	// 	return []string{
 	// 		v.Head, v.State, v.UINumber[0:2] + "-" + v.UINumber[2:],
@@ -200,7 +200,7 @@ func (v *Invoice) mapToStringSlice(idx int) []string {
 }
 
 func (v *Invoice) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
-	data := v.mapToStringSlice(idx)
+	data := v.stringSlice(idx)
 
 	// Total
 	l := len(data)
@@ -223,24 +223,41 @@ func sliceToString(leading string, data []string, sizes []int, isleft bool) stri
 	for i, d := range data {
 		sdf := util.GetColStr(d, sizes[i], isleft)
 		if i == 0 {
-			str += leading + fmt.Sprintf("%v", sdf)
+			str += leading + sdf // fmt.Sprintf("%v", sdf)
 			continue
 		}
-		str += fmt.Sprintf(" %v", sdf)
+		str += sdf //fmt.Sprintf(" %v", sdf)
 	}
 	return str
 }
 
-// getStringSlice returns all field-values to string slice and get max sizes into vsizes and dsizes
-// vdata [][]string : vdata[idx of invoices][idx of fields]
-// ddata [][][]string: ddata[idx of invoices][idx of details][idx of fields of detail]
-func getStringSlice(pinvs []*Invoice, vsizes, dsizes []int) (vdata [][]string, rvsizes []int,
+//=========================================================
+
+// InvoiceCollection is the collection of "*Invoice"
+type InvoiceCollection []*Invoice
+
+func (v InvoiceCollection) String() string {
+	var b bytes.Buffer
+	for i, p := range v {
+		fmt.Fprintf(&b, "Invoice #%d: %v", i, p)
+	}
+	return b.String()
+}
+
+// stringSlice returns all field-values to string slice and get max sizes into vsizes and dsizes
+// 	vsizes, dsizes []int : original maximum sizes w.r.t. fields
+// 	vdata [][]string : vdata[idx of invoices][idx of fields]
+// 	rvsizes []int: maiximum sizes w.r.t. fields of invoices
+// 	ddata [][][]string: ddata[idx of invoices][idx of details][idx of fields of detail]
+// 	rdsizes []int: maiximum sizes w.r.t. fields of details
+func (v *InvoiceCollection) stringSlice(vsizes, dsizes []int) (
+	vdata [][]string, rvsizes []int,
 	ddata [][][]string, rdsizes []int) {
 	rvsizes, rdsizes = vsizes, dsizes
-	vdata = make([][]string, len(pinvs))
-	ddata = make([][][]string, len(pinvs))
-	for i, p := range pinvs {
-		vdata[i] = p.mapToStringSlice(i + 1)
+	vdata = make([][]string, len(*v))
+	ddata = make([][][]string, len(*v))
+	for i, p := range *v {
+		vdata[i] = p.stringSlice(i + 1)
 		for k, f := range vdata[i] {
 			_, _, n := util.CountChars(f)
 			rvsizes[k] = util.Imax(rvsizes[k], n)
@@ -248,7 +265,7 @@ func getStringSlice(pinvs []*Invoice, vsizes, dsizes []int) (vdata [][]string, r
 
 		ddata[i] = make([][]string, len(p.Details))
 		for j, d := range p.Details {
-			ddata[i][j] = d.mapToStringSlice(j + 1)
+			ddata[i][j] = d.stringSlice(j + 1)
 			for k, f := range ddata[i][j] {
 				_, _, n := util.CountChars(f)
 				rdsizes[k] = util.Imax(rdsizes[k], n)
@@ -258,8 +275,8 @@ func getStringSlice(pinvs []*Invoice, vsizes, dsizes []int) (vdata [][]string, r
 	return vdata, rvsizes, ddata, rdsizes
 }
 
-// GetInvoicesTable returns the table string of the list of []*Invoice
-func GetInvoicesTable(pinvs []*Invoice) string {
+// Table returns the table string of the list of []*Invoice
+func (v *InvoiceCollection) Table() string {
 	// vheads := []string{"項次", "表頭", "發票狀態", "發票號碼", "發票日期",
 	// 	"商店統編", "商店店名", "載具名稱", "載具號碼", "總金額"}
 	// dheads := []string{"項次", "表頭", "發票號碼", "小計", "品項名稱"}
@@ -270,7 +287,7 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	vsizes, dsizes := util.NewSize(vheads), util.NewSize(dheads)
 	vnf, dnf := len(vheads), len(dheads)
 
-	vdata, vsizes, ddata, dsizes := getStringSlice(pinvs, vsizes, dsizes)
+	vdata, vsizes, ddata, dsizes := v.stringSlice(vsizes, dsizes)
 
 	var b bytes.Buffer
 	bws := b.WriteString
@@ -308,38 +325,38 @@ func GetInvoicesTable(pinvs []*Invoice) string {
 	}
 
 	return b.String()
+
+}
+
+// GetInvoicesTable returns the table string of the list of []*Invoice
+func GetInvoicesTable(pinvs []*Invoice) string {
+	var cl InvoiceCollection = pinvs
+	return cl.Table()
+}
+
+// List returns the brief list string of invoices
+func (v *InvoiceCollection) List() string {
+	var b bytes.Buffer
+	for ip, pv := range *v {
+		fmt.Fprintf(&b, "%s", pv.Table(util.Sf("發票 %d", ip+1)))
+	}
+	return b.String()
 }
 
 // GetInvoicesList returns the brief list string of invoices `pvs`
 func GetInvoicesList(pvs []*Invoice) string {
-	var b bytes.Buffer
-	for ip, pv := range pvs {
-		fmt.Fprintf(&b, "%s", pv.GetArgsTable(util.Sf("發票 %d", ip+1)))
-	}
-	return b.String()
-}
-
-//=========================================================
-
-// InvoiceCollection is the collection of "*Invoice"
-type InvoiceCollection []*Invoice
-
-func (v InvoiceCollection) String() string {
-	var b bytes.Buffer
-	for i, p := range v {
-		fmt.Fprintf(&b, "Invoice #%d:\n%v", i, p)
-	}
-	return b.String()
-}
-
-// GetInvoicesTable returns the table string of the list of []*Invoice
-func (v *InvoiceCollection) GetInvoicesTable() string {
-	return GetInvoicesTable(([]*Invoice)(*v))
+	var cl InvoiceCollection = pvs
+	return cl.List()
 }
 
 // Add adds `p` into `v`
 func (v *InvoiceCollection) Add(p *Invoice) {
 	*v = append(*v, p)
+}
+
+// AddToDB creats records from []*Invoice into database
+func (v *InvoiceCollection) AddToDB() {
+	dbInsertFrom(([]*Invoice)(*v))
 }
 
 // Combine combine DetailCollection into `v`
@@ -357,14 +374,4 @@ func (v *InvoiceCollection) Combine(ds *DetailCollection) {
 			}
 		}
 	}
-}
-
-// GetList returns the brief list string of invoices
-func (v *InvoiceCollection) GetList() string {
-	return GetInvoicesList(([]*Invoice)(*v))
-}
-
-// AddToDB creats records from []*Invoice into database
-func (v *InvoiceCollection) AddToDB() {
-	dbInsertFrom(([]*Invoice)(*v))
 }

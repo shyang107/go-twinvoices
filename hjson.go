@@ -56,9 +56,7 @@ func (JSONMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	if j.FileVersion > fileVersion {
 		return nil, fmt.Errorf("☠  version %d is too new to read", j.FileVersion)
 	}
-	// Plog(GetInvoicesTable(j.Invoices))
-	// Prun("    updating database ...\n")
-	Glog.Infof("Invoices list ---\n%s", j.Invoices.GetInvoicesTable())
+	Glog.Infof("Invoices table:\n%s", j.Invoices.Table())
 	j.Invoices.AddToDB()
 	return j.Invoices, nil
 }

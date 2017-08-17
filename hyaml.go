@@ -56,9 +56,7 @@ func (YAMLMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	if y.FileVersion > fileVersion {
 		return nil, fmt.Errorf("version %d is too new to read", y.FileVersion)
 	}
-	// Plog(GetInvoicesTable(y.Invoices))
-	// Prun("    updating database ...\n")
-	Glog.Infof("Invoices list ---\n%s", y.Invoices.GetInvoicesTable())
+	Glog.Infof("Invoices table:\n%s", y.Invoices.Table())
 	y.Invoices.AddToDB()
 	return y.Invoices, nil
 }

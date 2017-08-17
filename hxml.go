@@ -143,13 +143,7 @@ func (XMLMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 	for _, xinv := range pxvs.Invoices {
 		pvs.Add(xinv.toInvoice())
 	}
-	// for _, p := range pvs {
-	// 	pchk("%#q\n", *p)
-	// }
-	// Plog(GetInvoicesTable(pvs))
-	// pchk("%v\n", vsToTable(pvs))
-	// Prun("    updating database ...\n")
-	Glog.Infof("Invoices list ---\n%s", pvs.GetInvoicesTable())
+	Glog.Infof("Invoices table:\n%s", pvs.Table())
 	// pchk("%v\n", vsToTable(pvs))
 	pvs.AddToDB()
 	return &pvs, nil

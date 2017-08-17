@@ -75,7 +75,7 @@ func (d Detail) String() string {
 	return b.String()
 }
 
-func (d *Detail) mapToStringSlice(idx int) []string {
+func (d *Detail) stringSlice(idx int) []string {
 	// if idx < 0 {
 	// 	return []string{
 	// 		d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
@@ -130,7 +130,7 @@ var dcb util.ValuesCallback = func(f reflect.StructField,
 	return value, isIgnored
 }
 
-func (d *Detail) mapToInterfaceSlice(idx int) []interface{} {
+func (d *Detail) interfaceSlice(idx int) []interface{} {
 	// if idx < 0 {
 	// 	return []interface{}{
 	// 		d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
@@ -153,7 +153,7 @@ func (d *Detail) mapToInterfaceSlice(idx int) []interface{} {
 }
 
 func (d *Detail) toTableRowString(leading string, idx int, sizes []int, isleft bool) string {
-	data := d.mapToStringSlice(idx)
+	data := d.stringSlice(idx)
 
 	// SubTotal
 	l := len(data)
@@ -171,8 +171,8 @@ func getDeailTableRowString(data *[]string,
 	return sliceToString(leading, *data, sizes, isleft)
 }
 
-// GetArgsTable :
-func (d *Detail) GetArgsTable(title string, lensp int) string {
+// TableList :
+func (d *Detail) TableList(title string, lensp int) string {
 	if len(title) == 0 {
 		title = "明細清單"
 	}
@@ -182,7 +182,7 @@ func (d *Detail) GetArgsTable(title string, lensp int) string {
 	}
 	// table := util.ArgsTableN(title, lensp, false, detailCtagNames, d.Head,
 	// d.UINumber[0:2]+"-", d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
-	slice := d.mapToInterfaceSlice(-1)
+	slice := d.interfaceSlice(-1)
 	table := util.ArgsTableN(title, lensp, false, detailCtagNames, slice...)
 	return table
 }
@@ -193,8 +193,21 @@ func (Detail) TableName() string {
 	return "details"
 }
 
-// GetDetailsTable returns the table string of the list of []*Detail
-func GetDetailsTable(pds []*Detail, lensp int, isTitle bool) string {
+//=========================================================
+
+// DetailCollection is the collection of "*Detail"
+type DetailCollection []*Detail
+
+func (d DetailCollection) String() string {
+	var lines string
+	for i, p := range d {
+		lines += fmt.Sprintf("#%d: %s", i, p.String())
+	}
+	return lines
+}
+
+// Table returns the table string of the list of []*Detail
+func (d *DetailCollection) Table(lensp int, isTitle bool) string {
 	title := "明細清單"
 	if !isTitle {
 		title = ""
@@ -205,27 +218,20 @@ func GetDetailsTable(pds []*Detail, lensp int, isTitle bool) string {
 		lensp = 0
 	}
 	var data []interface{}
-	for i, d := range pds {
+	for i, p := range *d {
 		// data = append(data, i+1, d.Head,
 		// 	d.UINumber[0:2]+"-"+d.UINumber[2:], fmt.Sprintf("%.1f", d.Subtotal), d.Name)
-		data = append(data, d.mapToInterfaceSlice(i+1)...)
+		data = append(data, p.interfaceSlice(i+1)...)
 	}
 	table := util.ArgsTableN(title, lensp, true, dheads, data...)
 	return table
-}
 
-//=========================================================
-
-// DetailCollection is the collection of "*Detail"
-type DetailCollection []*Detail
-
-func (d DetailCollection) String() string {
-	return d.GetDetailsTable(0, true)
 }
 
 // GetDetailsTable returns the table string of the list of []*Detail
-func (d *DetailCollection) GetDetailsTable(lensp int, isTitle bool) string {
-	return GetDetailsTable(([]*Detail)(*d), lensp, isTitle)
+func GetDetailsTable(pds []*Detail, lensp int, isTitle bool) string {
+	var cl DetailCollection = pds
+	return cl.Table(lensp, isTitle)
 }
 
 // Add adds `p` into `v`
