@@ -78,28 +78,30 @@ func (d Detail) String() string {
 	return b.String()
 }
 
-func (d *Detail) stringSlice(idx int) []string {
-	// if idx < 0 {
-	// 	return []string{
-	// 		d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-	// 		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-	// 	}
-	// }
-	// return []string{
-	// 	fmt.Sprintf("%d", idx), d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-	// 	fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-	// }
+// TableName : set Detail's table name to be `details`
+func (Detail) TableName() string {
+	// custom table name, this is default
+	return "details"
+}
 
-	// var cb util.StrValuesCallback = make(map[string]func(value interface{}) interface{})
-	// cb["UINumber"] = func(value interface{}) interface{} {
-	// 	a := value.(string)
-	// 	return interface{}(a[0:2] + "-" + a[2:])
-	// }
-	// cb["Subtotal"] = func(value interface{}) interface{} {
-	// 	return interface{}(fmt.Sprintf("%.1f", value.(float64)))
-	// }
+// Table :
+func (d *Detail) Table(title string, lensp int) string {
+	if len(title) == 0 {
+		title = "明細清單"
+	}
+	// dheads := []string{"表頭", "發票號碼", "小計", "品項名稱"}
+	if lensp < 0 {
+		lensp = 0
+	}
+	// table := util.ArgsTableN(title, lensp, false, detailCtagNames, d.Head,
+	// d.UINumber[0:2]+"-", d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
+	slice := d.interfaceSlice(-1)
+	table := util.ArgsTableN(title, lensp, false, detailCtagNames, slice...)
+	return table
+}
 
-	out, err := util.StrValuesWithFunc(d, dcb)
+func (d *Detail) interfaceSlice(idx int) []interface{} {
+	out, err := util.ValuesWithFunc(d, dcb, "Model")
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
@@ -107,7 +109,7 @@ func (d *Detail) stringSlice(idx int) []string {
 	if idx < 0 {
 		return out
 	}
-	res := []string{fmt.Sprintf("%d", idx)}
+	res := []interface{}{fmt.Sprintf("%d", idx)}
 	res = append(res, out...)
 
 	return res
@@ -133,15 +135,8 @@ var dcb util.ValuesCallback = func(f reflect.StructField,
 	return value, isIgnored
 }
 
-func (d *Detail) interfaceSlice(idx int) []interface{} {
-	// if idx < 0 {
-	// 	return []interface{}{
-	// 		d.Head, d.UINumber[0:2] + "-" + d.UINumber[2:],
-	// 		fmt.Sprintf("%.1f", d.Subtotal), d.Name,
-	// 	}
-	// }
-
-	out, err := util.ValuesWithFunc(d, dcb, "Model")
+func (d *Detail) stringSlice(idx int) []string {
+	out, err := util.StrValuesWithFunc(d, dcb)
 	if err != nil {
 		util.Panic("retrive value of `*v` struct failed!")
 	}
@@ -149,7 +144,7 @@ func (d *Detail) interfaceSlice(idx int) []interface{} {
 	if idx < 0 {
 		return out
 	}
-	res := []interface{}{fmt.Sprintf("%d", idx)}
+	res := []string{fmt.Sprintf("%d", idx)}
 	res = append(res, out...)
 
 	return res
@@ -167,28 +162,6 @@ func getDeailTableRowString(data *[]string,
 	(*data)[l-2] = util.AlignToRight((*data)[l-2], sizes[l-2])
 
 	return sliceToString(leading, data, sizes, isleft)
-}
-
-// TableList :
-func (d *Detail) TableList(title string, lensp int) string {
-	if len(title) == 0 {
-		title = "明細清單"
-	}
-	// dheads := []string{"表頭", "發票號碼", "小計", "品項名稱"}
-	if lensp < 0 {
-		lensp = 0
-	}
-	// table := util.ArgsTableN(title, lensp, false, detailCtagNames, d.Head,
-	// d.UINumber[0:2]+"-", d.UINumber[2:], Sf("%.1f", d.Subtotal), d.Name)
-	slice := d.interfaceSlice(-1)
-	table := util.ArgsTableN(title, lensp, false, detailCtagNames, slice...)
-	return table
-}
-
-// TableName : set Detail's table name to be `details`
-func (Detail) TableName() string {
-	// custom table name, this is default
-	return "details"
 }
 
 //=========================================================

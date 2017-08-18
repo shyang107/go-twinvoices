@@ -95,10 +95,10 @@ func (CsvMarshaller) UnmarshalInvoices(fn string) (*InvoiceCollection, error) {
 		head := recs[0]
 		switch head {
 		case "M": // invoice
-			pinv := UnmarshalCSVInvoice(recs)
+			pinv := unmarshalCSVInvoice(recs)
 			vslice.Add(pinv)
 		case "D": // deltail of invoice
-			pdet := UnmarshalCSVDetail(recs)
+			pdet := unmarshalCSVDetail(recs)
 			dslice.Add(pdet)
 		}
 		return
@@ -137,8 +137,8 @@ func combineInvoice(pvs []*Invoice, pds []*Detail) {
 	}
 }
 
-// UnmarshalCSVDetail unmarshal CSV string to Detail{}
-func UnmarshalCSVDetail(recs []string) *Detail {
+// unmarshalCSVDetail unmarshal CSV string to Detail{}
+func unmarshalCSVDetail(recs []string) *Detail {
 	det := Detail{
 		Head:     recs[0],
 		UINumber: recs[1],
@@ -148,8 +148,8 @@ func UnmarshalCSVDetail(recs []string) *Detail {
 	return &det
 }
 
-// UnmarshalCSVInvoice unmarshal CSV string to Invoice{}
-func UnmarshalCSVInvoice(recs []string) *Invoice {
+// unmarshalCSVInvoice unmarshal CSV string to Invoice{}
+func unmarshalCSVInvoice(recs []string) *Invoice {
 	date, err := time.Parse(dateFormat, recs[3])
 	location, _ := time.LoadLocation("Local")
 	if err != nil {

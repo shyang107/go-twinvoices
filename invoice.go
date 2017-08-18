@@ -303,7 +303,7 @@ func (v *InvoiceCollection) Table() string {
 	var b bytes.Buffer
 	bws := b.WriteString
 
-	vn := util.Isum(vsizes...) + vnf + (vnf - 1) + 1
+	vn := util.Isum(vsizes...) + vnf*2 // + vnf + (vnf - 1) + 1
 	title := "發票清單"
 	_, _, vl := util.CountChars(title)
 	vm := (vn - vl) / 2
@@ -316,7 +316,7 @@ func (v *InvoiceCollection) Table() string {
 	vhtab += "\n" + util.StrThinLine(vn)
 
 	lspaces := util.StrSpaces(6)
-	dn := util.Isum(dsizes...) + dnf + (dnf - 1) + 1
+	dn := util.Isum(dsizes...) + dnf*2                              //+ dnf + (dnf - 1) + 1
 	dheads[dnf-2] = util.AlignToRight(dheads[dnf-2], dsizes[dnf-2]) // SubTitle
 	dhtab := lspaces + util.StrThickLine(dn)
 	dhtab += sliceToString(lspaces, &dheads, dsizes, isleft)
