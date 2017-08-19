@@ -135,6 +135,30 @@ func (v *Invoice) Table(title string) string {
 	return table
 }
 
+var vcb util.ValuesCallback = func(f reflect.StructField,
+	v interface{}) (value interface{}, isIgnored bool) {
+
+	switch v.(type) {
+	case gorm.Model, []*Detail:
+		value, isIgnored = nil, true
+	case time.Time:
+		a := v.(time.Time)
+		value, isIgnored = interface{}(a.Format(ShortDateFormat)), false
+	case float64:
+		a := v.(float64)
+		value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
+	default:
+		switch f.Name {
+		case "UINumber":
+			a := v.(string)
+			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
+		default:
+			value, isIgnored = v, false
+		}
+	}
+	return value, isIgnored
+}
+
 func (v *Invoice) interfaceSlice(idx int) []interface{} {
 	// if idx < 0 {
 	// 	return []interface{}{
@@ -161,30 +185,6 @@ func (v *Invoice) interfaceSlice(idx int) []interface{} {
 	res = append(res, out...)
 
 	return res
-}
-
-var vcb util.ValuesCallback = func(f reflect.StructField,
-	v interface{}) (value interface{}, isIgnored bool) {
-
-	switch v.(type) {
-	case gorm.Model, []*Detail:
-		value, isIgnored = nil, true
-	case time.Time:
-		a := v.(time.Time)
-		value, isIgnored = interface{}(a.Format(ShortDateFormat)), false
-	case float64:
-		a := v.(float64)
-		value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
-	default:
-		switch f.Name {
-		case "UINumber":
-			a := v.(string)
-			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
-		default:
-			value, isIgnored = v, false
-		}
-	}
-	return value, isIgnored
 }
 
 func (v *Invoice) stringSlice(idx int) []string {

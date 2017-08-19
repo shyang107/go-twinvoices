@@ -100,21 +100,6 @@ func (d *Detail) Table(title string, lensp int) string {
 	return table
 }
 
-func (d *Detail) interfaceSlice(idx int) []interface{} {
-	out, err := util.ValuesWithFunc(d, dcb, "Model")
-	if err != nil {
-		util.Panic("retrive value of `*v` struct failed!")
-	}
-
-	if idx < 0 {
-		return out
-	}
-	res := []interface{}{fmt.Sprintf("%d", idx)}
-	res = append(res, out...)
-
-	return res
-}
-
 var dcb util.ValuesCallback = func(f reflect.StructField,
 	v interface{}) (value interface{}, isIgnored bool) {
 	switch v.(type) {
@@ -133,6 +118,21 @@ var dcb util.ValuesCallback = func(f reflect.StructField,
 		}
 	}
 	return value, isIgnored
+}
+
+func (d *Detail) interfaceSlice(idx int) []interface{} {
+	out, err := util.ValuesWithFunc(d, dcb, "Model")
+	if err != nil {
+		util.Panic("retrive value of `*v` struct failed!")
+	}
+
+	if idx < 0 {
+		return out
+	}
+	res := []interface{}{fmt.Sprintf("%d", idx)}
+	res = append(res, out...)
+
+	return res
 }
 
 func (d *Detail) stringSlice(idx int) []string {
