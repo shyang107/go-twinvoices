@@ -97,14 +97,14 @@ func (v Invoice) String() string {
 				str = v.(string)
 			}
 		}
-		line += Sf(" %s : %s |", tag.Get(f.Name), str)
+		line += Sf(" %s : %s |", tag.Get("cht"), str)
 	}
 	line = strings.Trim(line, " ")
 	Ff(&b, "%v\n", line)
 
 	lspaces := util.StrSpaces(4)
 	for i, d := range v.Details {
-		Ff(&b, "%s> %2d. %s", lspaces, i+1, d)
+		Ff(&b, "%s> %2d. %s", lspaces, i+1, d.String())
 	}
 	return b.String()
 	// re, _ := regexp.Compile("^[\u4e00-\u9fa5]")
@@ -250,7 +250,7 @@ type InvoiceCollection []*Invoice
 func (v InvoiceCollection) String() string {
 	var b bytes.Buffer
 	for i, p := range v {
-		fmt.Fprintf(&b, "Invoice #%d: %v", i, p)
+		fmt.Fprintf(&b, "Invoice #%d: %v", i, p.String())
 	}
 	return b.String()
 }

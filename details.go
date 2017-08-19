@@ -72,7 +72,7 @@ func (d Detail) String() string {
 				str = v.(string)
 			}
 		}
-		Ff(&b, " %s : %s |", tag.Get(f.Name), str)
+		Ff(&b, " %s : %s |", tag.Get("cht"), str)
 	}
 	Ff(&b, "\n")
 	return b.String()
