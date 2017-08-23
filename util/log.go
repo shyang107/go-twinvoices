@@ -96,23 +96,23 @@ var (
 		"goro":    goroColorStr,
 	}
 
-	// LogfMapFuncs are the maps of golog functions
+	// LogfMapFuncs are the maps of Glog functions
 	LogfMapFuncs = map[string]func(string, ...interface{}){
-		"error": golog.Errorf,
-		"warn":  golog.Warnf,
-		"info":  golog.Infof,
-		"debug": golog.Debugf,
-		"fatal": golog.Fatalf,
+		"error": Glog.Errorf,
+		"warn":  Glog.Warnf,
+		"info":  Glog.Infof,
+		"debug": Glog.Debugf,
+		"fatal": Glog.Fatalf,
 	}
 
-	// LogMapFuncs are the maps of golog functions
+	// LogMapFuncs are the maps of Glog functions
 	LogMapFuncs = map[string]func(...interface{}){
-		"error": golog.Error,
-		"warn":  golog.Warn,
-		"info":  golog.Info,
-		"debug": golog.Debug,
-		"fatal": golog.Fatal,
-		"print": golog.Print,
+		"error": Glog.Error,
+		"warn":  Glog.Warn,
+		"info":  Glog.Info,
+		"debug": Glog.Debug,
+		"fatal": Glog.Fatal,
+		"print": Glog.Print,
 	}
 )
 

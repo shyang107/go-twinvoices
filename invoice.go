@@ -247,9 +247,9 @@ func sliceToString(leading string, data *[]string, sizes []int, isleft bool) str
 // InvoiceCollection is the collection of "*Invoice"
 type InvoiceCollection []*Invoice
 
-func (v InvoiceCollection) String() string {
+func (v *InvoiceCollection) String() string {
 	var b bytes.Buffer
-	for i, p := range v {
+	for i, p := range *v {
 		fmt.Fprintf(&b, "Invoice #%d: %v", i, p.String())
 	}
 	return b.String()
@@ -385,4 +385,51 @@ func (v *InvoiceCollection) Combine(ds *DetailCollection) {
 			}
 		}
 	}
+}
+
+//=========================================================
+
+// Outformatter is a interface to out-format of object
+type Outformatter interface {
+	Table() string
+	List() string
+	String() string
+}
+
+func printout(t Outformatter, format string, level string) {
+	var p func(...interface{})
+	var cs func(...interface{}) string
+	var ok bool
+	p, ok = util.LogMapFuncs[strings.ToLower(level)]
+	if !ok {
+		p = util.Glog.Print
+	}
+	cs, ok = util.LogColorStringFuncs[strings.ToLower(level)]
+	if !ok {
+		cs = fmt.Sprint
+	}
+
+	switch format {
+	case "table":
+		p(cs("\n", t.Table()))
+	case "list":
+		p(cs("\n", t.List()))
+	default: // "string":
+		p(cs("\n", t.String()))
+	}
+}
+
+// PrintTable print out the table format of `t`
+func PrintTable(t Outformatter) {
+	printout(t, "table", "print")
+}
+
+// PrintList print out the list format of `t`
+func PrintList(t Outformatter) {
+	printout(t, "list", "print")
+}
+
+// PrintString print out the simple format of `t`
+func PrintString(t Outformatter) {
+	printout(t, "string", "print")
 }

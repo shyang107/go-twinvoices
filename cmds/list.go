@@ -43,11 +43,14 @@ func listAction(c *cli.Context) error {
 	format := strings.ToLower(c.String("format"))
 	switch format {
 	case "pretty", "p":
-		util.Glog.Print(a.Table())
+		// util.Glog.Print(a.Table())
+		vp.PrintTable(a)
 	case "brief", "b":
-		util.Glog.Print(a.List())
+		// util.Glog.Print(a.List())
+		vp.PrintList(a)
 	default: // "simple","s"
-		util.Glog.Print(a)
+		// util.Glog.Print(a)
+		vp.PrintString(a)
 	}
 
 	os.Exit(0)
