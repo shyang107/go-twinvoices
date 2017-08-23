@@ -90,6 +90,19 @@ func DBGetAllInvoices() (*InvoiceCollection, error) {
 	return &res, nil
 }
 
+// DBGetAllInvoices get the list from database
+func (v *InvoiceCollection) DBGetAllInvoices() error {
+	util.DebugPrintCaller()
+	invs := []*Invoice{}
+	DB.Find(&invs)
+	for _, p := range invs {
+		DB.Model(&p).Association("details").Find(&p.Details)
+	}
+	var res InvoiceCollection = invs
+	v = &res
+	return nil
+}
+
 // dbInsertFrom creats records from []*Invoice into database
 func dbInsertFrom(pvs []*Invoice) {
 	cacheMu.Lock()

@@ -95,6 +95,25 @@ var (
 		"debug3":  debugColorStr2,
 		"goro":    goroColorStr,
 	}
+
+	// LogfMapFuncs are the maps of golog functions
+	LogfMapFuncs = map[string]func(string, ...interface{}){
+		"error": golog.Errorf,
+		"warn":  golog.Warnf,
+		"info":  golog.Infof,
+		"debug": golog.Debugf,
+		"fatal": golog.Fatalf,
+	}
+
+	// LogMapFuncs are the maps of golog functions
+	LogMapFuncs = map[string]func(...interface{}){
+		"error": golog.Error,
+		"warn":  golog.Warn,
+		"info":  golog.Info,
+		"debug": golog.Debug,
+		"fatal": golog.Fatal,
+		"print": golog.Print,
+	}
 )
 
 // fromLevelName return Level code w.r.t levelname
