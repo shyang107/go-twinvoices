@@ -178,31 +178,33 @@ func (d DetailCollection) String() string {
 }
 
 // Table returns the table string of the list of []*Detail
-func (d *DetailCollection) Table(lensp int, isTitle bool) string {
-	title := "明細清單"
-	if !isTitle {
+func (d *DetailCollection) Table() string {
+	pds := ([]*Detail)(*d)
+	lensp := 6
+	return GetDetailsTable(pds, lensp, "", true)
+}
+
+// GetDetailsTable returns the table string of the list of []*Detail
+func GetDetailsTable(pds []*Detail, lensp int, title string, isTitle bool) string {
+	if isTitle {
+		if len(title) == 0 {
+			title = "明細清單"
+		}
+	} else {
 		title = ""
 	}
+
 	dheads := []string{"項次"} //, "表頭", "發票號碼", "小計", "品項名稱"}
 	dheads = append(dheads, detailCtagNames...)
 	if lensp < 0 {
 		lensp = 0
 	}
 	var data []interface{}
-	for i, p := range *d {
-		// data = append(data, i+1, d.Head,
-		// 	d.UINumber[0:2]+"-"+d.UINumber[2:], fmt.Sprintf("%.1f", d.Subtotal), d.Name)
+	for i, p := range pds {
 		data = append(data, p.interfaceSlice(i+1)...)
 	}
 	table := util.ArgsTableN(title, lensp, true, dheads, data...)
 	return table
-
-}
-
-// GetDetailsTable returns the table string of the list of []*Detail
-func GetDetailsTable(pds []*Detail, lensp int, isTitle bool) string {
-	var cl DetailCollection = pds
-	return cl.Table(lensp, isTitle)
 }
 
 // Add adds `p` into `v`

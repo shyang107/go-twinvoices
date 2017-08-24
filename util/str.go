@@ -153,7 +153,7 @@ func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...i
 	bw := b.WriteString
 
 	// strfmt := Sf("%%v  %%v  %%v\n")
-	n := Isum(sizes...) + nf + (nf-1)*2 + 1 // sizes[0] + sizes[1] + sizes[2] + 3 + 4
+	n := Isum(sizes...) + nf*2 // sizes[0] + sizes[1] + sizes[2] + 3 + 4
 
 	if len(title) > 0 {
 		_, _, l := CountChars(title)
@@ -169,7 +169,7 @@ func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...i
 		case 0:
 			bw(Sf("%v", lspaces+sfields[i]))
 		default:
-			bw(Sf("  %v", sfields[i]))
+			bw(Sf(" %v", sfields[i]))
 		}
 	}
 	bw("\n")
@@ -181,7 +181,7 @@ func ArgsTableN(title string, nledsp int, isleft bool, heads []string, data ...i
 			case 0:
 				bw(Sf("%v", lspaces+sfields[j]))
 			default:
-				bw(Sf("  %v", sfields[j]))
+				bw(Sf(" %v", sfields[j]))
 			}
 		}
 		bw("\n")
