@@ -1,0 +1,43 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+init	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func init() {$/;"	func	line:46
+err	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	\/\/ var err error$/;"	var	line:47
+Invoice	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^type Invoice struct {$/;"	type	line:65
+String	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v Invoice) String() string {$/;"	func	line:86
+b	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var b bytes.Buffer$/;"	var	line:88
+str	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var str, line string$/;"	var	line:91
+TableName	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (Invoice) TableName() string {$/;"	func	line:126
+Table	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *Invoice) Table(title string) string {$/;"	func	line:132
+vcb	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^var vcb util.ValuesCallback = func(f reflect.StructField,$/;"	var	line:150
+interfaceSlice	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *Invoice) interfaceSlice(idx int) []interface{} {$/;"	func	line:174
+stringSlice	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *Invoice) stringSlice(idx int) []string {$/;"	func	line:202
+rowString	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *Invoice) rowString(leading string, idx int, sizes []int, isleft bool) string {$/;"	func	line:230
+getInvoiceTableRowString	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func getInvoiceTableRowString(data *[]string,$/;"	func	line:235
+sliceToString	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func sliceToString(leading string, data *[]string, sizes []int, isleft bool) string {$/;"	func	line:244
+InvoiceCollection	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^type InvoiceCollection []*Invoice$/;"	type	line:260
+String	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *InvoiceCollection) String() string {$/;"	func	line:262
+b	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var b bytes.Buffer$/;"	var	line:263
+stringSlice	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *InvoiceCollection) stringSlice(vsizes, dsizes []int) ($/;"	func	line:276
+Table	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *InvoiceCollection) Table() string {$/;"	func	line:302
+b	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var b bytes.Buffer$/;"	var	line:315
+GetInvoicesTable	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func GetInvoicesTable(pinvs []*Invoice) string {$/;"	func	line:355
+cl	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var cl InvoiceCollection = pinvs$/;"	var	line:356
+List	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *InvoiceCollection) List() string {$/;"	func	line:361
+b	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var b bytes.Buffer$/;"	var	line:362
+GetInvoicesList	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func GetInvoicesList(pvs []*Invoice) string {$/;"	func	line:370
+cl	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var cl InvoiceCollection = pvs$/;"	var	line:371
+Add	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *InvoiceCollection) Add(p *Invoice) {$/;"	func	line:376
+AddToDB	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *InvoiceCollection) AddToDB() {$/;"	func	line:381
+Combine	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func (v *InvoiceCollection) Combine(ds *DetailCollection) {$/;"	func	line:386
+Outformatter	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^type Outformatter interface {$/;"	type	line:405
+printout	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func printout(t Outformatter, format string, level string) {$/;"	func	line:411
+p	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var p func(...interface{})$/;"	var	line:412
+cs	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var cs func(...interface{}) string$/;"	var	line:413
+ok	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^	var ok bool$/;"	var	line:414
+PrintTable	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func PrintTable(t Outformatter) {$/;"	func	line:435
+PrintList	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func PrintList(t Outformatter) {$/;"	func	line:440
+PrintString	/Users/shyang/Dropbox/Golang/vendor/src/github.com/shyang107/go-twinvoices/invoice.go	/^func PrintString(t Outformatter) {$/;"	func	line:445

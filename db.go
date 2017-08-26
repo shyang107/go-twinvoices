@@ -34,6 +34,7 @@ func Initialdb() error {
 		err := os.RemoveAll(fl)
 		if err != nil {
 			// panic(err)
+			util.DebugPrintCaller()
 			Glog.Error(err)
 			return err
 		}

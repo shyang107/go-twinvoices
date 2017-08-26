@@ -11,6 +11,18 @@ import (
 	"github.com/shyang107/go-twinvoices/util"
 )
 
+const (
+	idxHead = iota
+	idxState
+	idxUINumber
+	idxDate
+	idxSUN
+	idxSName
+	idxCName
+	idxCNumber
+	idxTotal
+)
+
 var (
 	// invoiceFieldNames []string
 	invoiceFieldNames = []string{"Head", "State", "UINumber", "Date",
@@ -91,7 +103,7 @@ func (v Invoice) String() string {
 			str = Sf("%.1f", v.(float64))
 		default:
 			switch f.Name {
-			case "UINumber":
+			case invoiceFieldNames[idxUINumber]: // "UINumber":
 				str = v.(string)[0:2] + "-" + v.(string)[2:]
 			default:
 				str = v.(string)
@@ -130,7 +142,7 @@ func (v *Invoice) Table(title string) string {
 	// 	 fmt.Sprintf("%.1f", v.Total), "[如下...]")
 	data := v.interfaceSlice(-1)
 	table := util.ArgsTableN(title, lensp, true, invoiceCtagNames, data...)
-	lensp = 7
+	lensp = 6
 	table += GetDetailsTable(v.Details, lensp, "", false)
 	return table
 }
@@ -149,7 +161,7 @@ var vcb util.ValuesCallback = func(f reflect.StructField,
 		value, isIgnored = interface{}(fmt.Sprintf("%.1f", a)), false
 	default:
 		switch f.Name {
-		case "UINumber":
+		case invoiceFieldNames[idxUINumber]: // "UINumber":
 			a := v.(string)
 			value, isIgnored = interface{}(a[0:2]+"-"+a[2:]), false
 		default:
@@ -237,7 +249,7 @@ func sliceToString(leading string, data *[]string, sizes []int, isleft bool) str
 			str += leading + sdf // fmt.Sprintf("%v", sdf)
 			continue
 		}
-		str += sdf //fmt.Sprintf(" %v", sdf)
+		str += " " + sdf //fmt.Sprintf(" %v", sdf)
 	}
 	return str
 }
@@ -303,7 +315,7 @@ func (v *InvoiceCollection) Table() string {
 	var b bytes.Buffer
 	bws := b.WriteString
 
-	vn := util.Isum(vsizes...) + vnf + 1 // + vnf + (vnf - 1) + 1
+	vn := util.Isum(vsizes...) + 2*vnf // + vnf + (vnf - 1) + 1
 	title := "發票清單"
 	_, _, vl := util.CountChars(title)
 	vm := (vn - vl) / 2
@@ -315,8 +327,8 @@ func (v *InvoiceCollection) Table() string {
 	vhtab += sliceToString("", &vheads, vsizes, isleft)
 	vhtab += "\n" + util.StrThinLine(vn)
 
-	lspaces := util.StrSpaces(6)
-	dn := util.Isum(dsizes...) + dnf + 1                            //+ dnf + (dnf - 1) + 1
+	lspaces := util.StrSpaces(5)
+	dn := util.Isum(dsizes...) + dnf*2                              //+ dnf + (dnf - 1) + 1
 	dheads[dnf-2] = util.AlignToRight(dheads[dnf-2], dsizes[dnf-2]) // SubTitle
 	dhtab := lspaces + util.StrThickLine(dn)
 	dhtab += sliceToString(lspaces, &dheads, dsizes, isleft)

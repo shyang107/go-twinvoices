@@ -39,16 +39,15 @@ func executeAction(c *cli.Context) error {
 	if len(fln) > 0 {
 		if !util.IsFileExist(fln) {
 			// ut.Perr("The specified case-configuration-file %q does not exist!\n", fln)
-			util.Glog.Errorf("The specified case-configuration-file %q does not exist!", fln)
-			os.Exit(-1)
+			util.Glog.Fatalf("The specified case-configuration-file %q does not exist!", fln)
 		}
 		vp.Cfg.CaseFilename = fln
 	}
 
 	if err := execute(); err != nil { // run procedures of program
 		// ut.Pwarn(err.Error())
-		util.Glog.Error(err.Error())
-		os.Exit(-1)
+		util.DebugPrintCaller()
+		util.Glog.Fatal(err.Error())
 	}
 	return nil
 }

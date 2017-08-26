@@ -9,6 +9,13 @@ import (
 	"github.com/shyang107/go-twinvoices/util"
 )
 
+const (
+	idxDetHead = iota
+	idxDetUINumber
+	idxDetSubtotal
+	idxDetName
+)
+
 var (
 	// detailFieldNames []string
 	detailFieldNames = []string{"Head", "UINumber", "Subtotal", "Name"}
@@ -66,7 +73,7 @@ func (d Detail) String() string {
 			str = Sf("%.1f", v.(float64))
 		default:
 			switch f.Name {
-			case "UINumber":
+			case detailFieldNames[idxDetUINumber]: // "UINumber":
 				str = v.(string)[0:2] + "-" + v.(string)[2:]
 			default:
 				str = v.(string)

@@ -103,24 +103,45 @@
 #   - filename: ./out/09102989061-5.yaml
 #     suffix: .yaml
 #     isoutput: true
-- title: 'CASE #6: [09102989061-6]'
+# - title: 'CASE #6: [09102989061-6]'
+#   input:
+#     filename: ./inp/09102989061-6.csv
+#     suffix: .csv
+#     isbig5: true
+#   outputs:
+#   - filename: ./out/09102989061-6u.csv
+#     suffix: .csv
+#     isoutput: true
+#   - filename: ./out/09102989061-6.json
+#     suffix: .json
+#     isoutput: true
+#   - filename: ./out/09102989061-6.xml
+#     suffix: .xml
+#     isoutput: true
+#   - filename: ./out/09102989061-6.xlsx
+#     suffix: .xlsx
+#     isoutput: true
+#   - filename: ./out/09102989061-6.yaml
+#     suffix: .yaml
+#     isoutput: true
+- title: 'CASE #7: [09102989061-7]'
   input:
-    filename: ./inp/09102989061-6.csv
+    filename: ./inp/09102989061-7.csv
     suffix: .csv
     isbig5: true
   outputs:
-  - filename: ./out/09102989061-6u.csv
+  - filename: ./out/09102989061-7u.csv
     suffix: .csv
     isoutput: true
-  - filename: ./out/09102989061-6.json
+  - filename: ./out/09102989061-7.json
     suffix: .json
     isoutput: true
-  - filename: ./out/09102989061-6.xml
+  - filename: ./out/09102989061-7.xml
     suffix: .xml
     isoutput: true
-  - filename: ./out/09102989061-6.xlsx
+  - filename: ./out/09102989061-7.xlsx
     suffix: .xlsx
     isoutput: true
-  - filename: ./out/09102989061-6.yaml
+  - filename: ./out/09102989061-7.yaml
     suffix: .yaml
     isoutput: true
