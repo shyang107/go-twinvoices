@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 )
 
 // FileBunker use to backup original file of invoices

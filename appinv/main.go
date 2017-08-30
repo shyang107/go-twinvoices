@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/shyang107/go-twinvoices/cmds"
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 )
 
 func init() {

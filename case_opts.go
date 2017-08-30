@@ -6,8 +6,7 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/shyang107/go-twinvoices/util"
-	// "github.com/shyang/invoices/inv/goini"
+	util "github.com/shyang107/gout"
 )
 
 var (

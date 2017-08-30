@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/jinzhu/gorm"
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 	// use for sqlite
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )

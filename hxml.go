@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/cpmech/gosl/io"
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 )
 
 type (

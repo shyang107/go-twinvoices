@@ -3,7 +3,7 @@ package invoices
 import (
 	"fmt"
 
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 	yaml "gopkg.in/yaml.v2"
 )
 

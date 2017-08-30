@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 )
 
 // Suffix contains file types

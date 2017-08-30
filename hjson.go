@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/json-iterator/go"
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 )
 
 // JSONInvoices is used for JSON file type

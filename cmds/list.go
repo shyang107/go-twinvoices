@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	vp "github.com/shyang107/go-twinvoices"
-	"github.com/shyang107/go-twinvoices/util"
+	util "github.com/shyang107/gout"
 	"github.com/urfave/cli"
 )
 
