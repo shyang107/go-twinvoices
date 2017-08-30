@@ -35,8 +35,8 @@ func BytesSizeToString(byteCount int) string {
 	return strnum
 }
 
-// ConvertBytesToString convert []byte to string
-func ConvertBytesToString(bs []byte) string {
+// BtoStr convert []byte to string
+func BtoStr(bs []byte) string {
 	return *(*string)(unsafe.Pointer(&bs))
 }
 
